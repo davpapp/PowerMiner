@@ -1,3 +1,14 @@
+/*
+ * Represents each mouse path as an ArrayList of points.
+ * 
+ * Testing: 
+ * 	- Each point must be valid.
+ *  - Timespan is reasonable
+ *  - Does not go off screen
+ *  
+ *  
+ */
+
 import java.util.ArrayList;
 
 public class MousePath {
@@ -6,6 +17,7 @@ public class MousePath {
 	private int numPoints;
 	private Point startingPoint;
 	private Point endingPoint;
+	private int timespan;
 		
 	public MousePath(ArrayList<Point> _path)
 	{
@@ -15,9 +27,9 @@ public class MousePath {
 			path.add(pointCopy);
 		}
 		numPoints = path.size();
-		System.out.println("Created copy with size: " + path.size());
-		//startingPoint = path.get(0);
-		//endingPoint = path.get(numPoints - 1);
+		startingPoint = path.get(0);
+		endingPoint = path.get(numPoints - 1);
+		timespan = endingPoint.getTime() - startingPoint.getTime();
 	}
 	
 	public ArrayList<Point> getPath() {
@@ -32,5 +44,6 @@ public class MousePath {
 		for (Point p : path) {
 			System.out.println("(" + p.getX() + ", " + p.getY() + "), " + p.getTime());
 		}
+		System.out.println("Length:" + numPoints + ", Timespan:" + timespan);
 	}
 }

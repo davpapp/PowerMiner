@@ -1,4 +1,10 @@
-
+/* Reads a file of coordinates
+ * 
+ * 
+ * Testing:
+ * 	- Only valid coordinates are added (through regex)
+ *  - 
+ */
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -21,32 +27,33 @@ public class Mouse {
 			File file = new File(path);
 			FileReader fileReader = new FileReader(file);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			Pattern linePattern = Pattern.compile("x:[0-9]* y:[0-9]* [0-9]*");
+			Pattern linePattern = Pattern.compile("[0-9]*,[0-9]*,[0-9]*$");
 			
 			String line;
 			Point lastPoint = new Point(0, 0, 0);
 			int numberOfRepeats = 0;
 			ArrayList<Point> currentPath = new ArrayList<Point>();
 			currentPath.add(lastPoint);
-			
-			//int count = 0;
+
 			while ((line = bufferedReader.readLine()) != null) {
 				if (!isLineValid(line, linePattern)) {
 					System.out.println(line + " does not match regex -- SKIPPING");
 					continue;
 				}
-				//count += 1;
-				//if (count > 1000) break;
+
 				Point point = getPointFromLine(line);
+				if (!point.isValid()) {
+					continue;
+				}
 				
-				if (point.getX() == lastPoint.getX() && point.getY() == lastPoint.getY()) {
-					numberOfRepeats += 1;
-					//System.out.println("Mouse at same point...");
+				if (point.hasSameLocation(lastPoint)) {
+					numberOfRepeats++;
 					if (numberOfRepeats == 20) {
-						//System.out.println("Creating new path!");
-						//System.out.println("Current path length:" + currentPath.size());
+						if (currentPath.size() < 5) {
+							continue;
+						}
 						MousePath newPath = new MousePath(currentPath);
-						mousePaths.add(newPath);
+						mousePaths.add(newPath); // Deep copies
 						currentPath.clear();
 					}
 				}
@@ -56,7 +63,6 @@ public class Mouse {
 				}
 				lastPoint = point;
 			}
-			
 			fileReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -72,12 +78,8 @@ public class Mouse {
 	}
 	
 	private Point getPointFromLine(String line) {
-		String[] parts = line.split(Pattern.quote(":"));
-		/*System.out.println(line);
-		System.out.println(parts[0]);
-		System.out.println(parts[1]);
-		System.out.println(parts[2]);*/
-		return new Point(0, 0, 0);
+		String[] parts = line.split(Pattern.quote(","));
+		return new Point(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
 	}
 	
 	public void displayPaths() {
@@ -85,5 +87,6 @@ public class Mouse {
 			path.display();
 			System.out.println("----------------------------------------------------------");
 		}
+		System.out.println("There are " + mousePaths.size() + " paths.");
 	}
 }
