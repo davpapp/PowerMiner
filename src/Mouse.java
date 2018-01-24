@@ -89,4 +89,13 @@ public class Mouse {
 		}
 		System.out.println("There are " + mousePaths.size() + " paths.");
 	}
+	
+	public int getNumberOfPaths() {
+		return mousePaths.size();
+	}
+	
+	public ArrayList<MousePath> getMousePaths() {
+		return mousePaths;
+		
+	}
 }

@@ -1,12 +1,5 @@
 /*
  * Represents each mouse path as an ArrayList of points.
- * 
- * Testing: 
- * 	- Each point must be valid.
- *  - Timespan is reasonable
- *  - Does not go off screen
- *  
- *  
  */
 
 import java.util.ArrayList;
