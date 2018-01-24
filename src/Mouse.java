@@ -46,7 +46,7 @@ public class Mouse {
 					continue;
 				}
 				
-				if (point.hasSameLocation(lastPoint)) {
+				if (point.isSameLocation(lastPoint)) {
 					numberOfRepeats++;
 					if (numberOfRepeats == 20) {
 						if (currentPath.size() < 5) {

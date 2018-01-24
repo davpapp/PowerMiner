@@ -26,8 +26,12 @@ public class Point {
 		return time;
 	}
 	
-	public boolean hasSameLocation(Point p2) {
+	public boolean isSameLocation(Point p2) {
 		return (this.x == p2.getX() && this.y == p2.getY());
+	}
+	
+	public double distance(Point p2) {
+		return Math.hypot(this.x - p2.getX(), this.y - p2.getY());
 	}
 	
 	@Override
@@ -46,6 +50,6 @@ public class Point {
 	}
 	
 	public boolean isValid() {
-		return (x >= 0 && x < 1920 && y >= 0 && y < 1920 && time >= 0);
+		return (x >= 0 && x < 1920 && y >= 0 && y < 1080 && time >= 0);
 	}
 }

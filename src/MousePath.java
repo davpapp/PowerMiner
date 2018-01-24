@@ -33,6 +33,10 @@ public class MousePath {
 		return numPoints;
 	}
 	
+	public int getTimespan() {
+		return timespan;
+	}
+	
 	public void display() {
 		for (Point p : path) {
 			System.out.println("(" + p.getX() + ", " + p.getY() + "), " + p.getTime());
