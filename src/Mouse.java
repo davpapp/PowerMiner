@@ -1,10 +1,8 @@
 /* Reads a file of coordinates
- * 
- * 
- * Testing:
- * 	- Only valid coordinates are added (through regex)
- *  - 
  */
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -16,10 +14,26 @@ import java.util.regex.Pattern;
 public class Mouse {
 	
 	private ArrayList<MousePath> mousePaths;
+	PointerInfo pointer;
 	
 	public Mouse(String path) {
+		pointer = MouseInfo.getPointerInfo();
 		mousePaths = new ArrayList<MousePath>();
 		readFile(path);
+	}
+	
+	public void moveMouse(int xGoal, int yGoal) {
+		Point startingPoint = pointer.getLocation();
+		int x = (int) startingPoint.getX();
+		int y = (int) startingPoint.getY();
+		
+		for (MousePath mousePath : mousePaths) {
+			MousePoint pathStartingPoint = mousePath.getStartingPoint();
+			if (pathStartingPoint.distance(startingPoint) < 20.0) {
+				System.out.println("Found possible path!");
+				mousePath.display();
+			}
+		}
 	}
 	
 	public void readFile(String path) {
@@ -30,9 +44,9 @@ public class Mouse {
 			Pattern linePattern = Pattern.compile("[0-9]*,[0-9]*,[0-9]*$");
 			
 			String line;
-			Point lastPoint = new Point(0, 0, 0);
+			MousePoint lastPoint = new MousePoint(0, 0, 0);
 			int numberOfRepeats = 0;
-			ArrayList<Point> currentPath = new ArrayList<Point>();
+			ArrayList<MousePoint> currentPath = new ArrayList<MousePoint>();
 			currentPath.add(lastPoint);
 
 			while ((line = bufferedReader.readLine()) != null) {
@@ -41,7 +55,7 @@ public class Mouse {
 					continue;
 				}
 
-				Point point = getPointFromLine(line);
+				MousePoint point = getPointFromLine(line);
 				if (!point.isValid()) {
 					continue;
 				}
@@ -77,9 +91,22 @@ public class Mouse {
 		return false;
 	}
 	
-	private Point getPointFromLine(String line) {
+	private MousePoint getPointFromLine(String line) {
 		String[] parts = line.split(Pattern.quote(","));
-		return new Point(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+		return new MousePoint(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+	}
+	
+	
+	
+	/// ---------------------- Getters ----------------------------------------
+	
+	
+	public int getNumberOfPaths() {
+		return mousePaths.size();
+	}
+	
+	public ArrayList<MousePath> getMousePaths() {
+		return mousePaths;	
 	}
 	
 	public void displayPaths() {
@@ -88,14 +115,5 @@ public class Mouse {
 			System.out.println("----------------------------------------------------------");
 		}
 		System.out.println("There are " + mousePaths.size() + " paths.");
-	}
-	
-	public int getNumberOfPaths() {
-		return mousePaths.size();
-	}
-	
-	public ArrayList<MousePath> getMousePaths() {
-		return mousePaths;
-		
 	}
 }

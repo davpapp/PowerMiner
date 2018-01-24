@@ -1,10 +1,12 @@
-public class Point {
+import java.awt.Point;
+
+public class MousePoint {
 	
 	private int x;
 	private int y;
 	private int time;
 	
-	public Point(int _x, int _y, int _time)
+	public MousePoint(int _x, int _y, int _time)
 	{
 		x = _x;
 		y = _y;
@@ -26,8 +28,12 @@ public class Point {
 		return time;
 	}
 	
-	public boolean isSameLocation(Point p2) {
+	public boolean isSameLocation(MousePoint p2) {
 		return (this.x == p2.getX() && this.y == p2.getY());
+	}
+	
+	public double distance(MousePoint p2) {
+		return Math.hypot(this.x - p2.getX(), this.y - p2.getY());
 	}
 	
 	public double distance(Point p2) {
@@ -39,11 +45,11 @@ public class Point {
 	    if (obj == null) {
 	        return false;
 	    }
-	    if (!(obj instanceof Point)) {
+	    if (!(obj instanceof MousePoint)) {
             return false;
         }
          
-	    Point p = (Point) obj;
+	    MousePoint p = (MousePoint) obj;
         
        // Compare the data members and return accordingly 
        return (this.x == p.x && this.y == p.y && this.time == p.time);

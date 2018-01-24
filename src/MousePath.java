@@ -6,17 +6,17 @@ import java.util.ArrayList;
 
 public class MousePath {
 		
-	private ArrayList<Point> path;
+	private ArrayList<MousePoint> path;
 	private int numPoints;
-	private Point startingPoint;
-	private Point endingPoint;
+	private MousePoint startingPoint;
+	private MousePoint endingPoint;
 	private int timespan;
 		
-	public MousePath(ArrayList<Point> _path)
+	public MousePath(ArrayList<MousePoint> _path)
 	{
-		path = new ArrayList<Point>(_path.size());
-		for (Point point : _path) {
-			Point pointCopy = new Point(point.getX(), point.getY(), point.getTime());
+		path = new ArrayList<MousePoint>(_path.size());
+		for (MousePoint point : _path) {
+			MousePoint pointCopy = new MousePoint(point.getX(), point.getY(), point.getTime());
 			path.add(pointCopy);
 		}
 		numPoints = path.size();
@@ -25,7 +25,7 @@ public class MousePath {
 		timespan = endingPoint.getTime() - startingPoint.getTime();
 	}
 	
-	public ArrayList<Point> getPath() {
+	public ArrayList<MousePoint> getPath() {
 		return path;
 	}
 	
@@ -37,8 +37,16 @@ public class MousePath {
 		return timespan;
 	}
 	
+	public MousePoint getStartingPoint() {
+		return startingPoint;
+	}
+	
+	public MousePoint getEndingPoint() {
+		return endingPoint;
+	}
+	
 	public void display() {
-		for (Point p : path) {
+		for (MousePoint p : path) {
 			System.out.println("(" + p.getX() + ", " + p.getY() + "), " + p.getTime());
 		}
 		System.out.println("Length:" + numPoints + ", Timespan:" + timespan);
