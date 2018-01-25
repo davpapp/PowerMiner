@@ -7,7 +7,7 @@ public class main {
 	
 		System.out.println("Starting mouse script...");
 		System.out.println("Fetching mouse paths from script...");
-		Mouse mouse = new Mouse("/home/dpapp/GhostMouse/coordinates.txt");
+		Mouse mouse = new Mouse("/home/dpapp/GhostMouse/coordinates.txt", 1920, 1080);
 		mouse.displayPaths();
 		System.out.println("Finished...");
 	}

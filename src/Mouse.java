@@ -13,14 +13,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Mouse {
-	private HashMap<Integer[], ArrayList<MousePath>> gridMap;
+	private ArrayList<ArrayList<ArrayList<MousePath>>> grid;
+	int granularity;
 	//private ArrayList<MousePath> mousePaths;
+	private int windowWidth;
+	private int windowHeight;
 	PointerInfo pointer;
 	
-	public Mouse(String path) {
+	public Mouse(String path, int windowWidth, int windowHeight) {
+		this.windowWidth = windowWidth;
+		this.windowHeight = windowHeight;
+		granularity = 10;
 		// TODO: Is there another way to get the pointer location??
 		pointer = MouseInfo.getPointerInfo();
-		gridMap = new HashMap<Integer[], ArrayList<MousePath>>();
+		
+		grid = new ArrayList<ArrayList<ArrayList<MousePath>>>();
+		for (int i = 0; i < 2 * (windowWidth / granularity) + 1; i++) {
+			grid.add(new ArrayList<ArrayList<MousePath>>());
+			for (int j = 0; j < 2 * (windowHeight / granularity) + 1; j++) {
+				grid.get(i).add(new ArrayList<MousePath>());
+			}
+		}
+		
+		System.out.println("Grid size: " + grid.size() + "x" + grid.get(0).size());
 		ArrayList<MousePath> mousePaths = readFile(path);
 		assignPathsToGrid(mousePaths);
 	}
@@ -29,7 +44,7 @@ public class Mouse {
 		int[] mouseLoc = getMouseLocation();
 		int deltaX = endingX - mouseLoc[0];
 		int deltaY = endingY - mouseLoc[1];
-		Integer[] gridKey = getGridMapKey(deltaX, deltaY);
+		int[] gridIndex = getGridIndex(deltaX, deltaY);
 		
 		// Fetch from map
 	}
@@ -44,36 +59,23 @@ public class Mouse {
 	}
 	
 	
-	public Integer[] getGridMapKey(int deltaX, int deltaY) {
-		Integer[] gridKey = {deltaX / 100, deltaY / 100};
-		return gridKey;	
+	public int[] getGridIndex(int deltaX, int deltaY) {
+		int offsetX = windowWidth / granularity;
+		int offsetY = windowHeight / granularity;
+		int[] gridIndex = {deltaX / granularity + offsetX, deltaY / granularity + offsetY};
+		return gridIndex;	
 	}
 	
 	public void assignPathsToGrid(ArrayList<MousePath> mousePaths) {
-		Integer[] key1 = getGridMapKey(0, 0);
-		Integer[] key2 = getGridMapKey(0, 0);
-		gridMap.put(key1, new ArrayList<MousePath>());
-		if (gridMap.containsKey(key2)) {
-			System.out.println("same key!");
-		}
-		if (gridMap.containsKey(key1)) {
-			System.out.println("Same key2!");
-		}
-		/*for (MousePath mousePath : mousePaths) {
+		for (MousePath mousePath : mousePaths) {
 			int deltaX = mousePath.getDeltaX();
 			int deltaY = mousePath.getDeltaY();
-			Integer[] gridKey = getGridMapKey(deltaX, deltaY);
-			
-			if (gridMap.containsKey(gridKey)) {
-				System.out.println("Same category!");
-				gridMap.get(gridKey).add(mousePath);
-			}
-			else {
-				ArrayList<MousePath> newPath = new ArrayList<MousePath>();
-				newPath.add(mousePath);
-				gridMap.put(gridKey, newPath);
-			}			
-		}*/
+
+			int[] gridIndex = getGridIndex(deltaX, deltaY);
+			//System.out.println(deltaX + "," + deltaY);
+			//System.out.println("index: " + gridIndex[0] + "," + gridIndex[1]);
+			grid.get(gridIndex[0]).get(gridIndex[1]).add(mousePath);
+		}
 	}
 	
 	public ArrayList<MousePath> readFile(String path) {
@@ -140,18 +142,13 @@ public class Mouse {
 	
 	
 	public void displayPaths() {
-		System.out.println("Displaying paths in HashMap...");
-		for (HashMap.Entry<Integer[], ArrayList<MousePath>> entry : gridMap.entrySet()) {
-			Integer[] gridKey = entry.getKey();
-			System.out.println("Key is: (" + gridKey[0] + ", " + gridKey[1] + ")");
-			
-			ArrayList<MousePath> mousePaths = entry.getValue();
-			System.out.println("There are " + mousePaths.size() + " paths with these deltas.");
-			for (MousePath path : mousePaths) {
-				//path.display();
-				System.out.println("----------------------------------------------------------");
+		for (int i = 0; i < 2 * (windowWidth / granularity) + 1; i++) {
+			for (int j = 0; j < 2 * (windowHeight / granularity) + 1; j++) {
+				if (grid.get(i).get(j).size() > 0) {
+					System.out.println("(" + i + "," + j + ")");
+					System.out.println("There are " + grid.get(i).get(j).size() + " paths in this delta range.");
+				}
 			}
-			System.out.println("Size of HashMap: " + gridMap.size());
 		}
 	}
 }
