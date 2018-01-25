@@ -36,10 +36,14 @@ public class MousePath {
 		}
 		numPoints = path.size();
 		MousePoint startingPoint = path.get(0);
+		MousePoint endingPoint = path.get(numPoints - 1);
 		boundUp = maxY - startingPoint.getY();
 		boundDown = startingPoint.getY() - minY;
 		boundLeft = startingPoint.getX() - minX;
 		boundRight = maxX - startingPoint.getX();
+		
+		deltaX = endingPoint.getX() - startingPoint.getX();
+		deltaY = endingPoint.getY() - startingPoint.getY();
 		
 		timespan = path.get(numPoints - 1).getTime() - startingPoint.getTime();
 	}

@@ -8,35 +8,76 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Mouse {
-	
-	private ArrayList<MousePath> mousePaths;
+	private HashMap<Integer[], ArrayList<MousePath>> gridMap;
+	//private ArrayList<MousePath> mousePaths;
 	PointerInfo pointer;
 	
 	public Mouse(String path) {
+		// TODO: Is there another way to get the pointer location??
 		pointer = MouseInfo.getPointerInfo();
-		mousePaths = new ArrayList<MousePath>();
-		readFile(path);
+		gridMap = new HashMap<Integer[], ArrayList<MousePath>>();
+		ArrayList<MousePath> mousePaths = readFile(path);
+		assignPathsToGrid(mousePaths);
 	}
 	
-	public void moveMouse(int xGoal, int yGoal) {
+	public void moveMouse(int endingX, int endingY) {
+		int[] mouseLoc = getMouseLocation();
+		int deltaX = endingX - mouseLoc[0];
+		int deltaY = endingY - mouseLoc[1];
+		Integer[] gridKey = getGridMapKey(deltaX, deltaY);
+		
+		// Fetch from map
+	}
+	
+
+	public int[] getMouseLocation() {
 		Point startingPoint = pointer.getLocation();
 		int x = (int) startingPoint.getX();
 		int y = (int) startingPoint.getY();
-		
-		for (MousePath mousePath : mousePaths) {
-			MousePoint pathStartingPoint = mousePath.getStartingPoint();
-			if (pathStartingPoint.distance(startingPoint) < 20.0) {
-				System.out.println("Found possible path!");
-				mousePath.display();
-			}
-		}
+		int loc[] = {x, y};
+		return loc;
 	}
 	
-	public void readFile(String path) {
+	
+	public Integer[] getGridMapKey(int deltaX, int deltaY) {
+		Integer[] gridKey = {deltaX / 100, deltaY / 100};
+		return gridKey;	
+	}
+	
+	public void assignPathsToGrid(ArrayList<MousePath> mousePaths) {
+		Integer[] key1 = getGridMapKey(0, 0);
+		Integer[] key2 = getGridMapKey(0, 0);
+		gridMap.put(key1, new ArrayList<MousePath>());
+		if (gridMap.containsKey(key2)) {
+			System.out.println("same key!");
+		}
+		if (gridMap.containsKey(key1)) {
+			System.out.println("Same key2!");
+		}
+		/*for (MousePath mousePath : mousePaths) {
+			int deltaX = mousePath.getDeltaX();
+			int deltaY = mousePath.getDeltaY();
+			Integer[] gridKey = getGridMapKey(deltaX, deltaY);
+			
+			if (gridMap.containsKey(gridKey)) {
+				System.out.println("Same category!");
+				gridMap.get(gridKey).add(mousePath);
+			}
+			else {
+				ArrayList<MousePath> newPath = new ArrayList<MousePath>();
+				newPath.add(mousePath);
+				gridMap.put(gridKey, newPath);
+			}			
+		}*/
+	}
+	
+	public ArrayList<MousePath> readFile(String path) {
+		ArrayList<MousePath> mousePaths = new ArrayList<MousePath>();
 		try {
 			File file = new File(path);
 			FileReader fileReader = new FileReader(file);
@@ -81,6 +122,7 @@ public class Mouse {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return mousePaths;
 	}
 
 	private boolean isLineValid(String line, Pattern linePattern) {	
@@ -97,23 +139,19 @@ public class Mouse {
 	}
 	
 	
-	
-	/// ---------------------- Getters ----------------------------------------
-	
-	
-	public int getNumberOfPaths() {
-		return mousePaths.size();
-	}
-	
-	public ArrayList<MousePath> getMousePaths() {
-		return mousePaths;	
-	}
-	
 	public void displayPaths() {
-		for (MousePath path : mousePaths) {
-			path.display();
-			System.out.println("----------------------------------------------------------");
+		System.out.println("Displaying paths in HashMap...");
+		for (HashMap.Entry<Integer[], ArrayList<MousePath>> entry : gridMap.entrySet()) {
+			Integer[] gridKey = entry.getKey();
+			System.out.println("Key is: (" + gridKey[0] + ", " + gridKey[1] + ")");
+			
+			ArrayList<MousePath> mousePaths = entry.getValue();
+			System.out.println("There are " + mousePaths.size() + " paths with these deltas.");
+			for (MousePath path : mousePaths) {
+				//path.display();
+				System.out.println("----------------------------------------------------------");
+			}
+			System.out.println("Size of HashMap: " + gridMap.size());
 		}
-		System.out.println("There are " + mousePaths.size() + " paths.");
 	}
 }
