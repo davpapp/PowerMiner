@@ -6,25 +6,19 @@ public class MousePoint {
 	private int y;
 	private int time;
 	
-	public MousePoint(int _x, int _y, int _time)
-	{
-		x = _x;
-		y = _y;
-		time = _time;
+	public MousePoint(int x, int y, int time) {
+		this.x = x;
+		this.y = y;
+		this.time = time;
 	}
 	
-	public int getX() 
-	{
+	public int getX() {
 		return x;
 	}
-	
-	public int getY()
-	{
+	public int getY(){
 		return y;
-	}
-	
-	public int getTime()
-	{
+	}	
+	public int getTime() {
 		return time;
 	}
 	
@@ -35,12 +29,16 @@ public class MousePoint {
 	public double distance(MousePoint p2) {
 		return Math.hypot(this.x - p2.getX(), this.y - p2.getY());
 	}
-	
 	public double distance(Point p2) {
 		return Math.hypot(this.x - p2.getX(), this.y - p2.getY());
 	}
 	
-	@Override
+	
+	// TODO: define window size
+	public boolean isValid() {
+		return (x >= 0 && x < 1920 && y >= 0 && y < 1080 && time >= 0);
+	}
+	/*@Override
 	public boolean equals(Object obj) {
 	    if (obj == null) {
 	        return false;
@@ -53,9 +51,6 @@ public class MousePoint {
         
        // Compare the data members and return accordingly 
        return (this.x == p.x && this.y == p.y && this.time == p.time);
-	}
+	}*/
 	
-	public boolean isValid() {
-		return (x >= 0 && x < 1920 && y >= 0 && y < 1080 && time >= 0);
-	}
 }
