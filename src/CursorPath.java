@@ -9,6 +9,7 @@ public class CursorPath {
 	private ArrayList<CursorPoint> pathCursorPoints;
 	private int pathNumPoints;
 	private int pathDistance;
+	private double pathTheta;
 	private int pathTimespanMilliseconds;
 		
 	public CursorPath(ArrayList<CursorPoint> cursorPoints)
@@ -16,6 +17,7 @@ public class CursorPath {
 		this.pathCursorPoints = copyCursorPointsWithOffset(cursorPoints);
 		this.pathNumPoints = cursorPoints.size();
 		this.pathDistance = calculateCursorPathDistance();
+		this.pathTheta = calculateCursorPathTheta();
 		this.pathTimespanMilliseconds = calculateCursorPathTimespan();
 	}
 	
@@ -36,6 +38,11 @@ public class CursorPath {
 	
 	private int calculateCursorPathDistance() {
 		return (int) calculateDistanceBetweenCursorPoints(getStartingCursorPoint(), getEndingCursorPoint());
+	}
+	
+	private double calculateCursorPathTheta() {
+		CursorPoint endingCursorPoint = getEndingCursorPoint();
+		return Math.atan2(1.0 * endingCursorPoint.y, 1.0 * endingCursorPoint.x);
 	}
 	
 	private CursorPoint getStartingCursorPoint() {
@@ -73,6 +80,10 @@ public class CursorPath {
 	
 	public int getCursorPathDistance() {
 		return pathDistance;
+	}
+	
+	public double getCursorPathTheta() {
+		return pathTheta;
 	}
 	
 	public void displayCursorPoints() {

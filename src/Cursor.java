@@ -57,29 +57,40 @@ public class Cursor {
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
 		Point startingCursorPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = calculateDistanceBetweenPoints(startingCursorPoint, goalPoint);
-		double thetaDirectionToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
 		
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		System.out.println("Starting from " + startingCursorPoint.x + ", " + startingCursorPoint.y);
 		System.out.println("Moving to " + goalPoint.x + ", " + goalPoint.y);
-		System.out.println("Moving in " + thetaDirectionToMoveCursor / Math.PI * 180 + " degree direction.");
-		followCursorPath(startingCursorPoint, thetaDirectionToMoveCursor, cursorPathToFollow);
+		System.out.println("Distance to move: " + distanceToMoveCursor);
+		//System.out.println("Moving in " + thetaDirectionToMoveCursor / Math.PI * 180 + " degree direction.");
+		
+		double theta = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
+		double cursorPathTheta = cursorPathToFollow.getCursorPathTheta();
+		System.out.println("Theta " + theta + " in degrees " + (theta / Math.PI * 180) % 360);
+		System.out.println("CursorPathTheta " + cursorPathTheta + " in degrees " + (cursorPathTheta / Math.PI * 180) % 360);
+		System.out.println("Difference in thetas: " + (theta - cursorPathTheta) + " in degrees " + ((theta - cursorPathTheta) / Math.PI * 180) % 360);
+		
+		followCursorPath(startingCursorPoint, (theta - cursorPathTheta), cursorPathToFollow);
 	}
 	
 	private void followCursorPath(Point startingCursorPoint, double thetaDirectionToMoveCursor, CursorPath cursorPathToFollow) throws InterruptedException {
 		for (CursorPoint translationPoint : cursorPathToFollow.getCursorPathPoints()) {
+			System.out.println("\ndX:" + translationPoint.x + ", dY:" + translationPoint.y);
+			System.out.println("Translates to: ");
+			Point translatedPoint = calculatePoint(startingCursorPoint, thetaDirectionToMoveCursor, translationPoint);
+			System.out.println(translatedPoint.x + "," + translatedPoint.y);
 			robotMouseMove(calculatePoint(startingCursorPoint, thetaDirectionToMoveCursor, translationPoint));
 			Thread.sleep(50);
 		}
 	}
 	
-	private Point calculatePoint(Point startingCursorPoint, double thetaDirectionToMoveCursor, CursorPoint translationPoint) {
-		int x = (int) (startingCursorPoint.x + Math.cos(thetaDirectionToMoveCursor) * translationPoint.x);
-		int y = (int) (startingCursorPoint.y + Math.sin(thetaDirectionToMoveCursor) * translationPoint.y);
+	private Point calculatePoint(Point startingCursorPoint, double theta, CursorPoint translationPoint) {
+		int x = (int) (startingCursorPoint.x + Math.cos(theta) * translationPoint.x - Math.sin(theta) * translationPoint.y);
+		int y = (int) (startingCursorPoint.y + Math.sin(theta) * translationPoint.x + Math.cos(theta) * translationPoint.y);
 		return new Point(x, y);
 	}
 	
-	private void robotMouseMove(Point pointToMoveCursorTo) {
+	public void robotMouseMove(Point pointToMoveCursorTo) {
 		robot.mouseMove(pointToMoveCursorTo.x, pointToMoveCursorTo.y);
 	}
 
@@ -93,10 +104,10 @@ public class Cursor {
 	}
 	
 	public double calculateThetaBetweenPoints(Point a, Point b) {
-		return Math.atan2((b.y - a.y), (b.x - a.x));
+		return Math.atan2(1.0 * (b.y - a.y), 1.0 * (b.x - a.x));
 	}
 	
-	private Point getCurrentCursorPoint() {
+	public Point getCurrentCursorPoint() {
 		return MouseInfo.getPointerInfo().getLocation();
 	}
 	
