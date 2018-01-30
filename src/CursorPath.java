@@ -13,17 +13,19 @@ public class CursorPath {
 		
 	public CursorPath(ArrayList<CursorPoint> cursorPoints)
 	{
-		this.pathCursorPoints = deepCopyCursorPoints(cursorPoints);
+		this.pathCursorPoints = copyCursorPointsWithOffset(cursorPoints);
 		this.pathNumPoints = cursorPoints.size();
 		this.pathDistance = calculateCursorPathDistance();
 		this.pathTimespanMilliseconds = calculateCursorPathTimespan();
 	}
 	
-	private ArrayList<CursorPoint> deepCopyCursorPoints(ArrayList<CursorPoint> cursorPoints) {
+	private ArrayList<CursorPoint> copyCursorPointsWithOffset(ArrayList<CursorPoint> cursorPoints) {
 		ArrayList<CursorPoint> cursorPointsCopy = new ArrayList<CursorPoint>(cursorPoints.size());
+		CursorPoint startingCursorPoint = cursorPoints.get(0);
 		for (CursorPoint cursorPoint : cursorPoints) {
-			CursorPoint cursorPointCopy = new CursorPoint(cursorPoint.x, cursorPoint.y, cursorPoint.time);
-			cursorPointsCopy.add(cursorPointCopy);
+			CursorPoint offsetCursorPoint = new CursorPoint(cursorPoint.x - startingCursorPoint.x, 
+					cursorPoint.y - startingCursorPoint.y,cursorPoint.time - startingCursorPoint.time);
+			cursorPointsCopy.add(offsetCursorPoint);
 		}
 		return cursorPointsCopy;
 	}
@@ -58,7 +60,7 @@ public class CursorPath {
 	}
 	
 	private boolean isCursorPathDistanceReasonable() {
-		return (this.pathDistance > 5 && this.pathDistance < 600);
+		return (this.pathDistance > 5 && this.pathDistance < 1000);
 	}
 	
 	private boolean isCursorPathNumPointsReasonable() {
