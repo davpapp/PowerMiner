@@ -40,6 +40,14 @@ public class Mouse {
 		assignPathsToGrid(mousePaths);
 	}
 	
+	
+	/**
+	 * Moves mouse in a human-like way by finding a similar path from the past
+	 * and slightly transforming it.
+	 * 
+	 * @param endingX X coordinate of the ending location.
+	 * @param endingY Y coordinate of the ending location.
+	 */
 	public void moveMouse(int endingX, int endingY) {
 		int[] mouseLoc = getMouseLocation();
 		int deltaX = endingX - mouseLoc[0];
