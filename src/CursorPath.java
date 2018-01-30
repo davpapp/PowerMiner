@@ -25,11 +25,13 @@ public class CursorPath {
 		ArrayList<CursorPoint> cursorPointsCopy = new ArrayList<CursorPoint>(cursorPoints.size());
 		CursorPoint startingCursorPoint = cursorPoints.get(0);
 		for (CursorPoint cursorPoint : cursorPoints) {
-			CursorPoint offsetCursorPoint = new CursorPoint(cursorPoint.x - startingCursorPoint.x, 
-					cursorPoint.y - startingCursorPoint.y,cursorPoint.time - startingCursorPoint.time);
-			cursorPointsCopy.add(offsetCursorPoint);
+			cursorPointsCopy.add(getOffsetCursorPoint(cursorPoint, startingCursorPoint));
 		}
 		return cursorPointsCopy;
+	}
+	
+	private CursorPoint getOffsetCursorPoint(CursorPoint cursorPoint, CursorPoint offsetPoint) {
+		return new CursorPoint(cursorPoint.x - offsetPoint.x, cursorPoint.y - offsetPoint.y,cursorPoint.time - offsetPoint.time);
 	}
 	
 	private int calculateCursorPathTimespan() {

@@ -50,12 +50,10 @@ class CursorTest {
 	}
 	
 	void assertInRangeByPercentage(double valueToTest, double expectation, double tolerancePercentage) {
-		System.out.println(valueToTest + " expected: " + expectation);
 		assertTrue((valueToTest <= (expectation * (1 + tolerancePercentage))) && (valueToTest >= (expectation * (1 - tolerancePercentage))));
 	}
 	
 	void assertInRangeByAbsoluteValue(double valueToTest, double expectation, double toleranceAbsolute) {
-		System.out.println(valueToTest + " expected: " + expectation);
 		assertTrue((valueToTest <= (expectation + toleranceAbsolute)) && (valueToTest >= (expectation * (1 - toleranceAbsolute))));
 	}
 

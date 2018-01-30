@@ -57,36 +57,25 @@ public class Cursor {
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
 		Point startingCursorPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = calculateDistanceBetweenPoints(startingCursorPoint, goalPoint);
-		
+		double angleToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
-		System.out.println("Starting from " + startingCursorPoint.x + ", " + startingCursorPoint.y);
-		System.out.println("Moving to " + goalPoint.x + ", " + goalPoint.y);
-		System.out.println("Distance to move: " + distanceToMoveCursor);
-		//System.out.println("Moving in " + thetaDirectionToMoveCursor / Math.PI * 180 + " degree direction.");
 		
-		double theta = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
-		double cursorPathTheta = cursorPathToFollow.getCursorPathTheta();
-		System.out.println("Theta " + theta + " in degrees " + (theta / Math.PI * 180) % 360);
-		System.out.println("CursorPathTheta " + cursorPathTheta + " in degrees " + (cursorPathTheta / Math.PI * 180) % 360);
-		System.out.println("Difference in thetas: " + (theta - cursorPathTheta) + " in degrees " + ((theta - cursorPathTheta) / Math.PI * 180) % 360);
-		
-		followCursorPath(startingCursorPoint, (theta - cursorPathTheta), cursorPathToFollow);
+		double angleToTranslatePathBy = angleToMoveCursor - cursorPathToFollow.getCursorPathTheta();
+		followCursorPath(startingCursorPoint, angleToTranslatePathBy, cursorPathToFollow);
 	}
 	
-	private void followCursorPath(Point startingCursorPoint, double thetaDirectionToMoveCursor, CursorPath cursorPathToFollow) throws InterruptedException {
-		for (CursorPoint translationPoint : cursorPathToFollow.getCursorPathPoints()) {
-			System.out.println("\ndX:" + translationPoint.x + ", dY:" + translationPoint.y);
-			System.out.println("Translates to: ");
-			Point translatedPoint = calculatePoint(startingCursorPoint, thetaDirectionToMoveCursor, translationPoint);
-			System.out.println(translatedPoint.x + "," + translatedPoint.y);
-			robotMouseMove(calculatePoint(startingCursorPoint, thetaDirectionToMoveCursor, translationPoint));
-			Thread.sleep(50);
+	private void followCursorPath(Point startingCursorPoint, double angleToTranslatePathBy, CursorPath cursorPathToFollow) throws InterruptedException {
+		for (CursorPoint untranslatedCursorPoint : cursorPathToFollow.getCursorPathPoints()) {
+			Point translatedPointToClick = translatePoint(startingCursorPoint, angleToTranslatePathBy, untranslatedCursorPoint);
+			robotMouseMove(translatedPointToClick);
+			int millisecondsToSleep = 50; 
+			Thread.sleep(millisecondsToSleep);
 		}
 	}
 	
-	private Point calculatePoint(Point startingCursorPoint, double theta, CursorPoint translationPoint) {
-		int x = (int) (startingCursorPoint.x + Math.cos(theta) * translationPoint.x - Math.sin(theta) * translationPoint.y);
-		int y = (int) (startingCursorPoint.y + Math.sin(theta) * translationPoint.x + Math.cos(theta) * translationPoint.y);
+	private Point translatePoint(Point startingCursorPoint, double angleToTranslateBy, CursorPoint untranslatedCursorPoint) {
+		int x = (int) (startingCursorPoint.x + Math.cos(angleToTranslateBy) * untranslatedCursorPoint.x - Math.sin(angleToTranslateBy) * untranslatedCursorPoint.y);
+		int y = (int) (startingCursorPoint.y + Math.sin(angleToTranslateBy) * untranslatedCursorPoint.x + Math.cos(angleToTranslateBy) * untranslatedCursorPoint.y);
 		return new Point(x, y);
 	}
 	
