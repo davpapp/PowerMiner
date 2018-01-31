@@ -43,8 +43,8 @@ public class CursorDataFileParser {
 					else {
 						numberOfRepeats = 0;
 						currentCursorPath.add(newCursorPoint);
+						lastCursorPoint = newCursorPoint;
 					}
-					lastCursorPoint = newCursorPoint;
 				}
 				else {
 					System.out.println("Skipping invalid REGEX: " + line);

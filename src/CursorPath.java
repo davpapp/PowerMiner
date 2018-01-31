@@ -27,15 +27,27 @@ public class CursorPath {
 		for (CursorPoint cursorPoint : cursorPoints) {
 			cursorPointsCopy.add(getOffsetCursorPoint(cursorPoint, startingCursorPoint));
 		}
+		calculatePostMillisecondDelays(cursorPointsCopy);
 		return cursorPointsCopy;
 	}
 	
+	private void calculatePostMillisecondDelays(ArrayList<CursorPoint> cursorPoints) {
+		for (int i = 1; i < cursorPoints.size(); i++) {
+			cursorPoints.get(i - 1).setPostMillisecondDelay(cursorPoints.get(i).postMillisecondDelay - cursorPoints.get(i - 1).postMillisecondDelay);
+		}
+		cursorPoints.get(cursorPoints.size() - 1).setPostMillisecondDelay(0);
+	}
+	
 	private CursorPoint getOffsetCursorPoint(CursorPoint cursorPoint, CursorPoint offsetPoint) {
-		return new CursorPoint(cursorPoint.x - offsetPoint.x, cursorPoint.y - offsetPoint.y,cursorPoint.time - offsetPoint.time);
+		return new CursorPoint(cursorPoint.x - offsetPoint.x, cursorPoint.y - offsetPoint.y, cursorPoint.postMillisecondDelay);
 	}
 	
 	private int calculateCursorPathTimespan() {
-		return getEndingCursorPoint().time - getStartingCursorPoint().time;
+		int sumPathTimespanMilliseconds = 0;
+		for (CursorPoint cursorPoint : this.pathCursorPoints) {
+			sumPathTimespanMilliseconds += cursorPoint.postMillisecondDelay;
+		}
+		return sumPathTimespanMilliseconds;
 	}
 	
 	private int calculateCursorPathDistance() {
@@ -90,8 +102,9 @@ public class CursorPath {
 	
 	public void displayCursorPoints() {
 		for (CursorPoint p : pathCursorPoints) {
-			System.out.println("(" + p.x + ", " + p.y + "), " + p.time);
+			p.display();
 		}
 		System.out.println("Length:" + pathNumPoints + ", Timespan:" + pathTimespanMilliseconds);
+		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~ End of Path ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 }

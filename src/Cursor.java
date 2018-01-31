@@ -60,6 +60,7 @@ public class Cursor {
 		double angleToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		
+		//cursorPathToFollow.displayCursorPoints();
 		double angleToTranslatePathBy = angleToMoveCursor - cursorPathToFollow.getCursorPathTheta();
 		followCursorPath(startingCursorPoint, angleToTranslatePathBy, cursorPathToFollow);
 	}
@@ -68,8 +69,7 @@ public class Cursor {
 		for (CursorPoint untranslatedCursorPoint : cursorPathToFollow.getCursorPathPoints()) {
 			Point translatedPointToClick = translatePoint(startingCursorPoint, angleToTranslatePathBy, untranslatedCursorPoint);
 			robotMouseMove(translatedPointToClick);
-			int millisecondsToSleep = 50; 
-			Thread.sleep(millisecondsToSleep);
+			Thread.sleep(untranslatedCursorPoint.postMillisecondDelay);
 		}
 	}
 	
@@ -100,10 +100,9 @@ public class Cursor {
 		return MouseInfo.getPointerInfo().getLocation();
 	}
 	
-	
-	public void displaycursorPathsByDistance() {
+	/*public void displaycursorPathsByDistance() {
 		for (int i = 0; i < cursorPathsByDistance.size(); i++) {
 			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " CursorPaths of length " + i);
 		}
-	}
+	}*/
 }
