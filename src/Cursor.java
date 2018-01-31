@@ -5,6 +5,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Robot;
+import java.awt.event.InputEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,16 +19,25 @@ import java.util.regex.Pattern;
 public class Cursor {
 	
 	public static final int NUMBER_OF_DISTANCES = 1000;
+	public static final int MINIMUM_CLICK_LENGTH = 120;
+	public static final int MAXIMUM_CLICK_LENGTH = 240;
+	
 	private Robot robot;
+	private Random random = new Random();
 
 	private ArrayList<ArrayList<CursorPath>> cursorPathsByDistance;
 	
 	public Cursor() throws AWTException {
-		ArrayList<CursorPath> cursorPaths = getArrayListOfCursorPathsFromFile("/home/dpapp/GhostMouse/coordinates.txt");// read from file or something;
-		initializeCursorPathsByDistance();
-		assignCursorPathsByDistance(cursorPaths);
-		
+		initializeCursorPathsByDistanceFromFile("/home/dpapp/GhostMouse/coordinates.txt");
+
 		robot = new Robot();
+		random = new Random();
+	}
+	
+	private void initializeCursorPathsByDistanceFromFile(String path) {
+		initializeCursorPathsByDistance();
+		ArrayList<CursorPath> cursorPaths = getArrayListOfCursorPathsFromFile(path);
+		assignCursorPathsByDistance(cursorPaths);
 	}
 	
 	private void initializeCursorPathsByDistance() {
@@ -54,13 +64,40 @@ public class Cursor {
 		this.cursorPathsByDistance.get(cursorPath.getCursorPathDistance()).add(cursorPath);
 	}
 	
+	
+	
+	private int getRandomClickLength() {
+		return random.nextInt(MAXIMUM_CLICK_LENGTH - MINIMUM_CLICK_LENGTH) + MINIMUM_CLICK_LENGTH;
+	}
+	
+	public void leftClickCursor() throws InterruptedException {
+		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		Thread.sleep(getRandomClickLength());
+		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+	}
+	
+	public void rightClickCursor() throws InterruptedException {
+		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+		Thread.sleep(getRandomClickLength());
+		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+	}
+	
+	public void moveAndLeftClickAtCoordinates(Point goalPoint) throws InterruptedException {
+		moveCursorToCoordinates(goalPoint);
+		leftClickCursor();
+	}
+	
+	public void moveAndRightClickAtCoordinates(Point goalPoint) throws InterruptedException {
+		moveCursorToCoordinates(goalPoint);
+		rightClickCursor();
+	}
+
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
 		Point startingCursorPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = calculateDistanceBetweenPoints(startingCursorPoint, goalPoint);
 		double angleToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
+		// TODO: check if exists
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
-		
-		//cursorPathToFollow.displayCursorPoints();
 		double angleToTranslatePathBy = angleToMoveCursor - cursorPathToFollow.getCursorPathTheta();
 		followCursorPath(startingCursorPoint, angleToTranslatePathBy, cursorPathToFollow);
 	}
@@ -85,6 +122,7 @@ public class Cursor {
 
 	private CursorPath chooseCursorPathToFollowBasedOnDistance(int distanceToMoveCursor) {
 		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(distanceToMoveCursor);
+		// TODO: Error check if path of this size exists
 		return cursorPathsWithSameDistance.get(new Random().nextInt(cursorPathsWithSameDistance.size()));
 	}
 	
@@ -99,10 +137,4 @@ public class Cursor {
 	public Point getCurrentCursorPoint() {
 		return MouseInfo.getPointerInfo().getLocation();
 	}
-	
-	/*public void displaycursorPathsByDistance() {
-		for (int i = 0; i < cursorPathsByDistance.size(); i++) {
-			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " CursorPaths of length " + i);
-		}
-	}*/
 }

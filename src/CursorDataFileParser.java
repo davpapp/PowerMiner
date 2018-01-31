@@ -46,14 +46,12 @@ public class CursorDataFileParser {
 						lastCursorPoint = newCursorPoint;
 					}
 				}
-				else {
-					System.out.println("Skipping invalid REGEX: " + line);
-				}
 			}
 			fileReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Finished parsing cursor data...");
 		return cursorPaths;
 	}
 	
