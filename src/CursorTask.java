@@ -15,8 +15,8 @@ public class CursorTask extends Cursor {
 	}
 	
 	public void dropItem(InventorySlot inventorySlot) {
-		Point inventorySlotCoordinates = inventorySlot.getCoordinates();
+		/*Point inventorySlotCoordinates = inventorySlot.getCoordinates();
 		moveAndRightClickAtCoordinates(inventorySlotCoordinates);
-		moveAndLeftClickAtCoordinates();
+		moveAndLeftClickAtCoordinates();*/
 	}
 }
