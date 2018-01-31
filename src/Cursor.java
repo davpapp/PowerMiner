@@ -22,6 +22,16 @@ public class Cursor {
 	public static final int MINIMUM_CLICK_LENGTH = 120;
 	public static final int MAXIMUM_CLICK_LENGTH = 240;
 	
+	public static final int GAME_WINDOW_OFFSET_WIDTH = 100; // top left corner of main game screen, from top left corner of screen
+	public static final int GAME_WINDOW_OFFSET_HEIGHT = 81;
+	
+	public static final int INVENTORY_OFFSET_WIDTH = 649; //top left corner of inventory, fromm top left corner of screen
+	public static final int INVENTORY_OFFSET_HEIGHT = 286; 
+	public static final int INVENTORY_WIDTH = 820 - 649;// 820
+	public static final int INVENTORY_HEIGHT = 530 - 286; // 530
+
+
+	
 	private Robot robot;
 	private Random random = new Random();
 
