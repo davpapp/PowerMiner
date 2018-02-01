@@ -6,10 +6,14 @@ import java.io.IOException;
 
 public class Inventory {
 
-	public static final int INVENTORY_OFFSET_WIDTH = 649; //top left corner of inventory, fromm top left corner of screen
-	public static final int INVENTORY_OFFSET_HEIGHT = 286; 
+	/*x0 = 655;
+	x1 = 697;
+	x2 = 738;
+	x3 = 781;*/
+	public static final int INVENTORY_OFFSET_WIDTH = 655; //top left corner of inventory, fromm top left corner of screen
+	public static final int INVENTORY_OFFSET_HEIGHT = 290; 
 	public static final int INVENTORY_WIDTH = 820 - 649;// 820
-	public static final int INVENTORY_HEIGHT = 530 - 286; // 530
+	public static final int INVENTORY_HEIGHT = 350; // 530
 	
 	Robot robot;
 	Rectangle inventoryAreaToCapture;

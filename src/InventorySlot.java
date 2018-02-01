@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 public class InventorySlot {
 
 	private static final int INVENTORY_WIDTH = 171;
-	private static final int INVENTORY_HEIGHT = 244;
+	private static final int INVENTORY_HEIGHT = 254;
 	
 	String screenshotOutputDirectory;
 	Item itemInInventorySlot;
