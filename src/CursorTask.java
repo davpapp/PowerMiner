@@ -6,6 +6,27 @@ public class CursorTask {
 	public static final int DROP_OFFSET = 40;
 	public static final int DROP_BOTTOM_ROW = 539;
 
+	
+	// Human drop time: 29 seconds
+	
+	// Measured: 
+	public void optimizedDropAllItemsInInventory(Cursor cursor, Inventory inventory) throws InterruptedException {
+		for (int row = 0; row < 4; row++) {
+			Point coordinatesToClick = dropItem(cursor, inventory, row, 0);
+			for (int column = 1; column < 7; column++) {
+				if (distanceBetweenPoints(coordinatesToClick, inventory.getClickCoordinatesCoordinatesForInventorySlot(row, column)) > 12) {
+					coordinatesToClick = inventory.getClickCoordinatesCoordinatesForInventorySlot(row, column);
+				}
+				rightClickItemSlot(cursor, coordinatesToClick);
+				coordinatesToClick = leftClickDropOption(cursor, coordinatesToClick, column);
+			}
+		}
+	}
+	
+	private int distanceBetweenPoints(Point a, Point b) {
+		return (int) (Math.hypot(a.x - b.x, a.y - b.y));
+	}
+	
 	public void dropAllItemsInInventory(Cursor cursor, Inventory inventory) throws InterruptedException {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
@@ -14,25 +35,28 @@ public class CursorTask {
 		}
 	}
 	
-	public void dropBottomRow(Cursor cursor, Inventory inventory) throws InterruptedException {
+	/*public void dropBottomRow(Cursor cursor, Inventory inventory) throws InterruptedException {
 		for (int row = 0; row < 4; row++) {
 			dropItem(cursor, inventory, row, 6);
 		}
-	}
+	}*/
 	
-	public void dropItem(Cursor cursor, Inventory inventory, int row, int column) throws InterruptedException {
-		System.out.println("Dropping item...");
+	public Point dropItem(Cursor cursor, Inventory inventory, int row, int column) throws InterruptedException {
 		Point coordinatesToRightClick = inventory.getClickCoordinatesCoordinatesForInventorySlot(row, column);
-		Point clickedCoordinates = rightClickItemSlot(cursor, coordinatesToRightClick);
-		leftClickDropOption(cursor, clickedCoordinates, column);
+		Point clickedCoordinates = rightClickItemSlotWithRandomness(cursor, coordinatesToRightClick);
+		return leftClickDropOption(cursor, clickedCoordinates, column);
 	}
 	
-	public Point rightClickItemSlot(Cursor cursor, Point coordinatesToRightClick) throws InterruptedException {
-		Point clickedCoordinates = cursor.moveAndRightlickAtCoordinatesWithRandomness(coordinatesToRightClick, 10, 10);
+	public void rightClickItemSlot(Cursor cursor, Point coordinatesToRightClick) throws InterruptedException {
+		cursor.moveAndRightClickAtCoordinates(coordinatesToRightClick);
+	}
+	
+	public Point rightClickItemSlotWithRandomness(Cursor cursor, Point coordinatesToRightClick) throws InterruptedException {
+		Point clickedCoordinates = cursor.moveAndRightlickAtCoordinatesWithRandomness(coordinatesToRightClick, 6, 6);
 		return clickedCoordinates;
 	}
 	
-	private void leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws InterruptedException {
+	private Point leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws InterruptedException {
 		Point offsetCoordinatesToLeftClick = coordinatesToLeftClick;
 		if (column < 6) {
 			offsetCoordinatesToLeftClick.y += DROP_OFFSET;
@@ -40,7 +64,6 @@ public class CursorTask {
 		else {
 			offsetCoordinatesToLeftClick.y = DROP_BOTTOM_ROW;
 		}
-		Point p = cursor.moveAndLeftClickAtCoordinatesWithRandomness(offsetCoordinatesToLeftClick, 10, 6);
-		System.out.println(p.x + "," + p.y);
+		return cursor.moveAndLeftClickAtCoordinatesWithRandomness(offsetCoordinatesToLeftClick, 10, 6);
 	}
 }

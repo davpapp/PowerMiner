@@ -70,7 +70,7 @@ public class Cursor {
 	}
 	
 	
-	
+	// TODO: make sure these are reasonable
 	private int getRandomClickLength() {
 		return random.nextInt(MAXIMUM_CLICK_LENGTH - MINIMUM_CLICK_LENGTH) + MINIMUM_CLICK_LENGTH;
 	}
@@ -84,7 +84,7 @@ public class Cursor {
 	
 	public void rightClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-		Thread.sleep(50 + getRandomClickLength());
+		Thread.sleep(20 + getRandomClickLength());
 		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
 		Thread.sleep(getRandomClickLength());
 	}
