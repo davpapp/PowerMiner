@@ -6,10 +6,6 @@ import java.io.IOException;
 
 public class Inventory {
 
-	/*x0 = 655;
-	x1 = 697;
-	x2 = 738;
-	x3 = 781;*/
 	public static final int INVENTORY_OFFSET_WIDTH = 655; //top left corner of inventory, fromm top left corner of screen
 	public static final int INVENTORY_OFFSET_HEIGHT = 290; 
 	public static final int INVENTORY_WIDTH = 820 - 649;// 820
@@ -29,7 +25,6 @@ public class Inventory {
 		inventorySlots = new InventorySlot[4][7];
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
-				// might need to manually create these
 				inventorySlots[row][column] = new InventorySlot(row, column);
 			}
 		}
@@ -43,7 +38,7 @@ public class Inventory {
 	private void updateAllInventorySlots(BufferedImage image) throws IOException {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
-				inventorySlots[row][column].writeInventorySlotToImage(image, row, column);
+				inventorySlots[row][column].updateInventorySlot(image);
 			}
 		}
 	}

@@ -8,8 +8,8 @@ import javax.imageio.ImageIO;
 
 public class InventorySlot {
 
-	private static final int INVENTORY_WIDTH = 171;
-	private static final int INVENTORY_HEIGHT = 254;
+	private static final int INVENTORY_SLOT_WIDTH = 171 / 4;
+	private static final int INVENTORY_SLOT_HEIGHT = 254 / 7;
 	
 	String screenshotOutputDirectory;
 	Item itemInInventorySlot;
@@ -17,29 +17,69 @@ public class InventorySlot {
 	
 	public InventorySlot(int row, int column) {
 		initializeRectangleToCapture(row, column);
-		this.screenshotOutputDirectory = "/home/dpapp/Desktop/RunescapeAIPics/InventorySlots/";
 	}
 	
 	private void initializeRectangleToCapture(int row, int column) {
-		int slotWidth = INVENTORY_WIDTH / 4;
-		int slotHeight = INVENTORY_HEIGHT / 7;
-		//System.out.println("SlotWidth: " + slotWidth + ", slotHeight: " + slotHeight);
-		rectangleToCapture = new Rectangle(row * slotWidth, column * slotHeight, slotWidth, slotHeight);
+		rectangleToCapture = new Rectangle(row * INVENTORY_SLOT_WIDTH, column * INVENTORY_SLOT_HEIGHT, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT);
 	}
 	
-	public void updateInventorySlot(BufferedImage image) {
-		//BufferedImage croppedInventorySlotArea = image.getSubimage(rectangleToCapture.x, rectangleToCapture.y, rectangleToCapture.width, rectangleToCapture.height);
-	}
-	
-	public void writeInventorySlotToImage(BufferedImage image, int row, int column) throws IOException {
-		System.out.println("Pre-cropped image is of size:" + image.getWidth() + ", " + image.getHeight());
-		System.out.println(row + ", " + column);
-		System.out.println("Getting image from: " + rectangleToCapture.x + ", " + rectangleToCapture.y + ", " + rectangleToCapture.width + ", " + rectangleToCapture.height);
+	public void updateInventorySlot(BufferedImage image) throws IOException {
 		BufferedImage croppedInventorySlotArea = image.getSubimage(rectangleToCapture.x, rectangleToCapture.y, rectangleToCapture.width, rectangleToCapture.height);
-		ImageIO.write(croppedInventorySlotArea, "png", new File(getImageName(row, column)));
+		setItemInInventorySlotFromImage(croppedInventorySlotArea);
 	}
-
-	private String getImageName(int row, int column) {
-		return this.screenshotOutputDirectory + "screenshot" + row + "_" + column + ".png";
+	
+	private void setItemInInventorySlotFromImage(BufferedImage croppedInventorySlotArea) throws IOException {
+		if (itemIsLog(croppedInventorySlotArea)) System.out.println("LOG!");
 	}
+	
+	public boolean itemIsLog(BufferedImage croppedInventorySlotArea) throws IOException {
+		int matchingPixel = 0;
+		//int nonMatchingPixel = 0;
+		File image = new File("/home/dpapp/Desktop/RunescapeAIPics/Items/willowLogs.png");
+		BufferedImage logImage = ImageIO.read(image);
+		/*System.out.println(logImage.getWidth() + ", " + logImage.getHeight());
+		System.out.println(INVENTORY_SLOT_WIDTH + ", " + INVENTORY_SLOT_HEIGHT);
+		System.out.println("Dimension match?");*/
+		for (int row = 0; row < INVENTORY_SLOT_WIDTH; row++) {
+			for (int col = 0; col < INVENTORY_SLOT_HEIGHT; col++) {
+				if (pixelsWithinRGBTolerance(croppedInventorySlotArea.getRGB(row, col), logImage.getRGB(row, col))) {
+					matchingPixel++;
+				}
+				/*else {
+					nonMatchingPixel++;
+				}*/
+			}
+		}
+		
+		if (matchingPixel > 300) {
+			//System.out.println("Found log with " + matchingPixel + " matches!" + nonMatchingPixel);
+			return true;
+		}
+		//System.out.println("No match!" + matchingPixel + ", nonmatching: " + nonMatchingPixel);
+		return false;
+	}
+	
+	private boolean pixelsWithinRGBTolerance(int rgb1, int rgb2) {
+		int[] colors1 = getRGBValuesFromPixel(rgb1);
+		int[] colors2 = getRGBValuesFromPixel(rgb2);
+		for (int i = 0; i < 3; i++) {
+			if (Math.abs(colors1[i] - colors2[i]) > 5) {
+				return false;
+			}
+		}
+		/*displayColor(colors1);
+		System.out.println("vs");
+		displayColor(colors2);
+		System.out.println();*/
+		return true;
+	}
+	
+	private void displayColor(int[] colors) {
+		System.out.println(colors[0] + "," + colors[1] + "," + colors[2]);
+	}
+	
+	private int[] getRGBValuesFromPixel(int pixel) {
+		int[] colors = {(pixel)&0xFF, (pixel>>8)&0xFF, (pixel>>16)&0xFF, (pixel>>24)&0xFF};
+		return colors;
+	}	
 }
