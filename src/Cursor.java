@@ -25,12 +25,6 @@ public class Cursor {
 	public static final int GAME_WINDOW_OFFSET_WIDTH = 100; // top left corner of main game screen, from top left corner of screen
 	public static final int GAME_WINDOW_OFFSET_HEIGHT = 81;
 	
-	public static final int INVENTORY_OFFSET_WIDTH = 649; //top left corner of inventory, fromm top left corner of screen
-	public static final int INVENTORY_OFFSET_HEIGHT = 286; 
-	public static final int INVENTORY_WIDTH = 820 - 649;// 820
-	public static final int INVENTORY_HEIGHT = 530 - 286; // 530
-
-
 	
 	private Robot robot;
 	private Random random = new Random();
@@ -38,6 +32,7 @@ public class Cursor {
 	private ArrayList<ArrayList<CursorPath>> cursorPathsByDistance;
 	
 	public Cursor() throws AWTException {
+		System.out.println("Initializing cursor...");
 		initializeCursorPathsByDistanceFromFile("/home/dpapp/GhostMouse/coordinates.txt");
 
 		robot = new Robot();
@@ -84,12 +79,14 @@ public class Cursor {
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		Thread.sleep(getRandomClickLength());
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		Thread.sleep(getRandomClickLength());
 	}
 	
 	public void rightClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-		Thread.sleep(getRandomClickLength());
+		Thread.sleep(200 + getRandomClickLength() * 2);
 		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+		Thread.sleep(getRandomClickLength());
 	}
 	
 	public void moveAndLeftClickAtCoordinates(Point goalPoint) throws InterruptedException {
@@ -97,8 +94,20 @@ public class Cursor {
 		leftClickCursor();
 	}
 	
+	public void moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
+		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
+		moveCursorToCoordinates(randomizedGoalPoint);
+		leftClickCursor();
+	}
+	
 	public void moveAndRightClickAtCoordinates(Point goalPoint) throws InterruptedException {
 		moveCursorToCoordinates(goalPoint);
+		rightClickCursor();
+	}
+	
+	public void moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
+		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
+		moveCursorToCoordinates(randomizedGoalPoint);
 		rightClickCursor();
 	}
 
@@ -146,5 +155,13 @@ public class Cursor {
 	
 	public Point getCurrentCursorPoint() {
 		return MouseInfo.getPointerInfo().getLocation();
+	}
+	
+	private int getRandomIntSigned(int tolerance) {
+		return random.nextInt(tolerance) - tolerance / 2;
+	}
+	
+	private Point randomizePoint(Point goalPoint, int xTolerance, int yTolerance) {
+		return new Point(goalPoint.x + getRandomIntSigned(xTolerance), goalPoint.y + getRandomIntSigned(yTolerance));
 	}
 }

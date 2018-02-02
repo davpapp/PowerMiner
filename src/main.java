@@ -8,11 +8,18 @@ public class main {
 
 	public static void main(String[] args) throws AWTException, InterruptedException, IOException {
 		
-		//Cursor cursor = new Cursor();
+		Cursor cursor = new Cursor();
+		CursorTask cursorTask = new CursorTask();
 		//Inventory inventory = new Inventory();
 		//inventory.update();
 		Inventory inventory = new Inventory();
-		inventory.update();
+		//inventory.update();
+		cursorTask.dropAllItemsInInventory(cursor, inventory);
+		/*cursorTask.dropItem(cursor, inventory, 0, 0);
+		Thread.sleep(3000);
+		cursorTask.dropItem(cursor, inventory, 3, 5);
+		Thread.sleep(3000);
+		cursorTask.dropItem(cursor, inventory, 0, 6);*/
 		//Items items = new Items("/home/dpapp/Desktop/RunescapeAIPics/Items/");
 		//items.displayItems();
 		

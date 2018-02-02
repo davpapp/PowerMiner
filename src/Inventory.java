@@ -1,4 +1,5 @@
 import java.awt.AWTException;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
@@ -13,6 +14,9 @@ public class Inventory {
 	public static final int INVENTORY_OFFSET_HEIGHT = 290; 
 	public static final int INVENTORY_WIDTH = 820 - 649;// 820
 	public static final int INVENTORY_HEIGHT = 350; // 530
+	
+	private static final int INVENTORY_SLOT_WIDTH = 171 / 4;
+	private static final int INVENTORY_SLOT_HEIGHT = 254 / 7;
 	
 	public static final int NUM_ROWS = 4;
 	public static final int NUM_COLUMNS = 7;
@@ -48,7 +52,10 @@ public class Inventory {
 	
 	public void update() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
-		ImageIO.write(image, "png", new File(getImageName()));
+		
+		// For test image generation only
+		//ImageIO.write(image, "png", new File(getImageName()));
+		
 		updateAllInventorySlots(image);
 	}
 
@@ -56,6 +63,7 @@ public class Inventory {
 		return ("/home/dpapp/Desktop/RunescapeAIPics/Tests/Inventory/inventory.png");
 	}
 	
+	// For testing only
 	public void updateWithFakeImageForTests(BufferedImage testImage) throws IOException {
 		updateAllInventorySlots(testImage);
 	}
@@ -73,14 +81,22 @@ public class Inventory {
 		return inventorySlots[row][column].getItemNameInInventorySlot(items);
 	}
 	
-	/*public boolean isInventoryFull() {
+	public boolean isInventoryFull() {
+		// TODO: this will fail if some unexpected item shows up
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
-				if (!inventorySlots[row][column].isInventorySlotEmpty(items)) {
+				if (inventorySlots[row][column].isInventorySlotEmpty(items)) {
 					return false;
 				}
 			}
 		}
 		return true;
-	}*/
+	}
+	
+	public Point getClickCoordinatesCoordinatesForInventorySlot(int row, int column) {
+		Point centerOfInventorySlot = inventorySlots[row][column].getClickablePointWithinItemSlot();
+		int x = INVENTORY_OFFSET_WIDTH + row * INVENTORY_SLOT_WIDTH + centerOfInventorySlot.x;
+		int y = INVENTORY_OFFSET_HEIGHT + column * INVENTORY_SLOT_HEIGHT + centerOfInventorySlot.y;
+		return new Point(x, y);
+	}
 }
