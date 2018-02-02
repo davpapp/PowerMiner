@@ -11,14 +11,23 @@ public class Inventory {
 	public static final int INVENTORY_WIDTH = 820 - 649;// 820
 	public static final int INVENTORY_HEIGHT = 350; // 530
 	
-	Robot robot;
-	Rectangle inventoryAreaToCapture;
-	InventorySlot[][] inventorySlots;
+	public static final int NUM_ROWS = 4;
+	public static final int NUM_COLUMNS = 7;
 	
-	public Inventory() throws AWTException {
+	Robot robot;
+	Rectangle inventoryRectangleToCapture;
+	InventorySlot[][] inventorySlots;
+	InventoryItems items;
+	
+	public Inventory() throws AWTException, IOException {
+		initializeInventoryRectangle();
 		initializeInventorySlots();
+		initializeItems();
 		robot = new Robot();
-		this.inventoryAreaToCapture = new Rectangle(INVENTORY_OFFSET_WIDTH, INVENTORY_OFFSET_HEIGHT, INVENTORY_WIDTH, INVENTORY_HEIGHT);
+	}
+	
+	private void initializeInventoryRectangle() {
+		inventoryRectangleToCapture = new Rectangle(INVENTORY_OFFSET_WIDTH, INVENTORY_OFFSET_HEIGHT, INVENTORY_WIDTH, INVENTORY_HEIGHT);
 	}
 	
 	private void initializeInventorySlots() {
@@ -30,11 +39,19 @@ public class Inventory {
 		}
 	}
 	
+	private void initializeItems() throws IOException {
+		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Items/");
+	}
+	
 	public void update() throws IOException {
-		BufferedImage image = robot.createScreenCapture(this.inventoryAreaToCapture);
+		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
 		updateAllInventorySlots(image);
 	}
-
+	
+	public void updateWithFakeImageForTests(BufferedImage testImage) throws IOException {
+		updateAllInventorySlots(testImage);
+	}
+	
 	private void updateAllInventorySlots(BufferedImage image) throws IOException {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
@@ -42,5 +59,19 @@ public class Inventory {
 			}
 		}
 	}
-
+	
+	public String getItemNameInInventorySlot(int row, int column) {
+		return inventorySlots[row][column].getItemNameInInventorySlot(items);
+	}
+	
+	public boolean isInventoryFull() {
+		for (int row = 0; row < 4; row++) {
+			for (int column = 0; column < 7; column++) {
+				if (!inventorySlots[row][column].isInventorySlotEmpty(items)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }

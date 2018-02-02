@@ -11,14 +11,14 @@ import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class ItemsTest {
+class InventoryItemsTest {
 
-	Items items;
+	InventoryItems items;
 	String testingItemDirectoryPath;
 	
 	public void initialize() throws IOException {
 		System.out.println("running initialize...");
-		items = new Items("/home/dpapp/Desktop/RunescapeAIPics/Tests/Items/");
+		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Tests/Items/");
 		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAIPics/Tests/ItemNameRecognition/";
 	}
 	

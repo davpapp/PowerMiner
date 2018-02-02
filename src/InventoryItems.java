@@ -3,16 +3,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Items {
+public class InventoryItems {
 	// TODO: write tests
-	HashMap<String, Item> items;
+	HashMap<String, InventoryItem> items;
 	
-	public Items(String itemDirectoryPath) throws IOException {
+	public InventoryItems(String itemDirectoryPath) throws IOException {
 		initializeItemsFromDirectory(itemDirectoryPath);
 	}
 	
 	private void initializeItemsFromDirectory(String itemDirectoryPath) throws IOException {
-		this.items = new HashMap<String, Item>();
+		this.items = new HashMap<String, InventoryItem>();
 		for (File itemFile : getListOfFilesFromItemDirectory(itemDirectoryPath)) {
 			if (itemFile.isFile()) {
 				putItemInMap(itemDirectoryPath, itemFile.getName());
@@ -26,7 +26,7 @@ public class Items {
 	}
 	
 	private void putItemInMap(String itemDirectoryPath, String itemFileName) throws IOException {
-		Item item = new Item(itemDirectoryPath, itemFileName);
+		InventoryItem item = new InventoryItem(itemDirectoryPath, itemFileName);
 		String itemName = getItemNameFromFile(itemFileName);
 		this.items.put(itemName, item);
 	}
@@ -51,7 +51,7 @@ public class Items {
 		return "empty";
 	}
 	
-	private Item getItemByName(String itemName) {
+	private InventoryItem getItemByName(String itemName) {
 		return items.get(itemName);
 	}
 	

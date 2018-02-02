@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Item {
+public class InventoryItem {
 	
 	private BufferedImage itemImage;
 	private int minimumNumberOfMatchingPixels;
 	
-	public Item(String itemDirectoryPath, String itemName) throws IOException {
+	public InventoryItem(String itemDirectoryPath, String itemName) throws IOException {
 		initializeImage(itemDirectoryPath, itemName);
 		this.minimumNumberOfMatchingPixels = 100;
 	}

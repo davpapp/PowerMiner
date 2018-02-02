@@ -11,7 +11,8 @@ public class main {
 		//Cursor cursor = new Cursor();
 		//Inventory inventory = new Inventory();
 		//inventory.update();
-		Items items = new Items("/home/dpapp/Desktop/RunescapeAIPics/Items/");
+		Inventory inventory = new Inventory();
+		//Items items = new Items("/home/dpapp/Desktop/RunescapeAIPics/Items/");
 		//items.displayItems();
 		
 		System.out.println("Success!");
