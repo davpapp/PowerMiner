@@ -77,15 +77,15 @@ public class CursorPath {
 	}
 	
 	private boolean isCursorPathTimespanReasonable() {
-		return (this.pathTimespanMilliseconds > 100 && this.pathTimespanMilliseconds < 400);
+		return (this.pathTimespanMilliseconds > 50 && this.pathTimespanMilliseconds < 400);
 	}
 	
 	private boolean isCursorPathDistanceReasonable() {
-		return (this.pathDistance > 5 && this.pathDistance < 1000);
+		return (this.pathDistance > 0 && this.pathDistance < 1000);
 	}
 	
 	private boolean isCursorPathNumPointsReasonable() {
-		return (this.pathNumPoints > 5 && this.pathNumPoints < 50);
+		return (this.pathNumPoints > 0 && this.pathNumPoints < 50);
 	}
 	
 	public ArrayList<CursorPoint> getCursorPathPoints() {

@@ -84,7 +84,7 @@ public class Cursor {
 	
 	public void rightClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-		Thread.sleep(200 + getRandomClickLength() * 2);
+		Thread.sleep(50 + getRandomClickLength());
 		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
 		Thread.sleep(getRandomClickLength());
 	}
@@ -94,10 +94,11 @@ public class Cursor {
 		leftClickCursor();
 	}
 	
-	public void moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
+	public Point moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
 		moveCursorToCoordinates(randomizedGoalPoint);
 		leftClickCursor();
+		return randomizedGoalPoint; // Return the point in case we need precise movement afterwards
 	}
 	
 	public void moveAndRightClickAtCoordinates(Point goalPoint) throws InterruptedException {
@@ -105,16 +106,21 @@ public class Cursor {
 		rightClickCursor();
 	}
 	
-	public void moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
+	public Point moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
 		moveCursorToCoordinates(randomizedGoalPoint);
 		rightClickCursor();
+		return randomizedGoalPoint; // Return the point in case we need precise movement afterwards
 	}
 
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
 		Point startingCursorPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = calculateDistanceBetweenPoints(startingCursorPoint, goalPoint);
+		if (distanceToMoveCursor == 0) { 
+			return;
+		}
 		double angleToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
+		
 		// TODO: check if exists
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		double angleToTranslatePathBy = angleToMoveCursor - cursorPathToFollow.getCursorPathTheta();
@@ -142,6 +148,10 @@ public class Cursor {
 	private CursorPath chooseCursorPathToFollowBasedOnDistance(int distanceToMoveCursor) {
 		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(distanceToMoveCursor);
 		// TODO: Error check if path of this size exists
+		if (cursorPathsWithSameDistance.size() == 0) {
+			System.out.println("No movement required! Returning empty list of CursorPoints.");
+			return new CursorPath(new ArrayList<CursorPoint>());
+		}
 		return cursorPathsWithSameDistance.get(new Random().nextInt(cursorPathsWithSameDistance.size()));
 	}
 	
@@ -163,5 +173,16 @@ public class Cursor {
 	
 	private Point randomizePoint(Point goalPoint, int xTolerance, int yTolerance) {
 		return new Point(goalPoint.x + getRandomIntSigned(xTolerance), goalPoint.y + getRandomIntSigned(yTolerance));
+	}
+	
+	public void displayCursorPaths() {
+		for (int i = 0; i < 200; i++) {
+			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " paths of size " + i);
+		}
+		System.out.println("--------------");
+		for (int i = 0; i < cursorPathsByDistance.get(1).size(); i++) {
+			cursorPathsByDistance.get(1).get(i).displayCursorPoints();
+		}
+		//cursorPathsByDistance.get(0).get(0).displayCursorPoints();
 	}
 }

@@ -10,11 +10,10 @@ public class main {
 		
 		Cursor cursor = new Cursor();
 		CursorTask cursorTask = new CursorTask();
-		//Inventory inventory = new Inventory();
-		//inventory.update();
+		//cursor.displayCursorPaths();
 		Inventory inventory = new Inventory();
 		//inventory.update();
-		cursorTask.dropAllItemsInInventory(cursor, inventory);
+		cursorTask.dropBottomRow(cursor, inventory);
 		/*cursorTask.dropItem(cursor, inventory, 0, 0);
 		Thread.sleep(3000);
 		cursorTask.dropItem(cursor, inventory, 3, 5);

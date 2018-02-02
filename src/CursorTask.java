@@ -4,7 +4,7 @@ import java.awt.Point;
 public class CursorTask {
 	
 	public static final int DROP_OFFSET = 40;
-	public static final int DROP_OFFSET_BOTTOM_ROW = 10;
+	public static final int DROP_BOTTOM_ROW = 539;
 
 	public void dropAllItemsInInventory(Cursor cursor, Inventory inventory) throws InterruptedException {
 		for (int row = 0; row < 4; row++) {
@@ -14,25 +14,33 @@ public class CursorTask {
 		}
 	}
 	
+	public void dropBottomRow(Cursor cursor, Inventory inventory) throws InterruptedException {
+		for (int row = 0; row < 4; row++) {
+			dropItem(cursor, inventory, row, 6);
+		}
+	}
+	
 	public void dropItem(Cursor cursor, Inventory inventory, int row, int column) throws InterruptedException {
 		System.out.println("Dropping item...");
 		Point coordinatesToRightClick = inventory.getClickCoordinatesCoordinatesForInventorySlot(row, column);
-		rightClickItemSlot(cursor, coordinatesToRightClick);
-		leftClickDropOption(cursor, coordinatesToRightClick, row);
+		Point clickedCoordinates = rightClickItemSlot(cursor, coordinatesToRightClick);
+		leftClickDropOption(cursor, clickedCoordinates, column);
 	}
 	
-	public void rightClickItemSlot(Cursor cursor, Point coordinatesToRightClick) throws InterruptedException {
-		cursor.moveAndRightlickAtCoordinatesWithRandomness(coordinatesToRightClick, 10, 10);
+	public Point rightClickItemSlot(Cursor cursor, Point coordinatesToRightClick) throws InterruptedException {
+		Point clickedCoordinates = cursor.moveAndRightlickAtCoordinatesWithRandomness(coordinatesToRightClick, 10, 10);
+		return clickedCoordinates;
 	}
 	
-	private void leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int row) throws InterruptedException {
+	private void leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws InterruptedException {
 		Point offsetCoordinatesToLeftClick = coordinatesToLeftClick;
-		if (row < 6) {
+		if (column < 6) {
 			offsetCoordinatesToLeftClick.y += DROP_OFFSET;
 		}
 		else {
-			offsetCoordinatesToLeftClick.y += DROP_OFFSET_BOTTOM_ROW;
+			offsetCoordinatesToLeftClick.y = DROP_BOTTOM_ROW;
 		}
-		cursor.moveAndLeftClickAtCoordinatesWithRandomness(coordinatesToLeftClick, 10, 10);
+		Point p = cursor.moveAndLeftClickAtCoordinatesWithRandomness(offsetCoordinatesToLeftClick, 10, 6);
+		System.out.println(p.x + "," + p.y);
 	}
 }
