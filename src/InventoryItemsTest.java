@@ -18,20 +18,18 @@ class InventoryItemsTest {
 	
 	public void initialize() throws IOException {
 		System.out.println("running initialize...");
-		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Tests/Items/");
+		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Items/");
 		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAIPics/Tests/ItemNameRecognition/";
 	}
 	
 	@Test
 	public void testGetNameOfItemFromImage() throws IOException {
 		initialize();
-
 		for (File itemFile : items.getListOfFilesFromItemDirectory(this.testingItemDirectoryPath)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());
 				assertEquals(expectedItemName, items.getNameOfItemFromImage(itemImage));
-				System.out.println("Successfully recongized " + itemFile.getName());
 			}
 		}
 	}
@@ -39,14 +37,14 @@ class InventoryItemsTest {
 	@Test
 	public void testIsImageThisItem() throws IOException {
 		initialize();
-
 		for (File itemFile : items.getListOfFilesFromItemDirectory(this.testingItemDirectoryPath)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());
-				if (expectedItemName == "empty") continue; 
+				if (expectedItemName.equals("empty")) {
+					continue; 
+				}
 				assertTrue(items.isImageThisItem(itemImage, expectedItemName));
-				System.out.println("Successfully recongized " + itemFile.getName());
 			}
 		}
 	}

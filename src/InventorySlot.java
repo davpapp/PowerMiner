@@ -33,4 +33,13 @@ public class InventorySlot {
 	public boolean isInventorySlotEmpty(InventoryItems items) {
 		return ("empty" == items.getNameOfItemFromImage(this.inventorySlotImage));
 	}
+	
+	public void writeInventorySlotImage(BufferedImage image, int row, int column) throws IOException {
+		updateInventorySlot(image);
+		ImageIO.write(this.inventorySlotImage, "png", new File(getImageName(row, column)));
+	}
+
+	private String getImageName(int row, int column) {
+		return ("/home/dpapp/Desktop/RunescapeAIPics/InventorySlots/inventorySlot_" + row + "_" + column + ".png");
+	}
 }

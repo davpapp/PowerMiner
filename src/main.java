@@ -12,6 +12,7 @@ public class main {
 		//Inventory inventory = new Inventory();
 		//inventory.update();
 		Inventory inventory = new Inventory();
+		inventory.update();
 		//Items items = new Items("/home/dpapp/Desktop/RunescapeAIPics/Items/");
 		//items.displayItems();
 		

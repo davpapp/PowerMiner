@@ -22,12 +22,22 @@ class InventoryTest {
 	@Test
 	public void testGetNameInItemInventorySlot() throws IOException, AWTException {
 		initialize();
-		
-		// TODO: add image for uploading custom image to Inventory
-		BufferedImage testImage = loadBufferedImage("inventory_0.png");
-		inventory.updateWithFakeImageForTests(testImage);
-		assertEquals(inventory.getItemNameInInventorySlot(0, 0), "willowLogs");
-		assertEquals(inventory.getItemNameInInventorySlot(3, 6), "empty");
+
+		String[][] expectedItemNames0 = {{"willowLogs", "oakLogs", "oakLogs", "willowLogs", "willowLogs", "willowLogs", "willowLogs"},
+				{"empty", "empty", "empty", "willowLogs", "willowLogs", "willowLogs", "willowLogs"}, 
+				{"empty", "willowLogs", "logs", "logs", "empty", "willowLogs", "willowLogs"},
+				{"willowLogs", "willowLogs", "willowLogs", "willowLogs", "willowLogs", "willowLogs", "empty"}};
+		String[][] expectedItemNames1 = {{"oakLogs", "oakLogs", "willowLogs", "willowLogs", "willowLogs", "oakLogs", "logs"},
+				{"empty", "willowLogs", "empty", "willowLogs", "logs", "empty", "logs"}, 
+				{"oakLogs", "willowLogs", "oakLogs", "oakLogs", "runeAxe", "willowLogs", "willowLogs"},
+				{"willowLogs", "logs", "logs", "oakLogs", "willowLogs", "logs", "empty"}};
+		String[][] expectedItemNames2 = {{"oakLogs", "willowLogs", "willowLogs", "willowLogs", "oakLogs", "willowLogs", "logs"},
+				{"empty", "oakLogs", "empty", "logs", "willowLogs", "empty", "willowLogs"}, 
+				{"logs", "empty", "oakLogs", "oakLogs", "empty", "oakLogs", "empty"},
+				{"willowLogs", "empty", "logs", "willowLogs", "empty", "logs", "logs"}};
+		testInventory("inventory_0.png", expectedItemNames0);
+		testInventory("inventory_1.png", expectedItemNames1);
+		testInventory("inventory_2.png", expectedItemNames2);
 	}
 	
 	public BufferedImage loadBufferedImage(String fileName) throws IOException {
@@ -35,5 +45,16 @@ class InventoryTest {
 		BufferedImage itemImage = ImageIO.read(itemFile);
 		return itemImage;
 	}
-
+	
+	void testInventory(String inventoryFileName, String[][] expectedItemNames) throws IOException {
+		BufferedImage testImage = loadBufferedImage(inventoryFileName);
+		inventory.updateWithFakeImageForTests(testImage);
+		
+		for (int row = 0; row < 4; row++) {
+			for (int column = 0; column < 7; column++) {
+				assertEquals(inventory.getItemNameInInventorySlot(row, column), expectedItemNames[row][column]);
+			}
+		}
+	}
+	
 }

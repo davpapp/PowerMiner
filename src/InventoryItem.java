@@ -11,7 +11,7 @@ public class InventoryItem {
 	
 	public InventoryItem(String itemDirectoryPath, String itemName) throws IOException {
 		initializeImage(itemDirectoryPath, itemName);
-		this.minimumNumberOfMatchingPixels = 100;
+		this.minimumNumberOfMatchingPixels = 200;
 	}
 	
 	private void initializeImage(String itemDirectoryPath, String itemName) throws IOException {
@@ -51,7 +51,7 @@ public class InventoryItem {
 		int[] colors1 = getRGBValuesFromPixel(rgb1);
 		int[] colors2 = getRGBValuesFromPixel(rgb2);
 		for (int i = 0; i < 3; i++) {
-			if (Math.abs(colors1[i] - colors2[i]) > 5) {
+			if (Math.abs(colors1[i] - colors2[i]) > 3) {
 				return false;
 			}
 		}

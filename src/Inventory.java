@@ -2,7 +2,10 @@ import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class Inventory {
 
@@ -45,7 +48,12 @@ public class Inventory {
 	
 	public void update() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
+		ImageIO.write(image, "png", new File(getImageName()));
 		updateAllInventorySlots(image);
+	}
+
+	private String getImageName() {
+		return ("/home/dpapp/Desktop/RunescapeAIPics/Tests/Inventory/inventory.png");
 	}
 	
 	public void updateWithFakeImageForTests(BufferedImage testImage) throws IOException {
@@ -56,6 +64,7 @@ public class Inventory {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
 				inventorySlots[row][column].updateInventorySlot(image);
+				//inventorySlots[row][column].writeInventorySlotImage(image, row, column);
 			}
 		}
 	}
@@ -64,7 +73,7 @@ public class Inventory {
 		return inventorySlots[row][column].getItemNameInInventorySlot(items);
 	}
 	
-	public boolean isInventoryFull() {
+	/*public boolean isInventoryFull() {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {
 				if (!inventorySlots[row][column].isInventorySlotEmpty(items)) {
@@ -73,5 +82,5 @@ public class Inventory {
 			}
 		}
 		return true;
-	}
+	}*/
 }
