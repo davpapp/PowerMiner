@@ -8,8 +8,7 @@ public class CursorTask {
 
 	
 	// Human drop time: 29 seconds
-	
-	// Measured: 
+	// Measured: 30 seconds, 29 seconds
 	public void optimizedDropAllItemsInInventory(Cursor cursor, Inventory inventory) throws InterruptedException {
 		for (int row = 0; row < 4; row++) {
 			Point coordinatesToClick = dropItem(cursor, inventory, row, 0);
@@ -35,11 +34,6 @@ public class CursorTask {
 		}
 	}
 	
-	/*public void dropBottomRow(Cursor cursor, Inventory inventory) throws InterruptedException {
-		for (int row = 0; row < 4; row++) {
-			dropItem(cursor, inventory, row, 6);
-		}
-	}*/
 	
 	public Point dropItem(Cursor cursor, Inventory inventory, int row, int column) throws InterruptedException {
 		Point coordinatesToRightClick = inventory.getClickCoordinatesCoordinatesForInventorySlot(row, column);

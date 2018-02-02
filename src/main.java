@@ -10,13 +10,16 @@ public class main {
 		
 		Cursor cursor = new Cursor();
 		CursorTask cursorTask = new CursorTask();
-		//cursor.displayCursorPaths();
 		Inventory inventory = new Inventory();
-		//inventory.update();
-		cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 		
-		
-		System.out.println("Success!");
+		while (true) {
+			inventory.update();
+			if (inventory.isInventoryFull()) {
+				System.out.println("Inventory full. Emptying...");
+				cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
+			}
+			Thread.sleep(100);
+		}		
 		//cursor.moveCursorToCoordinates(new Point(620, 420));
 		
 	}
