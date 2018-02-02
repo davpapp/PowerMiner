@@ -7,9 +7,11 @@ import javax.imageio.ImageIO;
 public class Item {
 	
 	private BufferedImage itemImage;
+	private int minimumNumberOfMatchingPixels;
 	
 	public Item(String itemDirectoryPath, String itemName) throws IOException {
 		initializeImage(itemDirectoryPath, itemName);
+		this.minimumNumberOfMatchingPixels = 100;
 	}
 	
 	private void initializeImage(String itemDirectoryPath, String itemName) throws IOException {
@@ -23,7 +25,7 @@ public class Item {
 
 	public boolean itemMatchesImage(BufferedImage itemImageToCompare) {
 		if (imagesAreTheSameSize(itemImageToCompare)) {
-			return imagesMatch(itemImageToCompare);
+			return imagesMatch(itemImageToCompare, 5);
 		}
 		return false;
 	}
@@ -32,20 +34,17 @@ public class Item {
 		return (itemImage.getWidth() == itemImageToCompare.getWidth()) && (itemImage.getHeight() == itemImageToCompare.getHeight());
 	}
 	
-	private boolean imagesMatch(BufferedImage itemImageToCompare) {
-		return false;
-	}
 	
 	private boolean imagesMatch(BufferedImage itemImageToCompare, int pixelTolerance) {
-		int matchingPixel = 0;
+		int numberOfMatchingPixels = 0;
 		for (int row = 0; row < itemImageToCompare.getWidth(); row++) {
 			for (int col = 0; col < itemImageToCompare.getHeight(); col++) {
 				if (pixelsAreWithinRGBTolerance(itemImage.getRGB(row, col), itemImageToCompare.getRGB(row, col))) {
-					matchingPixel++;
+					numberOfMatchingPixels++;
 				}
 			}
 		}
-		return true;
+		return (numberOfMatchingPixels > this.minimumNumberOfMatchingPixels);
 	}
 	
 	private boolean pixelsAreWithinRGBTolerance(int rgb1, int rgb2) {

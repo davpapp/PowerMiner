@@ -7,8 +7,8 @@ public class Items {
 	// TODO: write tests
 	HashMap<String, Item> items;
 	
-	public Items() throws IOException {
-		initializeItemsFromDirectory("/home/dpapp/Desktop/RunescapeAIPics/Items/");
+	public Items(String itemDirectoryPath) throws IOException {
+		initializeItemsFromDirectory(itemDirectoryPath);
 	}
 	
 	private void initializeItemsFromDirectory(String itemDirectoryPath) throws IOException {
@@ -20,7 +20,7 @@ public class Items {
 		}
 	}
 	
-	private File[] getListOfFilesFromItemDirectory(String itemDirectoryPath) {
+	public File[] getListOfFilesFromItemDirectory(String itemDirectoryPath) {
 		File itemDirectory = new File(itemDirectoryPath);
 		return itemDirectory.listFiles();
 	}
@@ -31,20 +31,31 @@ public class Items {
 		this.items.put(itemName, item);
 	}
 	
-	private String getItemNameFromFile(String fileName) {
+	public String getItemNameFromFile(String fileName) {
 		return fileName.substring(0, fileName.indexOf('.'));
 	}
 	
-	public boolean isInstanceOf(BufferedImage itemImage, String itemName) {
+	public boolean isImageThisItem(BufferedImage itemImage, String itemName) {
 		if (items.containsKey(itemName)) {
-			return getItem(itemName).itemMatchesImage(itemImage);
+			return getItemByName(itemName).itemMatchesImage(itemImage);
 		}
 		return false;
 	}
 	
-	private Item getItem(String itemName) {
+	public String getNameOfItemFromImage(BufferedImage inputImage) {
+		for (String itemName : items.keySet()) {
+		    if (getItemByName(itemName).itemMatchesImage(inputImage)) {
+		    	return itemName;
+		    }
+		}
+		return "empty";
+	}
+	
+	private Item getItemByName(String itemName) {
 		return items.get(itemName);
 	}
+	
+	
 	
 	/*public void displayItems() {
 		for (HashMap.Entry<String, Item> entry : items.entrySet()) {
