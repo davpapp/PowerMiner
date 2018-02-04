@@ -59,10 +59,6 @@ public class Inventory {
 		updateAllInventorySlots(image);
 	}
 
-	private String getImageName() {
-		return ("/home/dpapp/Desktop/RunescapeAIPics/Tests/Inventory/inventory.png");
-	}
-	
 	// For testing only
 	public void updateWithFakeImageForTests(BufferedImage testImage) throws IOException {
 		updateAllInventorySlots(testImage);

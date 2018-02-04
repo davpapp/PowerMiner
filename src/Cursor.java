@@ -146,15 +146,35 @@ public class Cursor {
 	}
 
 	private CursorPath chooseCursorPathToFollowBasedOnDistance(int distanceToMoveCursor) {
-		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(distanceToMoveCursor);
-		// TODO: Error check if path of this size exists
-		if (cursorPathsWithSameDistance.size() == 0) {
-			System.out.println("No movement required! Returning empty list of CursorPoints.");
+		if (distanceToMoveCursor == 0) {
 			return new CursorPath(new ArrayList<CursorPoint>());
 		}
-		return cursorPathsWithSameDistance.get(new Random().nextInt(cursorPathsWithSameDistance.size()));
+		
+		int newDistanceToMoveCursor = findNearestPathLengthThatExists(distanceToMoveCursor);
+		double scaleFactor = getScaleFactor(newDistanceToMoveCursor, distanceToMoveCursor);
+		
+		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(newDistanceToMoveCursor);
+		CursorPath scaledCursorPath = cursorPathsWithSameDistance.get(random.nextInt(cursorPathsWithSameDistance.size())).getScaledCopyOfCursorPath(1.0);
+		return scaledCursorPath;
 	}
 	
+	private int findNearestPathLengthThatExists(int distanceToMoveCursor) {
+		int offset = 1;
+		while (cursorPathsByDistance.get(distanceToMoveCursor + offset).size() == 0) {
+			if (offset > 0) {
+				offset = -(offset + 1);
+			}
+			else {
+				offset = -offset + 1;
+			}
+		}
+		return distanceToMoveCursor + offset;
+	}
+	
+	private double getScaleFactor(int newDistanceToMoveCursor, int distanceToMoveCursor) {
+		return (1.0 * newDistanceToMoveCursor / distanceToMoveCursor);
+	}
+
 	private int calculateDistanceBetweenPoints(Point a, Point b) {
 		return (int) (Math.hypot(a.x - b.x, a.y - b.y));
 	}

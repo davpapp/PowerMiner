@@ -100,6 +100,14 @@ public class CursorPath {
 		return pathTheta;
 	}
 	
+	public CursorPath getScaledCopyOfCursorPath(double scaleFactor) {
+		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
+		for (CursorPoint cursorPoint : this.pathCursorPoints) {
+			scaledCursorPath.add(new CursorPoint((int) (cursorPoint.x * scaleFactor), (int) (cursorPoint.y * scaleFactor), (int) (cursorPoint.postMillisecondDelay * scaleFactor)));
+		}
+		return new CursorPath(scaledCursorPath);
+	}
+	
 	public void displayCursorPoints() {
 		for (CursorPoint p : pathCursorPoints) {
 			p.display();
