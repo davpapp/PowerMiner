@@ -10,18 +10,20 @@ public class Randomizer {
 		random = new Random();
 	}
 	
-	public int nextGaussianWithinThreeSTDs(int mean, int STD) {
-		int result = (int) (random.nextGaussian() * STD + mean);
-		while (result > (mean + 3 * STD) || result < (mean - 3 * STD)) {
-			result = (int) random.nextGaussian() * STD + mean;
+	public int nextGaussianWithinRange(double rangeBegin, double rangeEnd) {
+		double rangeMean = (rangeEnd - rangeBegin) / 2.0;
+		double rangeSTD = (rangeEnd - rangeMean) / 3.0;
+		double result = random.nextGaussian() * rangeSTD + rangeMean;
+		while (result > rangeEnd || result < rangeBegin) {
+			result = random.nextGaussian() * rangeSTD + rangeMean;
 		}
-		return result;
+		return (int) result;
 	}
 	
 	public Point generatePeakForTransformationParabola(int pathDistance) {
 		double maxTransformationScale = 0.2;
-		int peakX = nextGaussianWithinThreeSTDs(pathDistance / 2, pathDistance / 6);
-		int peakY = (int) (random.nextGaussian() * maxTransformationScale);
+		int peakX = nextGaussianWithinRange(0, pathDistance);
+		int peakY = nextGaussianWithinRange(0, pathDistance * maxTransformationScale);
 		return new Point(peakX, peakY);
 	}
 	

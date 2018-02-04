@@ -27,7 +27,7 @@ public class Cursor {
 	
 	
 	private Robot robot;
-	private Random random = new Random();
+	private Randomizer randomizer;
 
 	private ArrayList<ArrayList<CursorPath>> cursorPathsByDistance;
 	
@@ -36,7 +36,7 @@ public class Cursor {
 		initializeCursorPathsByDistanceFromFile("/home/dpapp/GhostMouse/coordinates.txt");
 
 		robot = new Robot();
-		random = new Random();
+		randomizer = new Randomizer();
 	}
 	
 	private void initializeCursorPathsByDistanceFromFile(String path) {
@@ -72,7 +72,7 @@ public class Cursor {
 	
 	// TODO: make sure these are reasonable
 	private int getRandomClickLength() {
-		return random.nextInt(MAXIMUM_CLICK_LENGTH - MINIMUM_CLICK_LENGTH) + MINIMUM_CLICK_LENGTH;
+		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
 	}
 	
 	public void leftClickCursor() throws InterruptedException {
@@ -114,12 +114,12 @@ public class Cursor {
 	}
 
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
-		Point startingCursorPoint = getCurrentCursorPoint();
-		int distanceToMoveCursor = calculateDistanceBetweenPoints(startingCursorPoint, goalPoint);
+		Point startingPoint = getCurrentCursorPoint();
+		int distanceToMoveCursor = (int) startingPoint.distance(goalPoint);
 		if (distanceToMoveCursor == 0) { 
 			return;
 		}
-		double angleToMoveCursor = calculateThetaBetweenPoints(startingCursorPoint, goalPoint);
+		double angleToMoveCursor = getThetaBetweenPoints(startingPoint, goalPoint);
 		
 		// TODO: check if exists
 		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
@@ -127,18 +127,18 @@ public class Cursor {
 		followCursorPath(startingCursorPoint, angleToTranslatePathBy, cursorPathToFollow);
 	}
 	
+	
+	//TODO: fix
+	private double getThetaBetweenPoints(Point startingPoint, Point goalPoint) {
+		return Math.atan2(startingPoint.x * goalPoint.y, 1.0 * goalPoint.x);
+	}
+
 	private void followCursorPath(Point startingCursorPoint, double angleToTranslatePathBy, CursorPath cursorPathToFollow) throws InterruptedException {
 		for (CursorPoint untranslatedCursorPoint : cursorPathToFollow.getCursorPathPoints()) {
 			Point translatedPointToClick = translatePoint(startingCursorPoint, angleToTranslatePathBy, untranslatedCursorPoint);
 			robotMouseMove(translatedPointToClick);
-			Thread.sleep(untranslatedCursorPoint.postMillisecondDelay);
+			Thread.sleep(untranslatedCursorPoint.delay);
 		}
-	}
-	
-	private Point translatePoint(Point startingCursorPoint, double angleToTranslateBy, CursorPoint untranslatedCursorPoint) {
-		int x = (int) (startingCursorPoint.x + Math.cos(angleToTranslateBy) * untranslatedCursorPoint.x - Math.sin(angleToTranslateBy) * untranslatedCursorPoint.y);
-		int y = (int) (startingCursorPoint.y + Math.sin(angleToTranslateBy) * untranslatedCursorPoint.x + Math.cos(angleToTranslateBy) * untranslatedCursorPoint.y);
-		return new Point(x, y);
 	}
 	
 	public void robotMouseMove(Point pointToMoveCursorTo) {
@@ -154,7 +154,7 @@ public class Cursor {
 		double scaleFactor = getScaleFactor(newDistanceToMoveCursor, distanceToMoveCursor);
 		
 		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(newDistanceToMoveCursor);
-		CursorPath scaledCursorPath = cursorPathsWithSameDistance.get(random.nextInt(cursorPathsWithSameDistance.size())).getScaledCopyOfCursorPath(1.0);
+		CursorPath scaledCursorPath = cursorPathsWithSameDistance.get(new Random().nextInt(cursorPathsWithSameDistance.size())).getScaledCopyOfCursorPath(1.0);
 		return scaledCursorPath;
 	}
 	
@@ -175,24 +175,14 @@ public class Cursor {
 		return (1.0 * newDistanceToMoveCursor / distanceToMoveCursor);
 	}
 
-	private int calculateDistanceBetweenPoints(Point a, Point b) {
-		return (int) (Math.hypot(a.x - b.x, a.y - b.y));
-	}
-	
-	public double calculateThetaBetweenPoints(Point a, Point b) {
-		return Math.atan2(1.0 * (b.y - a.y), 1.0 * (b.x - a.x));
-	}
 	
 	public Point getCurrentCursorPoint() {
 		return MouseInfo.getPointerInfo().getLocation();
 	}
 	
-	private int getRandomIntSigned(int tolerance) {
-		return random.nextInt(tolerance) - tolerance / 2;
-	}
-	
 	private Point randomizePoint(Point goalPoint, int xTolerance, int yTolerance) {
-		return new Point(goalPoint.x + getRandomIntSigned(xTolerance), goalPoint.y + getRandomIntSigned(yTolerance));
+		Randomizer randomizer = new Randomizer();
+		return new Point(goalPoint.x + randomizer.nextGaussianWithinRange(-xTolerance, xTolerance), goalPoint.y + randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	
 	public void displayCursorPaths() {

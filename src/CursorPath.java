@@ -6,70 +6,86 @@ import java.util.ArrayList;
 
 public class CursorPath {
 		
-	private ArrayList<CursorPoint> pathCursorPoints;
-	private int pathNumPoints;
-	private int pathDistance;
-	private double pathTheta;
-	private int pathTimespanMilliseconds;
+	private ArrayList<CursorPoint> cursorPoints;
+	private double theta;
+	private int distance;
+	private int timespan;
 		
 	public CursorPath(ArrayList<CursorPoint> cursorPoints)
 	{
-		this.pathCursorPoints = copyCursorPointsWithOffset(cursorPoints);
-		this.pathNumPoints = cursorPoints.size();
-		this.pathDistance = calculateCursorPathDistance();
-		this.pathTheta = calculateCursorPathTheta();
-		this.pathTimespanMilliseconds = calculateCursorPathTimespan();
+		this.cursorPoints = initializePathOfCursorPoints(cursorPoints);
+		this.distance = calculateCursorPathDistance();
+		this.theta = calculateCursorPathTheta();
+		this.timespan = calculateCursorPathTimespan();
 	}
 	
-	private ArrayList<CursorPoint> copyCursorPointsWithOffset(ArrayList<CursorPoint> cursorPoints) {
-		ArrayList<CursorPoint> cursorPointsCopy = new ArrayList<CursorPoint>(cursorPoints.size());
+	private ArrayList<CursorPoint> initializePathOfCursorPoints(ArrayList<CursorPoint> cursorPoints) {
 		CursorPoint startingCursorPoint = cursorPoints.get(0);
+		ArrayList<CursorPoint> translatedCursorPoints = getTranslatedCopyOfCursorPath(cursorPoints, startingCursorPoint);
+		ArrayList<CursorPoint> normalizedDelayCursorPoints = getNormalizedDelayCopyOfCursorPath(translatedCursorPoints);
+		return normalizedDelayCursorPoints;
+	}
+	
+	private ArrayList<CursorPoint> getTranslatedCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints, CursorPoint cursorPointToTranslateBy) {
+		ArrayList<CursorPoint> offsetCursorPath = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : cursorPoints) {
-			cursorPointsCopy.add(getOffsetCursorPoint(cursorPoint, startingCursorPoint));
+			offsetCursorPath.add(cursorPoint.getCursorPointTranslatedBy(cursorPointToTranslateBy));
 		}
-		calculatePostMillisecondDelays(cursorPointsCopy);
-		return cursorPointsCopy;
+		return offsetCursorPath;
 	}
 	
-	private void calculatePostMillisecondDelays(ArrayList<CursorPoint> cursorPoints) {
-		for (int i = 1; i < cursorPoints.size(); i++) {
-			cursorPoints.get(i - 1).setPostMillisecondDelay(cursorPoints.get(i).postMillisecondDelay - cursorPoints.get(i - 1).postMillisecondDelay);
+	private ArrayList<CursorPoint> getNormalizedDelayCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints) {
+		ArrayList<CursorPoint> normalizedDelayCursorPoints = new ArrayList<CursorPoint>();
+		for (int i = 0; i < cursorPoints.size() - 1; i++) {
+			CursorPoint cursorPoint = cursorPoints.get(i);
+			CursorPoint nextCursorPoint = cursorPoints.get(i + 1);
+			normalizedDelayCursorPoints.add(cursorPoint.getCursorPointWithNewDelay(nextCursorPoint.delay - cursorPoint.delay));
 		}
-		cursorPoints.get(cursorPoints.size() - 1).setPostMillisecondDelay(0);
+		normalizedDelayCursorPoints.add(cursorPoints.get(cursorPoints.size() - 1).getCursorPointWithNewDelay(0));
+		return normalizedDelayCursorPoints;
+	}
+
+	
+	public ArrayList<CursorPoint> getScaledCopyOfCursorPath(double factorToScaleBy) {
+		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
+		for (CursorPoint cursorPoint : this.cursorPoints) {
+			scaledCursorPath.add(cursorPoint.getCursorPointScaledBy(factorToScaleBy));
+		}
+		return scaledCursorPath;
 	}
 	
-	private CursorPoint getOffsetCursorPoint(CursorPoint cursorPoint, CursorPoint offsetPoint) {
-		return new CursorPoint(cursorPoint.x - offsetPoint.x, cursorPoint.y - offsetPoint.y, cursorPoint.postMillisecondDelay);
+	public ArrayList<CursorPoint> getRotatedCopyOfCursorPath(double angleToRotateBy) {
+		ArrayList<CursorPoint> rotatedCursorPath = new ArrayList<CursorPoint>();
+		for (CursorPoint cursorPoint : this.cursorPoints) {
+			rotatedCursorPath.add(cursorPoint.getCursorPointRotatedBy(angleToRotateBy));
+		}
+		return rotatedCursorPath;
 	}
 	
 	private int calculateCursorPathTimespan() {
 		int sumPathTimespanMilliseconds = 0;
-		for (CursorPoint cursorPoint : this.pathCursorPoints) {
-			sumPathTimespanMilliseconds += cursorPoint.postMillisecondDelay;
+		for (CursorPoint cursorPoint : this.cursorPoints) {
+			sumPathTimespanMilliseconds += cursorPoint.delay;
 		}
 		return sumPathTimespanMilliseconds;
 	}
 	
 	private int calculateCursorPathDistance() {
-		return (int) calculateDistanceBetweenCursorPoints(getStartingCursorPoint(), getEndingCursorPoint());
+		return (int) (getStartingCursorPoint().getDistanceFrom(getEndingCursorPoint()));
 	}
 	
 	private double calculateCursorPathTheta() {
-		CursorPoint endingCursorPoint = getEndingCursorPoint();
-		return Math.atan2(1.0 * endingCursorPoint.y, 1.0 * endingCursorPoint.x);
+		return getStartingCursorPoint().getThetaFrom(getEndingCursorPoint());
 	}
 	
-	private CursorPoint getStartingCursorPoint() {
-		return pathCursorPoints.get(0);
+	public CursorPoint getStartingCursorPoint() {
+		return this.cursorPoints.get(0);
 	}
 	
-	private CursorPoint getEndingCursorPoint() {
-		return pathCursorPoints.get(pathNumPoints - 1);
+	public CursorPoint getEndingCursorPoint() {
+		return this.cursorPoints.get(this.cursorPoints.size() - 1);
 	}
 	
-	private double calculateDistanceBetweenCursorPoints(CursorPoint a, CursorPoint b) {
-		return Math.hypot(a.x - b.x, a.y - b.y);
-	}
 	
 	public boolean isCursorPathReasonable() {
 		return isCursorPathTimespanReasonable() && isCursorPathDistanceReasonable() &&
@@ -77,42 +93,35 @@ public class CursorPath {
 	}
 	
 	private boolean isCursorPathTimespanReasonable() {
-		return (this.pathTimespanMilliseconds > 50 && this.pathTimespanMilliseconds < 400);
+		return (this.timespan > 50 && this.timespan < 400);
 	}
 	
 	private boolean isCursorPathDistanceReasonable() {
-		return (this.pathDistance > 0 && this.pathDistance < 1000);
+		return (this.distance > 0 && this.distance < 1000);
 	}
 	
 	private boolean isCursorPathNumPointsReasonable() {
-		return (this.pathNumPoints > 0 && this.pathNumPoints < 50);
+		return (this.cursorPoints.size() > 0 && this.cursorPoints.size() < 50);
 	}
 	
 	public ArrayList<CursorPoint> getCursorPathPoints() {
-		return pathCursorPoints;
+		return cursorPoints;
 	}
 	
 	public int getCursorPathDistance() {
-		return pathDistance;
+		return distance;
 	}
 	
 	public double getCursorPathTheta() {
-		return pathTheta;
+		return theta;
 	}
-	
-	public CursorPath getScaledCopyOfCursorPath(double scaleFactor) {
-		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
-		for (CursorPoint cursorPoint : this.pathCursorPoints) {
-			scaledCursorPath.add(new CursorPoint((int) (cursorPoint.x * scaleFactor), (int) (cursorPoint.y * scaleFactor), (int) (cursorPoint.postMillisecondDelay * scaleFactor)));
-		}
-		return new CursorPath(scaledCursorPath);
-	}
+
 	
 	public void displayCursorPoints() {
-		for (CursorPoint p : pathCursorPoints) {
+		for (CursorPoint p : this.cursorPoints) {
 			p.display();
 		}
-		System.out.println("Length:" + pathNumPoints + ", Timespan:" + pathTimespanMilliseconds);
+		System.out.println("Number of points:" + this.cursorPoints.size() + ", Timespan:" + this.timespan);
 		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~ End of Path ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}
 }
