@@ -22,6 +22,15 @@ class CursorTest {
 		testRightClickCursor();
 	}
 	
+	@Test
+	void testThetaBetweenPoints() {
+		Point a = new Point(0, 0);
+		Point b = new Point(10, 0);
+		Point c = new Point(10, 10);
+		Point d = new Point(20, 10);
+		assertEquals(cursor.getThetaBetweenPoints(a, b), 0);
+	}
+	
 	void testMoveCursorToCoordinates() throws InterruptedException {
 		Point a = new Point(0, 0);
 		Point b = new Point(150, 250);

@@ -16,8 +16,10 @@ class CursorPathTest {
 		for (CursorPath cursorPath : cursorPaths) {
 			testCursorPathStartsAtOrigin(cursorPath);
 			testEndingCursorPointInCursorPathHasZeroDelay(cursorPath);
+			testCursorPathDistance(cursorPath);
+			testCursorPathTheta(cursorPath);
 			//testCursorPathLocations(cursorPath);
-			testCursorPathRotation(cursorPath, 15);
+			testCursorPathRotation(cursorPath, Math.PI);
 			testCursorPathScaling(cursorPath, 1.15);
 			cursorPath.displayCursorPoints();
 		}
@@ -33,6 +35,21 @@ class CursorPathTest {
 		assertEquals(endingCursorPoint.delay, 0);
 	}
 	
+	private void testCursorPathDistance(CursorPath cursorPath) {
+		int distance = cursorPath.getCursorPathDistance();
+		CursorPoint startingCursorPoint = cursorPath.getStartingCursorPoint();
+		CursorPoint endingCursorPoint = cursorPath.getEndingCursorPoint();
+		
+		int actualDistance = (int) Math.hypot(startingCursorPoint.x - endingCursorPoint.x, startingCursorPoint.y - endingCursorPoint.y);
+		assertEquals(distance, actualDistance);
+	}
+	
+	private void testCursorPathTheta(CursorPath cursorPath) {
+		double theta = cursorPath.getCursorPathTheta();
+		CursorPoint endingCursorPoint = cursorPath.getEndingCursorPoint();
+		double actualTheta = Math.atan2(endingCursorPoint.y, endingCursorPoint.x);
+		assertEquals(theta, actualTheta);
+	}
 	/*private void testCursorPathLocations(CursorPath cursorPath) {
 	
 	}*/
@@ -41,12 +58,11 @@ class CursorPathTest {
 		ArrayList<CursorPoint> cursorPoints = cursorPath.getCursorPathPoints();
 		ArrayList<CursorPoint> rotatedCursorPoints = cursorPath.getRotatedCopyOfCursorPath(angleToRotateBy);
 		assertEquals(cursorPoints.size(), rotatedCursorPoints.size());
-		CursorPoint startingPoint = cursorPoints.get(0);
 		for (int i = 1; i < cursorPoints.size(); i++) {
-			double originalThetaOfCursorPoint = cursorPoints.get(i).getThetaFrom(startingPoint);
-			double rotatedThetaOfCursorPoint = rotatedCursorPoints.get(i).getThetaFrom(startingPoint);
-			System.out.println(originalThetaOfCursorPoint + ", " + rotatedThetaOfCursorPoint);
-			assertInRangeByAbsoluteValue(originalThetaOfCursorPoint + angleToRotateBy, rotatedThetaOfCursorPoint, 3);
+			double originalThetaOfCursorPoint = cursorPoints.get(i).getTheta();
+			double rotatedThetaOfCursorPoint = rotatedCursorPoints.get(i).getTheta();
+			System.out.println((originalThetaOfCursorPoint + angleToRotateBy) % (Math.PI) + "," + rotatedThetaOfCursorPoint);
+			//assertInRangeByAbsoluteValue(originalThetaOfCursorPoint + angleToRotateBy, rotatedThetaOfCursorPoint, 3);
 		}
 	}
 	
@@ -68,8 +84,8 @@ class CursorPathTest {
 
 	}
 	
-	void assertInRangeByRatio(double valueToTest, double expectation, double toleranceRatio) {
-		assertTrue((valueToTest <= (expectation * (1 + toleranceRatio))) && (valueToTest >= (expectation * (1 - toleranceRatio))));
+	void assertInRangeByRatio(double expected, double actual, double toleranceRatio) {
+		assertTrue((actual <= (expected * (1.0 + toleranceRatio))) && (actual >= (expected * (1.0 - toleranceRatio))));
 	}
 	
 	void assertInRangeByAbsoluteValue(double valueToTest, double expectation, double toleranceAbsolute) {

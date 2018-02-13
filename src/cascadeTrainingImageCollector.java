@@ -12,13 +12,14 @@ import javax.imageio.ImageIO;
 public class cascadeTrainingImageCollector {
 
 	public String imageOutputDirectory;
+	public String imageInputDirectory;
 	public Robot robot;
 	public int imageDimension;
 
 	public cascadeTrainingImageCollector(String imageOutputDirectory) throws AWTException {
 		this.imageOutputDirectory = imageOutputDirectory;
 		this.robot = new Robot();
-		this.imageDimension = 75;
+		this.imageDimension = 40;
 	}
 	
 	public void captureEveryNSeconds(int n) throws IOException, InterruptedException {
@@ -34,7 +35,7 @@ public class cascadeTrainingImageCollector {
 			captureScreenshotGameWindow(i);
 			System.out.println(i);
 			//System.out.println("Created image: " + getImageName(i));
-            Thread.sleep(n * 5000);
+            Thread.sleep(n * 1000);
 		}
 	}
 	
@@ -62,12 +63,32 @@ public class cascadeTrainingImageCollector {
 		return imageOutputDirectory + "screenshot" + counter + ".jpg";
 	}
 	
+	private void resizeImagesInDirectory() throws IOException {
+		File folder = new File("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/Testing/");
+		File[] listOfFiles = folder.listFiles();
+
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].isFile()) {
+				resizeImage(listOfFiles[i], i);
+				System.out.println("Cropped " + listOfFiles[i].getName());
+		    }
+		}
+	}
+	
+	private void resizeImage(File imageFile, int counter) throws IOException {
+		BufferedImage screenshot = ImageIO.read(imageFile);
+		//Rectangle resizeRectangle = new Rectangle(103, 85, 510, 330);
+		BufferedImage resizedImage = screenshot.getSubimage(103, 85, 510, 330);
+		ImageIO.write(resizedImage, "jpg", new File(getImageName(counter)));
+	}
+	
 	public static void main(String[] args) throws Exception
     {
 		System.out.println("Starting image collection...");
-        //cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/PositiveSamples/");
-		//imageCollector.captureEveryNSeconds(30);
-		cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/Testing/");
-		imageCollector.captureWindowEveryNMilliseconds(1);
+        cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/CoalNegative/");
+        //imageCollector.resizeImagesInDirectory();
+		imageCollector.captureWindowEveryNMilliseconds(5);;
+		//cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/Testing/");
+		//imageCollector.captureWindowEveryNMilliseconds(1);
     }
 }

@@ -16,8 +16,8 @@ public class CursorPoint {
 		return Math.hypot(this.x - b.x, this.y - b.y);
 	}
 	
-	public double getThetaFrom(CursorPoint b) {
-		return Math.atan2(1.0 * b.y, 1.0 * b.x);
+	public double getTheta() {
+		return Math.atan2(this.y, this.x);
 	}
 	
 	public CursorPoint getCursorPointTranslatedBy(CursorPoint startingCursorPoint) {
@@ -29,8 +29,8 @@ public class CursorPoint {
 	}
 	
 	public CursorPoint getCursorPointRotatedBy(double angleOfRotation) {
-		int rotatedX = (int) (this.x + Math.cos(angleOfRotation) * this.x - Math.sin(angleOfRotation) * this.y);
-		int rotatedY = (int) (this.y + Math.sin(angleOfRotation) * this.x + Math.cos(angleOfRotation) * this.y);
+		int rotatedX = (int) (Math.cos(angleOfRotation) * this.x - Math.sin(angleOfRotation) * this.y);
+		int rotatedY = (int) (Math.sin(angleOfRotation) * this.x + Math.cos(angleOfRotation) * this.y);
 		return (new CursorPoint(rotatedX, rotatedY, this.delay));
 	}
 	

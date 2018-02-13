@@ -26,15 +26,15 @@ public class CursorPath {
 		return normalizedDelayCursorPoints;
 	}
 	
-	private ArrayList<CursorPoint> getTranslatedCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints, CursorPoint cursorPointToTranslateBy) {
+	private CursorPath getTranslatedCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints, CursorPoint cursorPointToTranslateBy) {
 		ArrayList<CursorPoint> offsetCursorPath = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : cursorPoints) {
 			offsetCursorPath.add(cursorPoint.getCursorPointTranslatedBy(cursorPointToTranslateBy));
 		}
-		return offsetCursorPath;
+		return new CursorPath(offsetCursorPath);
 	}
 	
-	private ArrayList<CursorPoint> getNormalizedDelayCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints) {
+	private CursorPath getNormalizedDelayCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints) {
 		ArrayList<CursorPoint> normalizedDelayCursorPoints = new ArrayList<CursorPoint>();
 		for (int i = 0; i < cursorPoints.size() - 1; i++) {
 			CursorPoint cursorPoint = cursorPoints.get(i);
@@ -42,24 +42,24 @@ public class CursorPath {
 			normalizedDelayCursorPoints.add(cursorPoint.getCursorPointWithNewDelay(nextCursorPoint.delay - cursorPoint.delay));
 		}
 		normalizedDelayCursorPoints.add(cursorPoints.get(cursorPoints.size() - 1).getCursorPointWithNewDelay(0));
-		return normalizedDelayCursorPoints;
+		return new CursorPath(normalizedDelayCursorPoints);
 	}
 
 	
-	public ArrayList<CursorPoint> getScaledCopyOfCursorPath(double factorToScaleBy) {
+	public CursorPath getScaledCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints, double factorToScaleBy) {
 		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
-		for (CursorPoint cursorPoint : this.cursorPoints) {
+		for (CursorPoint cursorPoint : cursorPoints) {
 			scaledCursorPath.add(cursorPoint.getCursorPointScaledBy(factorToScaleBy));
 		}
-		return scaledCursorPath;
+		return new CursorPath(scaledCursorPath);
 	}
 	
-	public ArrayList<CursorPoint> getRotatedCopyOfCursorPath(double angleToRotateBy) {
+	public CursorPath getRotatedCopyOfCursorPath(ArrayList<CursorPoint> cursorPoints, double angleToRotateBy) {
 		ArrayList<CursorPoint> rotatedCursorPath = new ArrayList<CursorPoint>();
-		for (CursorPoint cursorPoint : this.cursorPoints) {
+		for (CursorPoint cursorPoint : cursorPoints) {
 			rotatedCursorPath.add(cursorPoint.getCursorPointRotatedBy(angleToRotateBy));
 		}
-		return rotatedCursorPath;
+		return new CursorPath(rotatedCursorPath);
 	}
 	
 	private int calculateCursorPathTimespan() {
@@ -75,7 +75,8 @@ public class CursorPath {
 	}
 	
 	private double calculateCursorPathTheta() {
-		return getStartingCursorPoint().getThetaFrom(getEndingCursorPoint());
+		CursorPoint endingCursorPoint = getEndingCursorPoint();
+		return Math.atan2(endingCursorPoint.y, endingCursorPoint.x);
 	}
 	
 	public CursorPoint getStartingCursorPoint() {
