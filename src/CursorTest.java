@@ -12,23 +12,28 @@ class CursorTest {
 	
 	void initialize() throws AWTException {
 		cursor = new Cursor();
-		cursorTolerance = 3;
+		cursorTolerance = 5;
 	}
 	
 	@Test
 	void testMoveCursorToCoordinatesHelper() throws InterruptedException, AWTException {
 		initialize();
+		cursor.displayCursorPaths();
+		
+		testThetaBetweenPoints();
 		testMoveCursorToCoordinates();
-		testRightClickCursor();
+		//testRightClickCursor();
 	}
 	
-	@Test
 	void testThetaBetweenPoints() {
 		Point a = new Point(0, 0);
 		Point b = new Point(10, 0);
 		Point c = new Point(10, 10);
 		Point d = new Point(20, 10);
-		assertEquals(cursor.getThetaBetweenPoints(a, b), 0);
+		assertEquals(degreesToRadians(90), cursor.getThetaBetweenPoints(a, b));
+		assertEquals(degreesToRadians(45), cursor.getThetaBetweenPoints(a, c));
+		assertEquals(1.1071487177940904, cursor.getThetaBetweenPoints(a, d));
+		assertEquals(degreesToRadians(45), cursor.getThetaBetweenPoints(b, d));
 	}
 	
 	void testMoveCursorToCoordinates() throws InterruptedException {
@@ -52,7 +57,7 @@ class CursorTest {
 		testMoveCursorToCoordinates(a, g);
 	}
 	
-	void testRightClickCursor() throws InterruptedException {
+	/*void testRightClickCursor() throws InterruptedException {
 		Point a = new Point(375, 600);
 		Point b = new Point(952, 603);
 		Point c = new Point(1025, 133);
@@ -61,21 +66,24 @@ class CursorTest {
 		testMoveAndRightClickCursor(b, c);
 		testMoveAndRightClickCursor(c, d);
 		testMoveAndRightClickCursor(d, a);
-	}
+	}*/
 	
-	void testMoveAndRightClickCursor(Point a, Point b) throws InterruptedException {
+	/*void testMoveAndRightClickCursor(Point a, Point b) throws InterruptedException {
 		cursor.robotMouseMove(a);
 		cursor.moveAndRightClickAtCoordinates(b);
 		Point point = cursor.getCurrentCursorPoint();
+		System.out.println("Cursor ended up on " + point.x + "," + point.y);
 		verifyCursorIsInCorrectPlace(point, b);
 		// Way to verify that context menu is open?
-	}
+	}*/
 	
 	void testMoveCursorToCoordinates(Point a, Point b) throws InterruptedException {
 		cursor.robotMouseMove(a);
 		cursor.moveCursorToCoordinates(b);
 		Point point = cursor.getCurrentCursorPoint();
+		System.out.println("Cursor ended up on " + point.x + "," + point.y);
 		verifyCursorIsInCorrectPlace(point, b);
+		Thread.sleep(500);
 	}
 	
 	void verifyCursorIsInCorrectPlace(Point actualPoint, Point expectedPoint) {
@@ -89,6 +97,10 @@ class CursorTest {
 	
 	void assertInRangeByAbsoluteValue(double valueToTest, double expectation, double toleranceAbsolute) {
 		assertTrue((valueToTest <= (expectation + toleranceAbsolute)) && (valueToTest >= (expectation * (1 - toleranceAbsolute))));
+	}
+	
+	private double degreesToRadians(double degrees) {
+		return degrees * Math.PI / 180.0;
 	}
 
 }

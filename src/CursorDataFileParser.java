@@ -26,8 +26,8 @@ public class CursorDataFileParser {
 			String line;
 			CursorPoint lastCursorPoint = new CursorPoint(0, 0, 0);
 			int numberOfRepeats = 0;
-			ArrayList<CursorPoint> currentCursorPath = new ArrayList<CursorPoint>();
-			currentCursorPath.add(lastCursorPoint);
+			ArrayList<CursorPoint> currentCursorPoints = new ArrayList<CursorPoint>();
+			currentCursorPoints.add(lastCursorPoint);
 
 			while ((line = bufferedReader.readLine()) != null) {
 				if (lineMatchesPattern(line)) {
@@ -35,14 +35,14 @@ public class CursorDataFileParser {
 					if (cursorPointsHaveEqualCoordinates(newCursorPoint, lastCursorPoint)) {
 						numberOfRepeats++;
 						if (numberOfRepeats == 20) {
-							CursorPath newCursorPath = new CursorPath(currentCursorPath);
+							CursorPath newCursorPath = new CursorPath(currentCursorPoints);
 							cursorPaths.add(newCursorPath);
-							currentCursorPath.clear();
+							currentCursorPoints.clear();
 						}
 					}
 					else {
 						numberOfRepeats = 0;
-						currentCursorPath.add(newCursorPoint);
+						currentCursorPoints.add(newCursorPoint);
 						lastCursorPoint = newCursorPoint;
 					}
 				}

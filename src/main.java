@@ -8,7 +8,7 @@ public class main {
 
 	public static void main(String[] args) throws AWTException, InterruptedException, IOException {
 		
-		Cursor cursor = new Cursor();
+		/*Cursor cursor = new Cursor();
 		CursorTask cursorTask = new CursorTask();
 		Inventory inventory = new Inventory();
 		
@@ -19,7 +19,7 @@ public class main {
 				cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 			}
 			Thread.sleep(100);
-		}		
+		}		*/
 		//cursor.moveCursorToCoordinates(new Point(620, 420));
 		
 	}

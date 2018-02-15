@@ -5,17 +5,34 @@ import org.junit.jupiter.api.Test;
 class CursorPointTest {
 	
 	@Test
-	void testDistanceFrom() {
+	void testDistanceFromOrigin() {
 		CursorPoint a = new CursorPoint(0, 0, 0);
 		CursorPoint b = new CursorPoint(3, 4, 0);
 		CursorPoint c = new CursorPoint(500, 750, 0);
 		CursorPoint d = new CursorPoint(284, 848, 0);
 		
-		assertTrue(withinRangeByRatio(a.getDistanceFrom(b), 5, 0.0001));
-		assertTrue(withinRangeByRatio(a.getDistanceFrom(c), 901.387818866, 0.0001));
-		assertTrue(withinRangeByRatio(a.getDistanceFrom(d), 894.293016857, 0.0001));
-		assertTrue(withinRangeByRatio(b.getDistanceFrom(c), 896.395560007, 0.0001));
-		assertTrue(withinRangeByRatio(c.getDistanceFrom(d), 237.191905427, 0.0001));
+		assertEquals(0, a.getDistanceFromOrigin());
+		assertTrue(withinRangeByRatio(a.getDistanceFromOrigin(), 901.387818866, 0.0001));
+		assertTrue(withinRangeByRatio(a.getDistanceFromOrigin(), 894.293016857, 0.0001));
+		assertTrue(withinRangeByRatio(b.getDistanceFromOrigin(), 896.395560007, 0.0001));
+		assertTrue(withinRangeByRatio(c.getDistanceFromOrigin(), 237.191905427, 0.0001));
+	}
+	
+	@Test
+	void testThetaFromOrigin() {
+		CursorPoint a = new CursorPoint(0, 0, 0);
+		CursorPoint b = new CursorPoint(3, 4, 0);
+		CursorPoint c = new CursorPoint(500, 750, 0);
+		CursorPoint d = new CursorPoint(284, 848, 0);
+		CursorPoint e = new CursorPoint(10, 0, 0);
+		CursorPoint f = new CursorPoint(0, 10, 0);
+		
+		assertEquals(0, a.getThetaFromOrigin());
+		assertEquals(0.6435011087932844, b.getThetaFromOrigin());
+		assertEquals(0.5880026035475675, c.getThetaFromOrigin());
+		assertEquals(0.32316498061040844, d.getThetaFromOrigin());
+		assertEquals(1.5707963267948966, e.getThetaFromOrigin());
+		assertEquals(0.0, f.getThetaFromOrigin());
 	}
 	
 	@Test
@@ -50,6 +67,8 @@ class CursorPointTest {
 		assertTrue(g.x == 123 && g.y == 246);
 		assertTrue(h.x == -428 && h.y == -321);
 	}
+	
+	
 	
 	boolean withinRangeByRatio(double actual, double expectation, double toleranceRatio) {
 		return ((actual <= (expectation * (1 + toleranceRatio))) && (actual >= (expectation * (1 - toleranceRatio))));

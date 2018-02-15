@@ -12,26 +12,26 @@ public class CursorPoint {
 		this.delay = delay;
 	}
 	
-	public double getDistanceFrom(CursorPoint b) {
-		return Math.hypot(this.x - b.x, this.y - b.y);
+	public double getDistanceFromOrigin() {
+		return Math.hypot(this.x, this.y);
 	}
 	
-	public double getTheta() {
-		return Math.atan2(this.y, this.x);
+	public double getThetaFromOrigin() {
+		return Math.atan2(this.x, this.y);
 	}
 	
 	public CursorPoint getCursorPointTranslatedBy(CursorPoint startingCursorPoint) {
-		return new CursorPoint(this.x - startingCursorPoint.x, this.y - startingCursorPoint.y, this.delay - startingCursorPoint.delay);
+		return new CursorPoint(x - startingCursorPoint.x, y - startingCursorPoint.y, delay - startingCursorPoint.delay);
 	}
 	
 	public CursorPoint getCursorPointScaledBy(double scaleFactor) {
-		return (new CursorPoint((int) (this.x * scaleFactor), (int) (this.y * scaleFactor), (int) (this.delay * scaleFactor)));
+		return (new CursorPoint((int) (this.x * scaleFactor), (int) (this.y * scaleFactor), (int) (delay * scaleFactor)));
 	}
 	
 	public CursorPoint getCursorPointRotatedBy(double angleOfRotation) {
 		int rotatedX = (int) (Math.cos(angleOfRotation) * this.x - Math.sin(angleOfRotation) * this.y);
 		int rotatedY = (int) (Math.sin(angleOfRotation) * this.x + Math.cos(angleOfRotation) * this.y);
-		return (new CursorPoint(rotatedX, rotatedY, this.delay));
+		return (new CursorPoint(rotatedX, rotatedY, delay));
 	}
 	
 	public CursorPoint getCursorPointWithNewDelay(int delay) {

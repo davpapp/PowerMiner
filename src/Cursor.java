@@ -18,13 +18,9 @@ import java.util.regex.Pattern;
 
 public class Cursor {
 	
-	public static final int NUMBER_OF_DISTANCES = 1000;
+	public static final int NUMBER_OF_DISTANCES = 2203; // For 1080p screen
 	public static final int MINIMUM_CLICK_LENGTH = 120;
 	public static final int MAXIMUM_CLICK_LENGTH = 240;
-	
-	public static final int GAME_WINDOW_OFFSET_WIDTH = 100; // top left corner of main game screen, from top left corner of screen
-	public static final int GAME_WINDOW_OFFSET_HEIGHT = 81;
-	
 	
 	private Robot robot;
 	private Randomizer randomizer;
@@ -96,38 +92,39 @@ public class Cursor {
 		leftClickCursor();
 	}
 	
+	public void moveAndRightClickAtCoordinates(Point goalPoint) throws InterruptedException {
+		moveCursorToCoordinates(goalPoint);
+		rightClickCursor();
+	}
+	
 	public Point moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
 		moveCursorToCoordinates(randomizedGoalPoint);
 		leftClickCursor();
-		return randomizedGoalPoint; // Return the point in case we need precise movement afterwards
-	}
-	
-	public void moveAndRightClickAtCoordinates(Point goalPoint) throws InterruptedException {
-		moveCursorToCoordinates(goalPoint);
-		rightClickCursor();
+		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
 	}
 	
 	public Point moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws InterruptedException {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
 		moveCursorToCoordinates(randomizedGoalPoint);
 		rightClickCursor();
-		return randomizedGoalPoint; // Return the point in case we need precise movement afterwards
+		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
 	}
 
 	public void moveCursorToCoordinates(Point goalPoint) throws InterruptedException {
 		Point startingPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = getDistanceBetweenPoints(startingPoint, goalPoint);
+		double angleToRotateCursorPathTo = getThetaBetweenPoints(startingPoint, goalPoint);
+		System.out.println("R:" + distanceToMoveCursor + ", theta:" + angleToRotateCursorPathTo);
 		if (distanceToMoveCursor == 0) { 
 			return;
 		}
-		double angleToMoveCursor = getThetaBetweenPoints(startingPoint, goalPoint);
 		
-		CursorPath cursorPathToFollow = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
-		
-		double angleToTranslatePathBy = angleToMoveCursor - cursorPathToFollow.getCursorPathTheta();
-		
-		followCursorPath(startingCursorPoint, angleToTranslatePathBy, cursorPathToFollow);
+		CursorPath cursorPathWithDistanceSet = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
+		CursorPath cursorPathWithDistanceAndAngleSet = cursorPathWithDistanceSet.getRotatedCopyOfCursorPath(angleToRotateCursorPathTo);
+		System.out.println("Rotated the points: ");
+		//cursorPathWithDistanceAndAngleSet.displayCursorPoints();
+		followCursorPath(cursorPathWithDistanceAndAngleSet, startingPoint);
 	}
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
@@ -135,14 +132,14 @@ public class Cursor {
 	}
 	
 	public double getThetaBetweenPoints(Point startingPoint, Point goalPoint) {
-		return Math.atan2(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y);
+		return Math.atan2((goalPoint.x - startingPoint.x), (goalPoint.y - startingPoint.y));
 	}
 
-	private void followCursorPath(Point startingCursorPoint, double angleToTranslatePathBy, CursorPath cursorPathToFollow) throws InterruptedException {
-		for (CursorPoint untranslatedCursorPoint : cursorPathToFollow.getCursorPathPoints()) {
-			Point translatedPointToClick = translatePoint(startingCursorPoint, angleToTranslatePathBy, untranslatedCursorPoint);
+	private void followCursorPath(CursorPath cursorPathToFollow, Point startingPoint) throws InterruptedException {
+		for (CursorPoint cursorPoint : cursorPathToFollow.getCursorPathPoints()) {
+			Point translatedPointToClick = new Point(cursorPoint.x + startingPoint.x, cursorPoint.y + startingPoint.y);
 			robotMouseMove(translatedPointToClick);
-			Thread.sleep(untranslatedCursorPoint.delay);
+			Thread.sleep(cursorPoint.delay);
 		}
 	}
 	
@@ -153,11 +150,13 @@ public class Cursor {
 	private CursorPath chooseCursorPathToFollowBasedOnDistance(int distanceToMoveCursor) {		
 		int newDistanceToMoveCursor = findNearestPathLengthThatExists(distanceToMoveCursor);
 		double scaleToFactorBy = getScaleToFactorBy(newDistanceToMoveCursor, distanceToMoveCursor);
-		
+		System.out.println("new distance to follow cursor is: " + newDistanceToMoveCursor);
 		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(newDistanceToMoveCursor);
 		int indexOfRandomPathToFollow = random.nextInt(cursorPathsWithSameDistance.size());
-		ArrayList<CursorPoint> scaledCursorPath = cursorPathsWithSameDistance.get(indexOfRandomPathToFollow).getScaledCopyOfCursorPath(scaleToFactorBy);
-		return scaledCursorPath;
+		//CursorPath scaledCursorPath = cursorPathsWithSameDistance.get(indexOfRandomPathToFollow).getScaledCopyOfCursorPath(scaleToFactorBy);
+		//System.out.println("Chose the following path: ");
+		//scaledCursorPath.displayCursorPoints();
+		return cursorPathsByDistance.get(newDistanceToMoveCursor).get(indexOfRandomPathToFollow);//scaledCursorPath;
 	}
 	
 	private int findNearestPathLengthThatExists(int distanceToMoveCursor) {
@@ -188,7 +187,7 @@ public class Cursor {
 	}
 	
 	public void displayCursorPaths() {
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < 1000; i++) {
 			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " paths of size " + i);
 		}
 		System.out.println("--------------");
