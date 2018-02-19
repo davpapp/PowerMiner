@@ -34,6 +34,12 @@ public class CursorPoint {
 		return (new CursorPoint(rotatedX, rotatedY, delay));
 	}
 	
+	public CursorPoint getCursorPointTransformedBy(double[] parabolaEquation) {
+		int rotatedX = (int) 5;
+		int rotatedY = (int) 5;
+		return (new CursorPoint(rotatedX, rotatedY, delay));
+	}
+	
 	public CursorPoint getCursorPointWithNewDelay(int delay) {
 		return (new CursorPoint(this.x, this.y, delay));
 	}

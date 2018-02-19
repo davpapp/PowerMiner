@@ -3,6 +3,7 @@
  */
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class CursorPath {
 		
@@ -10,6 +11,7 @@ public class CursorPath {
 	private double theta;
 	private int distance;
 	private int timespan;
+	Randomizer randomizer;
 		
 	public CursorPath(ArrayList<CursorPoint> cursorPoints)
 	{
@@ -17,8 +19,10 @@ public class CursorPath {
 		this.distance = calculateCursorPathDistance();
 		this.theta = calculateCursorPathTheta();
 		this.timespan = calculateCursorPathTimespan();
+		this.randomizer = new Randomizer();
 	}
 	
+	// TODO: refactor
 	public CursorPath(ArrayList<CursorPoint> cursorPoints, boolean setInitializiationOff)
 	{
 		this.cursorPoints = cursorPoints;
@@ -54,20 +58,30 @@ public class CursorPath {
 	}
 
 	public CursorPath getScaledCopyOfCursorPath(double factorToScaleBy) {
-		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
+		ArrayList<CursorPoint> scaledCursorPoints= new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : this.cursorPoints) {
-			scaledCursorPath.add(cursorPoint.getCursorPointScaledBy(factorToScaleBy));
+			scaledCursorPoints.add(cursorPoint.getCursorPointScaledBy(factorToScaleBy));
 		}
-		return new CursorPath(scaledCursorPath, true);
+		return new CursorPath(scaledCursorPoints, true);
 	}
 	
 	public CursorPath getRotatedCopyOfCursorPath(double angleToRotateTo) {
-		ArrayList<CursorPoint> rotatedCursorPath = new ArrayList<CursorPoint>();
+		ArrayList<CursorPoint> rotatedCursorPoints = new ArrayList<CursorPoint>();
 		double angleToRotateBy = this.theta - angleToRotateTo;
 		for (CursorPoint cursorPoint : this.cursorPoints) {
-			rotatedCursorPath.add(cursorPoint.getCursorPointRotatedBy(angleToRotateBy));
+			rotatedCursorPoints.add(cursorPoint.getCursorPointRotatedBy(angleToRotateBy));
 		}
-		return new CursorPath(rotatedCursorPath, true);
+		return new CursorPath(rotatedCursorPoints, true);
+	}
+	
+	public CursorPath getCopyOfCursorPathTransformedByParabola() {
+		double[] parabolaEquation = randomizer.generateParabolaEquation(this.getCursorPathDistance());
+		ArrayList<CursorPoint> transformedCursorPoints = new ArrayList<CursorPoint>();
+		for (CursorPoint cursorPoint : this.cursorPoints) {
+			transformedCursorPoints.add(cursorPoint.getCursorPointTransformedBy(parabolaEquation);)
+		}
+		return new CursorPath(transformedCursorPoints, true);
+		
 	}
 	
 	private int calculateCursorPathTimespan() {

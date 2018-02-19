@@ -67,7 +67,6 @@ public class Cursor {
 		this.cursorPathsByDistance.get(cursorPath.getCursorPathDistance()).add(cursorPath);
 	}
 	
-	
 	// TODO: make sure these are reasonable
 	private int getRandomClickLength() {
 		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
@@ -76,7 +75,7 @@ public class Cursor {
 	private int getRandomClickReleaseLength() {
 		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH + 5, MAXIMUM_CLICK_LENGTH + 10);
 	}
-	
+	// END
 	
 	public void leftClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);

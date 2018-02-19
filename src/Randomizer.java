@@ -21,7 +21,6 @@ public class Randomizer {
 		}
 		return (int) result;
 	}
-	
 	public Point generatePeakForTransformationParabola(int pathDistance) {
 		double maxTransformationScale = 0.2;
 		int peakX = nextGaussianWithinRange(0, pathDistance);
@@ -29,7 +28,8 @@ public class Randomizer {
 		return new Point(peakX, peakY);
 	}
 	
-	public double[] generateParabolaEquation(int pathDistance, Point peakPoint) {
+	public double[] generateParabolaEquation(int pathDistance) {
+		Point peakPoint = generatePeakForTransformationParabola(pathDistance);
 		double[][] lhsMatrix = {{0, 0, 1}, {peakPoint.x * peakPoint.x, peakPoint.x, 1}, {pathDistance * pathDistance, pathDistance, 1}};
 		double[][] rhsMatrix = {{0, peakPoint.y, 0}};
 		
