@@ -73,18 +73,23 @@ public class Cursor {
 		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
 	}
 	
+	private int getRandomClickReleaseLength() {
+		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH + 5, MAXIMUM_CLICK_LENGTH + 10);
+	}
+	
+	
 	public void leftClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		Thread.sleep(getRandomClickLength());
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-		Thread.sleep(getRandomClickLength());
+		Thread.sleep(getRandomClickReleaseLength());
 	}
 	
 	public void rightClickCursor() throws InterruptedException {
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-		Thread.sleep(20 + getRandomClickLength());
+		Thread.sleep(getRandomClickLength() + 20);
 		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
-		Thread.sleep(getRandomClickLength());
+		Thread.sleep(getRandomClickReleaseLength());
 	}
 	
 	public void moveAndLeftClickAtCoordinates(Point goalPoint) throws Exception {
@@ -99,15 +104,25 @@ public class Cursor {
 	
 	public Point moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws Exception {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
-		moveCursorToCoordinates(randomizedGoalPoint);
-		leftClickCursor();
+		moveAndLeftClickAtCoordinates(randomizedGoalPoint);
+		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
+	}
+	
+	public Point moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) throws Exception {
+		Point randomizedGoalPoint = randomizePoint(goalPoint, xToleranceLeft, xToleranceRight, yTolerance);
+		moveAndLeftClickAtCoordinates(randomizedGoalPoint);
 		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
 	}
 	
 	public Point moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws Exception {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
-		moveCursorToCoordinates(randomizedGoalPoint);
-		rightClickCursor();
+		moveAndRightClickAtCoordinates(randomizedGoalPoint);
+		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
+	}
+	
+	public Point moveAndRightlickAtCoordinatesWithRandomness(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) throws Exception {
+		Point randomizedGoalPoint = randomizePoint(goalPoint, xToleranceLeft, xToleranceRight, yTolerance);
+		moveAndRightClickAtCoordinates(randomizedGoalPoint);
 		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
 	}
 
@@ -115,15 +130,14 @@ public class Cursor {
 		Point startingPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = getDistanceBetweenPoints(startingPoint, goalPoint);
 		double angleToRotateCursorPathTo = getThetaBetweenPoints(startingPoint, goalPoint);
-		System.out.println("R:" + distanceToMoveCursor + ", theta:" + angleToRotateCursorPathTo);
+		
 		if (distanceToMoveCursor == 0) { 
 			return;
 		}
 		
 		CursorPath cursorPathWithDistanceSet = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		CursorPath cursorPathWithDistanceAndAngleSet = cursorPathWithDistanceSet.getRotatedCopyOfCursorPath(angleToRotateCursorPathTo);
-		System.out.println("Rotated the points: ");
-		//cursorPathWithDistanceAndAngleSet.displayCursorPoints();
+
 		followCursorPath(cursorPathWithDistanceAndAngleSet, startingPoint);
 	}
 	
@@ -149,50 +163,45 @@ public class Cursor {
 
 	private CursorPath chooseCursorPathToFollowBasedOnDistance(int distanceToMoveCursor) throws Exception {		
 		int newDistanceToMoveCursor = findNearestPathLengthThatExists(distanceToMoveCursor);
-		double scaleToFactorBy = getScaleToFactorBy(newDistanceToMoveCursor, distanceToMoveCursor);
-		System.out.println("new distance to follow cursor is: " + newDistanceToMoveCursor + " from scaling by " + scaleToFactorBy);
 		ArrayList<CursorPath> cursorPathsWithSameDistance = cursorPathsByDistance.get(newDistanceToMoveCursor);
+
+		CursorPath randomlyChosenCursorPath = cursorPathsWithSameDistance.get(random.nextInt(cursorPathsWithSameDistance.size()));
+		if (newDistanceToMoveCursor == distanceToMoveCursor) {
+			return randomlyChosenCursorPath;
+		}
 		
-		CursorPath scaledCursorPath = cursorPathsWithSameDistance.get(random.nextInt(cursorPathsWithSameDistance.size())).getScaledCopyOfCursorPath(scaleToFactorBy);
-		
-		return scaledCursorPath;
-		//return cursorPathsByDistance.get(newDistanceToMoveCursor).get(indexOfRandomPathToFollow);//scaledCursorPath;
+		double scaleToFactorBy = getScaleToFactorBy(newDistanceToMoveCursor, distanceToMoveCursor);
+		return randomlyChosenCursorPath.getScaledCopyOfCursorPath(scaleToFactorBy);
 	}
 	
 	public int findNearestPathLengthThatExists(int distanceToMoveCursor) throws Exception {		
-		int offset = 0;
-		boolean reachedMinimumLimit = false;
-		boolean reachedMaximumLimit = false;
-		while (cursorPathsByDistance.get(distanceToMoveCursor + offset).size() == 0) {
-			// Go up
-			if (distanceToMoveCursor + Math.abs(offset) + 1 >= NUMBER_OF_DISTANCES) {
-				reachedMaximumLimit = true;
-			}
-			if (distanceToMoveCursor - Math.abs(offset) - 1 < 0) {
-				reachedMinimumLimit = true;
-			}
-			if (reachedMaximumLimit && reachedMinimumLimit) {
-				throw new Exception("No paths exist.");
-			}
-			
-			if (offset < 0) {
-				if (!reachedMaximumLimit) {
-					offset = -offset + 1;
-				}
-				else {
-					offset--;
-				}
-			}
-			else {
-				if (!reachedMinimumLimit) {
-					offset = -offset - 1;
-				}
-				else {
-					offset++;
-				}
+		int closestShorterPathLength = Integer.MIN_VALUE;
+		int closestLongerPathLength = Integer.MAX_VALUE;
+		for (int i = distanceToMoveCursor; i >= 0; i--) {
+			if (cursorPathsByDistance.get(i).size() > 0) {
+				closestShorterPathLength = i;
+				break;
 			}
 		}
-		return distanceToMoveCursor + offset;
+		for (int i = distanceToMoveCursor; i < 2203; i++) {
+			if (cursorPathsByDistance.get(i).size() > 0) {
+				closestLongerPathLength = i;
+				break;
+			}
+		}
+		
+		if (closestShorterPathLength == Integer.MIN_VALUE && closestLongerPathLength == Integer.MAX_VALUE) {
+			throw new Exception("No paths of any size exist.");
+		}
+		else if (closestShorterPathLength == Integer.MIN_VALUE) {
+			return closestLongerPathLength;
+		}
+		else if (closestLongerPathLength == Integer.MAX_VALUE) {
+			return closestShorterPathLength;
+		}
+		else {
+			return (Math.abs(distanceToMoveCursor - closestShorterPathLength) <= Math.abs(distanceToMoveCursor - closestLongerPathLength)) ? closestShorterPathLength : closestLongerPathLength;
+		}
 	}
 	
 	private double getScaleToFactorBy(int newDistanceToMoveCursor, int distanceToMoveCursor) {
@@ -209,14 +218,15 @@ public class Cursor {
 		return new Point(goalPoint.x + randomizer.nextGaussianWithinRange(-xTolerance, xTolerance), goalPoint.y + randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	
+	private Point randomizePoint(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) {
+		Randomizer randomizer = new Randomizer();
+		return new Point(goalPoint.x + randomizer.nextGaussianWithinRange(-xToleranceLeft, xToleranceRight), goalPoint.y + randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
+	}
+	
 	public void displayCursorPaths() {
 		for (int i = 0; i < NUMBER_OF_DISTANCES; i++) {
 			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " paths of size " + i);
 		}
 		System.out.println("--------------");
-		/*for (int i = 0; i < cursorPathsByDistance.get(1).size(); i++) {
-			cursorPathsByDistance.get(1).get(i).displayCursorPoints();
-		}*/
-		//cursorPathsByDistance.get(0).get(0).displayCursorPoints();
 	}
 }

@@ -16,7 +16,7 @@ class InventoryTest {
 	
 	public void initialize() throws AWTException, IOException {
 		inventory = new Inventory();
-		this.testingInventoryDirectoryPath = "/home/dpapp/Desktop/RunescapeAIPics/Tests/Inventory/";
+		this.testingInventoryDirectoryPath = "/home/dpapp/Desktop/RunescapeAI/Tests/Inventory/";
 	}
 	
 	@Test

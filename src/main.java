@@ -6,8 +6,9 @@ import java.net.URL;
 
 public class main {
 
-	public static void main(String[] args) throws AWTException, InterruptedException, IOException {
-		
+	public static void main(String[] args) throws Exception {
+		WillowChopper willowChopper = new WillowChopper();
+		willowChopper.run();
 		/*Cursor cursor = new Cursor();
 		CursorTask cursorTask = new CursorTask();
 		Inventory inventory = new Inventory();

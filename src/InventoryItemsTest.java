@@ -18,8 +18,8 @@ class InventoryItemsTest {
 	
 	public void initialize() throws IOException {
 		System.out.println("running initialize...");
-		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Items/");
-		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAIPics/Tests/ItemNameRecognition/";
+		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAI/Items/");
+		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAI/Tests/ItemNameRecognition/";
 	}
 	
 	@Test

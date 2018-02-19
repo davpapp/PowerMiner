@@ -27,9 +27,12 @@ class CursorTest {
 	}
 	
 	void testFindNearestPathLengthThatExists() throws Exception {
+		int closestLengthForPreviousValue = 0;
 		for (int i = 0; i < 2203; i++) {
 			int closestLength = cursor.findNearestPathLengthThatExists(i);
-			System.out.println("Closest path to length " + i + " is " + closestLength);
+			assertTrue(closestLength >= closestLengthForPreviousValue);
+			closestLengthForPreviousValue = closestLength;
+			//System.out.println("Closest path to length " + i + " is " + closestLength);
 		}
 	}
 	

@@ -11,10 +11,12 @@ public class Randomizer {
 	}
 	
 	public int nextGaussianWithinRange(double rangeBegin, double rangeEnd) {
-		double rangeMean = (rangeEnd - rangeBegin) / 2.0;
+		double rangeMean = (rangeEnd + rangeBegin) / 2.0;
 		double rangeSTD = (rangeEnd - rangeMean) / 3.0;
 		double result = random.nextGaussian() * rangeSTD + rangeMean;
 		while (result > rangeEnd || result < rangeBegin) {
+			System.out.println("Gaussian result out of range...");
+			System.out.println(rangeMean + ", std: " + rangeSTD);
 			result = random.nextGaussian() * rangeSTD + rangeMean;
 		}
 		return (int) result;

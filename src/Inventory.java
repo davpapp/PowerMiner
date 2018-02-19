@@ -47,7 +47,7 @@ public class Inventory {
 	}
 	
 	private void initializeItems() throws IOException {
-		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAIPics/Items/");
+		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAI/Items/");
 	}
 	
 	public void update() throws IOException {
@@ -89,7 +89,7 @@ public class Inventory {
 		return true;
 	}
 	
-	public Point getClickCoordinatesCoordinatesForInventorySlot(int row, int column) {
+	public Point getClickCoordinatesForInventorySlot(int row, int column) {
 		Point centerOfInventorySlot = inventorySlots[row][column].getClickablePointWithinItemSlot();
 		int x = INVENTORY_OFFSET_WIDTH + row * INVENTORY_SLOT_WIDTH + centerOfInventorySlot.x;
 		int y = INVENTORY_OFFSET_HEIGHT + column * INVENTORY_SLOT_HEIGHT + centerOfInventorySlot.y;

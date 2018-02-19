@@ -14,9 +14,10 @@ public class WillowChopper {
 		inventory = new Inventory();
 	}
 	
-	public void run() throws IOException, InterruptedException {
+	public void run() throws Exception {
 		
 		while (true) {
+			Thread.sleep(250);
 			/*
 			if (character.isCharacterEngaged()) {
 				// DO NOTHING
@@ -29,7 +30,9 @@ public class WillowChopper {
 			 */
 			inventory.update();
 			if (inventory.isInventoryFull()) {
-				cursorTask.dropAllItemsInInventory(cursor, inventory);
+				System.out.println("Inventory is full! Dropping...");
+				cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
+				//cursorTask.dropAllItemsInInventory(cursor, inventory);
 			}
 		}
 	}
