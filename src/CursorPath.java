@@ -34,7 +34,6 @@ public class CursorPath {
 		return normalizedDelayCursorPoints;
 	}
 	
-	// util
 	private ArrayList<CursorPoint> getTranslatedListOfCursorPoints(ArrayList<CursorPoint> cursorPoints, CursorPoint cursorPointToTranslateBy) {
 		ArrayList<CursorPoint> translatedCursorPath = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : cursorPoints) {
@@ -43,7 +42,6 @@ public class CursorPath {
 		return translatedCursorPath;
 	}
 	
-	//util
 	private ArrayList<CursorPoint> getNormalizedDelayListOfCursorPoints(ArrayList<CursorPoint> cursorPoints) {
 		ArrayList<CursorPoint> normalizedDelayCursorPoints = new ArrayList<CursorPoint>();
 		for (int i = 0; i < cursorPoints.size() - 1; i++) {
@@ -55,7 +53,6 @@ public class CursorPath {
 		return normalizedDelayCursorPoints;
 	}
 
-	//util
 	public CursorPath getScaledCopyOfCursorPath(double factorToScaleBy) {
 		ArrayList<CursorPoint> scaledCursorPath = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : this.cursorPoints) {
@@ -64,11 +61,9 @@ public class CursorPath {
 		return new CursorPath(scaledCursorPath, true);
 	}
 	
-	//util
 	public CursorPath getRotatedCopyOfCursorPath(double angleToRotateTo) {
 		ArrayList<CursorPoint> rotatedCursorPath = new ArrayList<CursorPoint>();
 		double angleToRotateBy = this.theta - angleToRotateTo;
-		System.out.println("Rotating points by: " + angleToRotateBy);
 		for (CursorPoint cursorPoint : this.cursorPoints) {
 			rotatedCursorPath.add(cursorPoint.getCursorPointRotatedBy(angleToRotateBy));
 		}
@@ -110,7 +105,7 @@ public class CursorPath {
 	}
 	
 	private boolean isCursorPathDistanceReasonable() {
-		return (this.distance > 0 && this.distance < 1000);
+		return (this.distance > 0 && this.distance < 2200);
 	}
 	
 	private boolean isCursorPathNumPointsReasonable() {

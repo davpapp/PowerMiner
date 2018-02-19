@@ -14,7 +14,7 @@ class CursorPathTest {
 		initializeCursorPath();
 		
 		for (CursorPath cursorPath : cursorPaths) {
-			cursorPath.displayCursorPoints();
+			//cursorPath.displayCursorPoints();
 			
 			testCursorPathStartsAtOrigin(cursorPath);
 			testEndingCursorPointInCursorPathHasZeroDelay(cursorPath);
@@ -23,9 +23,23 @@ class CursorPathTest {
 			
 			testCursorPathRotation(cursorPath, Math.PI);
 			testCursorPathRotation(cursorPath, 7 / 4 * Math.PI);
+			//testCursorPathRotation(cursorPath, 10.32184);
+			//testCursorPathRotation(cursorPath, 0.01372);
+			//testCursorPathRotation(cursorPath, -0.0001238);
+			//testCursorPathRotation(cursorPath, 0);
 			testCursorPathScaling(cursorPath, 1.15);
+			testCursorPathScaling(cursorPath, 0.48324);
+			testCursorPathScaling(cursorPath, 0.9999);
+			testCursorPathScaling(cursorPath, 1.8431838);
+			testCursorPathScaling(cursorPath, 2.10004);
+			testCursorPathScaling(cursorPath, 1.15);
+			testCursorPathScaling(cursorPath, 1.001010101);
+			testCursorPathScaling(cursorPath, 1.523521);
+			testCursorPathScaling(cursorPath, 1.12366);
+			testCursorPathScaling(cursorPath, 0.974324);
+			testCursorPathScaling(cursorPath, 0.72134);
 			
-			testCopyTime(cursorPath);
+			//testDelays(cursorPath);
 		}
 	}
 	
@@ -66,15 +80,18 @@ class CursorPathTest {
 	
 	void testCursorPathRotation(CursorPath cursorPath, double angleToRotateTo) {
 		CursorPath rotatedCursorPath = cursorPath.getRotatedCopyOfCursorPath(angleToRotateTo);
-		assertEquals(angleToRotateTo, rotatedCursorPath.getCursorPathTheta());
+		assertEquals(angleToRotateTo % Math.PI, ((rotatedCursorPath.getCursorPathTheta() % Math.PI) + Math.PI) % Math.PI, 0.01);
 		
 		ArrayList<CursorPoint> cursorPoints = cursorPath.getCursorPathPoints();
 		ArrayList<CursorPoint> rotatedCursorPoints = rotatedCursorPath.getCursorPathPoints();
 		assertEquals(cursorPoints.size(), rotatedCursorPoints.size());
+		
+		assertEquals(cursorPath.getStartingCursorPoint().x, rotatedCursorPath.getStartingCursorPoint().x);
+		assertEquals(cursorPath.getStartingCursorPoint().y, rotatedCursorPath.getStartingCursorPoint().y);
 
 	}
 	
-	void testCopyTime(CursorPath cursorPath) {
+	void testDelays(CursorPath cursorPath) {
 		CursorPath rotatedCursorPath = cursorPath.getRotatedCopyOfCursorPath(2.3 / 9.0 * Math.PI);
 		ArrayList<CursorPoint> cursorPoints = cursorPath.getCursorPathPoints();
 		ArrayList<CursorPoint> rotatedCursorPoints = rotatedCursorPath.getCursorPathPoints();
@@ -90,9 +107,9 @@ class CursorPathTest {
 		ArrayList<CursorPoint> cursorPoints = cursorPath.getCursorPathPoints();
 		ArrayList<CursorPoint> scaledCursorPoints = scaledCursorPath.getCursorPathPoints();
 		assertEquals(cursorPoints.size(), scaledCursorPoints.size());
-	}
-	
-	void assertInRangeByTolerance(double expected, double actual, double tolerance) {
-		assertTrue((actual <= (expected + tolerance)) && (actual >= (expected - tolerance)));
+		
+		assertEquals(cursorPath.getStartingCursorPoint().x, scaledCursorPath.getStartingCursorPoint().x);
+		assertEquals(cursorPath.getStartingCursorPoint().y, scaledCursorPath.getStartingCursorPoint().y);
+		assertEquals(cursorPath.getCursorPathDistance() * factorToScaleBy, scaledCursorPath.getCursorPathDistance(), 3);
 	}
 }
