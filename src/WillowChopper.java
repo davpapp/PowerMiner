@@ -30,8 +30,10 @@ public class WillowChopper {
 			 */
 			inventory.update();
 			if (inventory.isInventoryFull()) {
+				long startTime = System.currentTimeMillis();
 				System.out.println("Inventory is full! Dropping...");
 				cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
+				System.out.println("Dropping took " + (System.currentTimeMillis() - startTime) / 1000.0 + " seconds.");
 				//cursorTask.dropAllItemsInInventory(cursor, inventory);
 			}
 		}

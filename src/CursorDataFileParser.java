@@ -34,7 +34,7 @@ public class CursorDataFileParser {
 					CursorPoint newCursorPoint = getCursorPointFromLine(line);
 					if (cursorPointsHaveEqualCoordinates(newCursorPoint, lastCursorPoint)) {
 						numberOfRepeats++;
-						if (numberOfRepeats == 20) {
+						if (numberOfRepeats == 50) {
 							CursorPath newCursorPath = new CursorPath(currentCursorPoints);
 							cursorPaths.add(newCursorPath);
 							currentCursorPoints.clear();

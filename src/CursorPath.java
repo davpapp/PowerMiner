@@ -74,15 +74,15 @@ public class CursorPath {
 		return new CursorPath(rotatedCursorPoints, true);
 	}
 	
-	public CursorPath getCopyOfCursorPathTransformedByParabola() {
+	/*public CursorPath getCopyOfCursorPathTransformedByParabola() {
 		double[] parabolaEquation = randomizer.generateParabolaEquation(this.getCursorPathDistance());
 		ArrayList<CursorPoint> transformedCursorPoints = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : this.cursorPoints) {
-			transformedCursorPoints.add(cursorPoint.getCursorPointTransformedBy(parabolaEquation);)
+			transformedCursorPoints.add(cursorPoint.getCursorPointTransformedBy(parabolaEquation));
 		}
 		return new CursorPath(transformedCursorPoints, true);
 		
-	}
+	}*/
 	
 	private int calculateCursorPathTimespan() {
 		int sumPathTimespanMilliseconds = 0;

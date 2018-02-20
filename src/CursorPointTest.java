@@ -12,10 +12,10 @@ class CursorPointTest {
 		CursorPoint d = new CursorPoint(284, 848, 0);
 		
 		assertEquals(0, a.getDistanceFromOrigin());
-		assertTrue(withinRangeByRatio(a.getDistanceFromOrigin(), 901.387818866, 0.0001));
-		assertTrue(withinRangeByRatio(a.getDistanceFromOrigin(), 894.293016857, 0.0001));
-		assertTrue(withinRangeByRatio(b.getDistanceFromOrigin(), 896.395560007, 0.0001));
-		assertTrue(withinRangeByRatio(c.getDistanceFromOrigin(), 237.191905427, 0.0001));
+		//assertEquals(901.387818866, d.getDistanceFromOrigin(), 0.0001);
+		assertEquals(894.293016857, d.getDistanceFromOrigin(), 0.0001);
+		//assertEquals(896.395560007, c.getDistanceFromOrigin(), 0.0001);
+		assertEquals(5, b.getDistanceFromOrigin(), 0.0001);
 	}
 	
 	@Test
@@ -67,11 +67,4 @@ class CursorPointTest {
 		assertTrue(g.x == 123 && g.y == 246);
 		assertTrue(h.x == -428 && h.y == -321);
 	}
-	
-	
-	
-	boolean withinRangeByRatio(double actual, double expectation, double toleranceRatio) {
-		return ((actual <= (expectation * (1 + toleranceRatio))) && (actual >= (expectation * (1 - toleranceRatio))));
-	}
-
 }

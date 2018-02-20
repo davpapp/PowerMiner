@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 public class Cursor {
 	
 	public static final int NUMBER_OF_DISTANCES = 2203; // For 1080p screen
-	public static final int MINIMUM_CLICK_LENGTH = 120;
-	public static final int MAXIMUM_CLICK_LENGTH = 240;
+	public static final int MINIMUM_CLICK_LENGTH = 100;
+	public static final int MAXIMUM_CLICK_LENGTH = 230;
 	
 	private Robot robot;
 	private Randomizer randomizer;
@@ -136,7 +136,8 @@ public class Cursor {
 		
 		CursorPath cursorPathWithDistanceSet = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		CursorPath cursorPathWithDistanceAndAngleSet = cursorPathWithDistanceSet.getRotatedCopyOfCursorPath(angleToRotateCursorPathTo);
-
+		// TODO: Add randomization by parabola or similar
+		// CursorPath randomizedCursorPath = cursorPathWithDistanceAndAngleSet.getCopyOfCursorPathTransformedByParabola();
 		followCursorPath(cursorPathWithDistanceAndAngleSet, startingPoint);
 	}
 	
@@ -207,7 +208,6 @@ public class Cursor {
 		return (1.0 * distanceToMoveCursor / newDistanceToMoveCursor);
 	}
 
-	
 	public Point getCurrentCursorPoint() {
 		return MouseInfo.getPointerInfo().getLocation();
 	}

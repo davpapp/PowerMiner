@@ -1,6 +1,6 @@
 import java.awt.Point;
 import java.util.Random;
-import Jama.Matrix;
+//import Jama.Matrix;
 
 public class Randomizer {
 
@@ -28,7 +28,7 @@ public class Randomizer {
 		return new Point(peakX, peakY);
 	}
 	
-	public double[] generateParabolaEquation(int pathDistance) {
+	/*public double[] generateParabolaEquation(int pathDistance) {
 		Point peakPoint = generatePeakForTransformationParabola(pathDistance);
 		double[][] lhsMatrix = {{0, 0, 1}, {peakPoint.x * peakPoint.x, peakPoint.x, 1}, {pathDistance * pathDistance, pathDistance, 1}};
 		double[][] rhsMatrix = {{0, peakPoint.y, 0}};
@@ -39,7 +39,7 @@ public class Randomizer {
 		
 		double[] result = {ans.get(0, 0), ans.get(1, 0), ans.get(2, 0)};
 		return result;
-	}
+	}*/
 	
 	//public Point transformPoint
 }
