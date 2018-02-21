@@ -1,9 +1,13 @@
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.opencv.core.Core;
+import javax.imageio.ImageIO;
+
 import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
@@ -16,6 +20,20 @@ import org.tensorflow.types.UInt8;
 public class ObjectDetectionViaSavedModelBundle {
 
 
+		/*public Tensor<UInt8> getImage() {
+	    	byte[] imageBytes = readAllBytesOrExit(Paths.get("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg)");
+
+	    	try (Tensor<UInt8> image = constructAndExecuteGraphToNormalizeImage(imageBytes) {
+	    		/*float[] labelProbabilities = executeInceptionGraph(graphDef, image);
+	    		int bestLabelIdx = maxIndex(labelProbabilities);
+	    		System.out.println(
+	    				String.format("BEST MATCH: %s (%.2f%% likely)",
+	    						labels.get(bestLabelIdx),
+	    						labelProbabilities[bestLabelIdx] * 100f));
+	    	}
+		}*/
+
+	
 	   public static void main( String[] args ) throws Exception {
 	      /*System.out.println("Reading model from TensorFlow...");
 	      
@@ -33,11 +51,13 @@ public class ObjectDetectionViaSavedModelBundle {
 	      final String value = "Hello from " + TensorFlow.version();
 	      System.out.println(value);
 
-	      byte[] imageBytes = readAllBytesOrExit(Paths.get("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg"));
-	      Tensor image = constructAndExecuteGraphToNormalizeImage(imageBytes);
+	      //byte[] imageBytes = readAllBytesOrExit(Paths.get("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg"));
+	      //Tensor<UInt8> image = constructAndExecuteGraphToNormalizeImage(imageBytes);
+	      //final long[] shape = {330, 510, 3};
+	      //Tensor image = Tensor.create(DataType.UINT8, shape, ByteBuffer.wrap(imageBytes));
 
 	      SavedModelBundle load = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_23826/saved_model/", "serve");
-
+      
 	      try (Graph g = load.graph()) {
 	          try (Session s = load.session();
 	               Tensor result = s.runner()
@@ -52,6 +72,47 @@ public class ObjectDetectionViaSavedModelBundle {
 	      System.out.println("Done...");
 	   }
 	   
+	   private static Tensor<UInt8> makeImageTensor(String filename) throws IOException {
+		    BufferedImage img = ImageIO.read(new File(filename));
+		    if (img.getType() != BufferedImage.TYPE_3BYTE_BGR) {
+		      throw new IOException(
+		          String.format(
+		              "Expected 3-byte BGR encoding in BufferedImage, found %d (file: %s). This code could be made more robust",
+		              img.getType(), filename));
+		    }
+		    byte[] data = ((DataBufferByte) img.getData().getDataBuffer()).getData();
+		    // ImageIO.read seems to produce BGR-encoded images, but the model expects RGB.
+		    bgr2rgb(data);
+		    final long BATCH_SIZE = 1;
+		    final long CHANNELS = 3;
+		    long[] shape = new long[] {BATCH_SIZE, img.getHeight(), img.getWidth(), CHANNELS};
+		    return Tensor.create(UInt8.class, shape, ByteBuffer.wrap(data));
+		  }
+
+
+	   private static void bgr2rgb(byte[] data) {
+		    for (int i = 0; i < data.length; i += 3) {
+		      byte tmp = data[i];
+		      data[i] = data[i + 2];
+		      data[i + 2] = tmp;
+		    }
+	   }
+}
+
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   /*
 	   private static byte[] readAllBytesOrExit(Path path) {
 		    try {
 		      return Files.readAllBytes(path);
@@ -62,7 +123,7 @@ public class ObjectDetectionViaSavedModelBundle {
 		    return null;
 		  }
 	   
-	   private static Tensor<Float> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
+	   private static Tensor<UInt8> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
 		    try (Graph g = new Graph()) {
 		      GraphBuilder b = new GraphBuilder(g);
 		      // Some constants specific to the pre-trained model at:
@@ -85,13 +146,13 @@ public class ObjectDetectionViaSavedModelBundle {
 		              b.sub(
 		                  b.resizeBilinear(
 		                      b.expandDims(
-		                          b.cast(b.decodeJpeg(input, 3), Float.class),
+		                          b.cast(b.decodeJpeg(input, 3), UInt8.class),
 		                          b.constant("make_batch", 0)),
 		                      b.constant("size", new int[] {H, W})),
 		                  b.constant("mean", mean)),
 		              b.constant("scale", scale));
 		      try (Session s = new Session(g)) {
-		        return s.runner().fetch(output.op().name()).run().get(0).expect(Float.class);
+		        return s.runner().fetch(output.op().name()).run().get(0).expect(UInt8.class);
 		      }
 		    }
 		  }
@@ -168,4 +229,5 @@ public class ObjectDetectionViaSavedModelBundle {
 		    }
 		    private Graph g;
 	   }
-}
+	   */
+
