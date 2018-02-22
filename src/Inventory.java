@@ -36,7 +36,7 @@ public class Inventory {
 	}
 	
 	private void initializeItems() throws IOException {
-		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAI/Items/");
+		items = new InventoryItems(Constants.INVENTORY_ITEMS_DIRECTORY_PATH);
 	}
 	
 	public void update() throws IOException {
@@ -52,12 +52,13 @@ public class Inventory {
 		}
 	}
 	
-	public void updateAndWriteAllInventorySlotsToImages() throws IOException {
+	public void updateAndWriteAllInventoryImages() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
-		writeAllInventorySlotsToImages(image);
+		ImageIO.write(image, "png", new File("/home/dpapp/Desktop/RunescapeAI/Tests/Inventory/inventory_TO_RENAME.png"));
+		writeAllInventorySlotImages(image);
 	}
 	
-	private void writeAllInventorySlotsToImages(BufferedImage image) throws IOException {
+	private void writeAllInventorySlotImages(BufferedImage image) throws IOException {
 		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
 			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
 				inventorySlots[row][column].writeInventorySlotImage(image, row, column);

@@ -40,7 +40,6 @@ public class InventorySlot {
 	
 	// For test image generation only
 	public void writeInventorySlotImage(BufferedImage image, int row, int column) throws IOException {
-		System.out.println("Written inventory slot image...");
 		updateInventorySlot(image);
 		ImageIO.write(this.inventorySlotImage, "png", new File(getImageName(row, column)));
 	}

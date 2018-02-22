@@ -77,15 +77,16 @@ public class ImageCollector {
 		return screenshotOutputDirectory + itemName + "_" + counter + ".jpg";
 	}
 	
-	private void generateInventorySlotImages() throws AWTException, IOException {
+		
+	private void generateInventoryImages() throws AWTException, IOException {
 		Inventory inventory = new Inventory();
-		inventory.updateAndWriteAllInventorySlotsToImages();
+		inventory.updateAndWriteAllInventoryImages();
 	}
 	
 	public static void main(String[] args) throws Exception
     {
         ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/TensorFlow/IronOre/");
         //imageCollector.collectImages("ironOre");
-        imageCollector.generateInventorySlotImages();
+        imageCollector.generateInventoryImages();
     }
 }

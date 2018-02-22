@@ -17,14 +17,13 @@ class InventoryItemsTest {
 	String testingItemDirectoryPath;
 	
 	public void initialize() throws IOException {
-		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAI/Items/");
-		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAI/Tests/ItemNameRecognition/";
+		items = new InventoryItems(Constants.INVENTORY_ITEMS_DIRECTORY_PATH);
 	}
 	
 	@Test
 	public void testGetNameOfItemFromImage() throws IOException {
 		initialize();
-		for (File itemFile : items.getListOfFilesFromItemDirectory(this.testingItemDirectoryPath)) {
+		for (File itemFile : items.getListOfFilesFromItemDirectory(Constants.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());
@@ -36,7 +35,7 @@ class InventoryItemsTest {
 	@Test
 	public void testIsImageThisItem() throws IOException {
 		initialize();
-		for (File itemFile : items.getListOfFilesFromItemDirectory(this.testingItemDirectoryPath)) {
+		for (File itemFile : items.getListOfFilesFromItemDirectory(Constants.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());
