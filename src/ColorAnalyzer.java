@@ -124,7 +124,7 @@ public class ColorAnalyzer {
     {
         ColorAnalyzer colorAnalyzer = new ColorAnalyzer();
         //colorAnalyzer.showColorDistribution("screenshot21.jpg");
-        //colorAnalyzer.printCursorColor();
-        colorAnalyzer.colorImage();
+        colorAnalyzer.printCursorColor();
+        //colorAnalyzer.colorImage();
     }
 }

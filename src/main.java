@@ -7,9 +7,9 @@ import java.net.URL;
 public class main {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Starting Willow Chopper.");
-		WillowChopper willowChopper = new WillowChopper();
-		willowChopper.run();
+		System.out.println("Starting Iron Miner.");
+		IronMiner ironMiner = new IronMiner();
+		ironMiner.run();
 		/*Cursor cursor = new Cursor();
 		CursorTask cursorTask = new CursorTask();
 		Inventory inventory = new Inventory();

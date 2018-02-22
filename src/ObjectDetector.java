@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -22,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -41,10 +43,11 @@ public class ObjectDetector {
 		model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_23826/saved_model/", "serve");
 	}
 	
-	public void getIronOreLocationsFromImage(BufferedImage image) throws IOException {
+	public ArrayList<Point> getIronOreLocationsFromImage(String filename) throws IOException {
 		List<Tensor<?>> outputs = null;
+        ArrayList<Point> ironOreLocations = new ArrayList<Point>();
         
-        try (Tensor<UInt8> input = makeImageTensor(image)) {
+        try (Tensor<UInt8> input = makeImageTensor(filename)) {
           outputs =
               model
                   .session()
@@ -71,117 +74,27 @@ public class ObjectDetector {
               // Print all objects whose score is at least 0.5.
             boolean foundSomething = false;
             for (int i = 0; i < scores.length; ++i) {
-              if (scores[i] < 0.5) {
+              if (scores[i] < 0.75) {
                 continue;
               }
               foundSomething = true;
-              System.out.printf("\tFound %-20s (score: %.4f)\n", "ironOre", 1.0000); //labels[(int) classes[i]], scores[i]);
-              System.out.println("Location:");
-              System.out.println("X:" + 510 * boxes[i][1] + ", Y:" + 330 * boxes[i][0] + ", width:" + 510 * boxes[i][3] + ", height:" + 330 * boxes[i][2]);
+              //System.out.printf("\tFound %-20s (score: %.4f)\n", "ironOre", scores[i]);
+              //System.out.println("X:" + 510 * boxes[i][1] + ", Y:" + 330 * boxes[i][0] + ", width:" + 510 * boxes[i][3] + ", height:" + 330 * boxes[i][2]);
+              ironOreLocations.add(getCenterPointFromBox(boxes[i]));
             }
             if (!foundSomething) {
               System.out.println("No objects detected with a high enough score.");
             }
           }
+        return ironOreLocations;
 	}
     
-    /*public void test() {
-    	try (SavedModelBundle model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_23826/saved_model/", "serve")) {
-     // printSignature(model);
+	private Point getCenterPointFromBox(float[] box) {
+		int x = (int) (510 * (box[1] + box[3]) / 2);
+		int y = (int) (330 * (box[0] + box[2]) / 2);
+		return new Point(x, y);
+	}
     
-        final String filename = "/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg";
-        List<Tensor<?>> outputs = null;
-        
-        try (Tensor<UInt8> input = makeImageTensor(filename)) {
-        	System.out.println("Image was converted to tensor.");
-        	long startTime = System.currentTimeMillis();
-          outputs =
-              model
-                  .session()
-                  .runner()
-                  .feed("image_tensor", input)
-                  .fetch("detection_scores")
-                  .fetch("detection_classes")
-                  .fetch("detection_boxes")
-                  .run();
-          System.out.println("Object detection took " + (System.currentTimeMillis() - startTime));
-        }
-        
-        try (Tensor<Float> scoresT = outputs.get(0).expect(Float.class);
-            Tensor<Float> classesT = outputs.get(1).expect(Float.class);
-            Tensor<Float> boxesT = outputs.get(2).expect(Float.class)) {
-          // All these tensors have:
-          // - 1 as the first dimension
-          // - maxObjects as the second dimension
-          // While boxesT will have 4 as the third dimension (2 sets of (x, y) coordinates).
-          // This can be verified by looking at scoresT.shape() etc.
-          int maxObjects = (int) scoresT.shape()[1];
-          float[] scores = scoresT.copyTo(new float[1][maxObjects])[0];
-          float[] classes = classesT.copyTo(new float[1][maxObjects])[0];
-          float[][] boxes = boxesT.copyTo(new float[1][maxObjects][4])[0];
-          // Print all objects whose score is at least 0.5.
-          System.out.printf("* %s\n", filename);
-          boolean foundSomething = false;
-          for (int i = 0; i < scores.length; ++i) {
-            if (scores[i] < 0.5) {
-              continue;
-            }
-            foundSomething = true;
-            System.out.printf("\tFound %-20s (score: %.4f)\n", "ironOre", 1.0000); //labels[(int) classes[i]], scores[i]);
-            System.out.println("Location:");
-            System.out.println("X:" + 510 * boxes[i][1] + ", Y:" + 330 * boxes[i][0] + ", width:" + 510 * boxes[i][3] + ", height:" + 330 * boxes[i][2]);
-          }
-          if (!foundSomething) {
-            System.out.println("No objects detected with a high enough score.");
-          }
-        }
-     
-    }
-  }*/
-
-  private static void printSignature(SavedModelBundle model) throws Exception {
-    /*MetaGraphDef m = MetaGraphDef.parseFrom(model.metaGraphDef());
-    SignatureDef sig = m.getSignatureDefOrThrow("serving_default");
-    int numInputs = sig.getInputsCount();
-    int i = 1;
-    System.out.println("MODEL SIGNATURE");
-    System.out.println("Inputs:");
-    for (Map.Entry<String, TensorInfo> entry : sig.getInputsMap().entrySet()) {
-      TensorInfo t = entry.getValue();
-      System.out.printf(
-          "%d of %d: %-20s (Node name in graph: %-20s, type: %s)\n",
-          i++, numInputs, entry.getKey(), t.getName(), t.getDtype());
-    }
-    int numOutputs = sig.getOutputsCount();
-    i = 1;
-    System.out.println("Outputs:");
-    for (Map.Entry<String, TensorInfo> entry : sig.getOutputsMap().entrySet()) {
-      TensorInfo t = entry.getValue();
-      System.out.printf(
-          "%d of %d: %-20s (Node name in graph: %-20s, type: %s)\n",
-          i++, numOutputs, entry.getKey(), t.getName(), t.getDtype());
-    }*/
-    System.out.println("-----------------------------------------------");
-  }
-
-  /*private static String[] loadLabels(String filename) throws Exception {
-    String text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
-    StringIntLabelMap.Builder builder = StringIntLabelMap.newBuilder();
-    TextFormat.merge(text, builder);
-    StringIntLabelMap proto = builder.build();
-    int maxId = 0;
-    for (StringIntLabelMapItem item : proto.getItemList()) {
-      if (item.getId() > maxId) {
-        maxId = item.getId();
-      }
-    }
-    String[] ret = new String[maxId + 1];
-    for (StringIntLabelMapItem item : proto.getItemList()) {
-      ret[item.getId()] = item.getDisplayName();
-    }
-    String[] label = {"ironOre"};
-    return label;
-  }*/
 
   private static void bgr2rgb(byte[] data) {
     for (int i = 0; i < data.length; i += 3) {
@@ -191,14 +104,17 @@ public class ObjectDetector {
     }
   }
 
-  private static Tensor<UInt8> makeImageTensor(BufferedImage img) throws IOException {
-    //BufferedImage img = ImageIO.read(new File(filename));
+  private static Tensor<UInt8> makeImageTensor(String filename) throws IOException {
+    BufferedImage img = ImageIO.read(new File(filename));
     if (img.getType() != BufferedImage.TYPE_3BYTE_BGR) {
       throw new IOException(
           String.format(
               "Expected 3-byte BGR encoding in BufferedImage, found %d (file: %s). This code could be made more robust"));
     }
+	//System.out.println("Image is of type RGB? " + (img.getType() == BufferedImage.TYPE_INT_RGB));
+	//System.out.println("Image is of type RGB? " + (img.getType() == BufferedImage.TYPE_3BYTE_BGR));
     byte[] data = ((DataBufferByte) img.getData().getDataBuffer()).getData();
+
     // ImageIO.read seems to produce BGR-encoded images, but the model expects RGB.
     bgr2rgb(data);
     final long BATCH_SIZE = 1;

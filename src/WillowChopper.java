@@ -17,8 +17,8 @@ public class WillowChopper {
 	
 	public WillowChopper() throws AWTException, IOException 
 	{
-		cursor = new Cursor();
-		cursorTask = new CursorTask();
+		//cursor = new Cursor();
+		//cursorTask = new CursorTask();
 		inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
@@ -27,8 +27,10 @@ public class WillowChopper {
 	public void run() throws Exception {
 		System.out.println("Starting ironMiner...");
 		while (true) {
+			String filename = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
 			BufferedImage image = captureScreenshotGameWindow();
-			objectDetector.getIronOreLocationsFromImage(image);
+			ImageIO.write(image, "jpg", new File(filename));
+			ArrayList<Point> ironOreLocations = objectDetector.getIronOreLocationsFromImage(filename);
 			System.out.println("--------------------------------\n\n");
 			/*
 			if (character.isCharacterEngaged()) {
