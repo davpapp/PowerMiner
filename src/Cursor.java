@@ -30,7 +30,7 @@ public class Cursor {
 	
 	public Cursor() throws AWTException {
 		System.out.println("Initializing cursor...");
-		initializeCursorPathsByDistanceFromFile("/home/dpapp/GhostMouse/coordinates.txt");
+		initializeCursorPathsByDistanceFromFile(Paths.CURSOR_COORDINATES_FILE_PATH);
 
 		robot = new Robot();
 		randomizer = new Randomizer();

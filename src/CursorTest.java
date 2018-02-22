@@ -18,7 +18,6 @@ class CursorTest {
 	@Test
 	void testMoveCursorToCoordinatesHelper() throws Exception {
 		initialize();
-		//cursor.displayCursorPaths();
 		
 		testThetaBetweenPoints();
 		testFindNearestPathLengthThatExists();
@@ -32,7 +31,6 @@ class CursorTest {
 			int closestLength = cursor.findNearestPathLengthThatExists(i);
 			assertTrue(closestLength >= closestLengthForPreviousValue);
 			closestLengthForPreviousValue = closestLength;
-			//System.out.println("Closest path to length " + i + " is " + closestLength);
 		}
 	}
 	

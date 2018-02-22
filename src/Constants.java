@@ -14,8 +14,4 @@ public class Constants {
 	public static final int INVENTORY_SLOT_HEIGHT = 254 / 7;
 	public static final int INVENTORY_NUM_ROWS = 4;
 	public static final int INVENTORY_NUM_COLUMNS = 7;
-	
-	public static final String INVENTORY_TEST_DIRECTORY_PATH = "/home/dpapp/Desktop/RunescapeAI/Tests/Inventory/";
-	public static final String INVENTORY_ITEMS_TEST_DIRECTORY_PATH = "/home/dpapp/Desktop/RunescapeAI/Tests/ItemNameRecognition/";
-	public static final String INVENTORY_ITEMS_DIRECTORY_PATH = "/home/dpapp/Desktop/RunescapeAI/Items/";
 }

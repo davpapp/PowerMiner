@@ -17,13 +17,13 @@ class InventoryItemsTest {
 	String testingItemDirectoryPath;
 	
 	public void initialize() throws IOException {
-		items = new InventoryItems(Constants.INVENTORY_ITEMS_DIRECTORY_PATH);
+		items = new InventoryItems(Paths.INVENTORY_ITEMS_DIRECTORY_PATH);
 	}
 	
 	@Test
 	public void testGetNameOfItemFromImage() throws IOException {
 		initialize();
-		for (File itemFile : items.getListOfFilesFromItemDirectory(Constants.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
+		for (File itemFile : items.getListOfFilesFromItemDirectory(Paths.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());
@@ -35,7 +35,7 @@ class InventoryItemsTest {
 	@Test
 	public void testIsImageThisItem() throws IOException {
 		initialize();
-		for (File itemFile : items.getListOfFilesFromItemDirectory(Constants.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
+		for (File itemFile : items.getListOfFilesFromItemDirectory(Paths.INVENTORY_ITEMS_TEST_DIRECTORY_PATH)) {
 			if (itemFile.isFile()) {
 				BufferedImage itemImage = ImageIO.read(itemFile);
 				String expectedItemName = getItemNameForTest(itemFile.getName());

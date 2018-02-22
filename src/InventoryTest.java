@@ -83,7 +83,7 @@ class InventoryTest {
 	}
 	
 	public BufferedImage loadBufferedImage(String fileName) throws IOException {
-		File itemFile = new File(Constants.INVENTORY_TEST_DIRECTORY_PATH + fileName);
+		File itemFile = new File(Paths.INVENTORY_TEST_DIRECTORY_PATH + fileName);
 		BufferedImage itemImage = ImageIO.read(itemFile);
 		return itemImage;
 	}

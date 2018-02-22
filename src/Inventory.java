@@ -36,7 +36,7 @@ public class Inventory {
 	}
 	
 	private void initializeItems() throws IOException {
-		items = new InventoryItems(Constants.INVENTORY_ITEMS_DIRECTORY_PATH);
+		items = new InventoryItems(Paths.INVENTORY_ITEMS_DIRECTORY_PATH);
 	}
 	
 	public void update() throws IOException {
