@@ -1,3 +1,9 @@
+/*
+ * I made this class when I was trying to do color and feature matching with Haartraining in OpenCV.
+ * I no longer really use this, except for printCursorColor, which also prints the cursor's coordinates.
+ */
+
+
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.MouseInfo;

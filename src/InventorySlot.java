@@ -39,13 +39,14 @@ public class InventorySlot {
 	}
 	
 	// For test image generation only
-	/*public void writeInventorySlotImage(BufferedImage image, int row, int column) throws IOException {
+	public void writeInventorySlotImage(BufferedImage image, int row, int column) throws IOException {
+		System.out.println("Written inventory slot image...");
 		updateInventorySlot(image);
 		ImageIO.write(this.inventorySlotImage, "png", new File(getImageName(row, column)));
 	}
 
 	// For test image generation only
 	private String getImageName(int row, int column) {
-		return ("/home/dpapp/Desktop/RunescapeAIPics/InventorySlots/inventorySlot_" + row + "_" + column + ".png");
-	}*/
+		return ("/home/dpapp/Desktop/RunescapeAI/InventorySlots/inventorySlot_" + row + "_" + column + ".png");
+	}
 }

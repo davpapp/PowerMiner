@@ -35,9 +35,24 @@ class InventoryTest {
 				{"empty", "oakLogs", "empty", "logs", "willowLogs", "empty", "willowLogs"}, 
 				{"logs", "empty", "oakLogs", "oakLogs", "empty", "oakLogs", "empty"},
 				{"willowLogs", "empty", "logs", "willowLogs", "empty", "logs", "logs"}};
+		String[][] expectedItemNames3 = {{"oakLogs", "willowLogs", "willowLogs", "willowLogs", "oakLogs", "willowLogs", "logs"},
+				{"empty", "oakLogs", "empty", "logs", "willowLogs", "empty", "willowLogs"}, 
+				{"logs", "empty", "oakLogs", "oakLogs", "empty", "oakLogs", "empty"},
+				{"willowLogs", "empty", "logs", "willowLogs", "empty", "logs", "logs"}};
+		String[][] expectedItemNames4 = {{"oakLogs", "willowLogs", "willowLogs", "willowLogs", "oakLogs", "willowLogs", "logs"},
+				{"empty", "oakLogs", "empty", "logs", "willowLogs", "empty", "willowLogs"}, 
+				{"logs", "empty", "oakLogs", "oakLogs", "empty", "oakLogs", "empty"},
+				{"willowLogs", "empty", "logs", "willowLogs", "empty", "logs", "logs"}};
+		String[][] expectedItemNames5 = {{"oakLogs", "willowLogs", "willowLogs", "willowLogs", "oakLogs", "willowLogs", "logs"},
+				{"empty", "oakLogs", "empty", "logs", "willowLogs", "empty", "willowLogs"}, 
+				{"logs", "empty", "oakLogs", "oakLogs", "empty", "oakLogs", "empty"},
+				{"willowLogs", "empty", "logs", "willowLogs", "empty", "logs", "logs"}};
 		testGetNameInItemInventorySlotHelper("inventory_0.png", expectedItemNames0);
 		testGetNameInItemInventorySlotHelper("inventory_1.png", expectedItemNames1);
 		testGetNameInItemInventorySlotHelper("inventory_2.png", expectedItemNames2);
+		testGetNameInItemInventorySlotHelper("inventory_3.png", expectedItemNames2);
+		testGetNameInItemInventorySlotHelper("inventory_4.png", expectedItemNames2);
+		testGetNameInItemInventorySlotHelper("inventory_5.png", expectedItemNames2);
 	}
 	
 	@Test

@@ -17,7 +17,6 @@ class InventoryItemsTest {
 	String testingItemDirectoryPath;
 	
 	public void initialize() throws IOException {
-		System.out.println("running initialize...");
 		items = new InventoryItems("/home/dpapp/Desktop/RunescapeAI/Items/");
 		this.testingItemDirectoryPath = "/home/dpapp/Desktop/RunescapeAI/Tests/ItemNameRecognition/";
 	}
