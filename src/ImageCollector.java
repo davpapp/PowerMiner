@@ -78,7 +78,6 @@ public class ImageCollector {
 		return screenshotOutputDirectory + itemName + "_" + counter + ".jpg";
 	}
 	
-		
 	private void generateInventoryImages() throws AWTException, IOException {
 		Inventory inventory = new Inventory();
 		inventory.updateAndWriteAllInventoryImages();

@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import org.opencv.core.Rect2d;
+import org.opencv.tracking.Tracker;
+import org.opencv.tracking.TrackerKCF;
 
 public class IronMiner {
 	
-	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 2738;
+	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 1320;
 	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 400;
 	public static final Point GAME_WINDOW_CENTER = new Point(Constants.GAME_WINDOW_WIDTH / 2, Constants.GAME_WINDOW_HEIGHT / 2);
 	
@@ -37,15 +39,31 @@ public class IronMiner {
 	public void run() throws Exception {
 		
 		while (true) {
-			objectDetector.update();
-			ArrayList<DetectedObject> ironOres = objectDetector.getRecognizedObjectsOfClassFromImage("ironOre");
-			ArrayList<DetectedObject> ores = objectDetector.getRecognizedObjectsOfClassFromImage("ore");
-			System.out.println(ironOres.size() + " ironOres, " + ores.size() + " ores.");
+			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture);
+			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 			
-			/*for (DetectedObject ironOre : ironOres) {
-				ironOre.display();
-			}*/
-			mineClosestIronOre(ironOres, ores);
+			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			if (closestIronOre != null) {
+				Tracker objectTracker = TrackerKCF.create();
+				objectTracker.init(screenCapture, closestIronOre.getBoundingRect2d());
+				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
+				
+				long mineStartTime = System.currentTimeMillis();
+				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
+				
+				
+				while ((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) {
+					screenCapture = objectDetector.captureScreenshotGameWindow();
+					objectTracker.update(screenCapture, boundingBox);
+					Rectangle newBounds = new Rectangle();
+					if (!objectDetector.isObjectPresentInBoundingBoxInImage(screenCapture, newBounds, "ironOre")) {
+						System.out.println("Lost track! Finding new ore.");
+						break;
+					}
+				}
+			}
+			
 			dropInventoryIfFull();
 		}
 	}
@@ -58,36 +76,13 @@ public class IronMiner {
 	}
 	
 	
-	private void mineClosestIronOre(ArrayList<DetectedObject> ironOres, ArrayList<DetectedObject> ores) throws Exception {
+	private void mineClosestIronOre(ArrayList<DetectedObject> ironOres) throws Exception {
 		DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
-		if (closestIronOre != null) {
+		if (closestIronOre != null) {		
 			cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
-			Thread.sleep(84, 219);
-			DetectedObject closestOre = getClosestObjectToCharacter(ores);
-			if (closestOre != null) {
-				cursor.moveCursorToCoordinatesWithRandomness(closestOre.getCenterForClicking(), 10, 10);
-			}
-			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 250, IRON_ORE_MINING_TIME_MILLISECONDS + -50));
+			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 350, IRON_ORE_MINING_TIME_MILLISECONDS + 1850));
 		}
-			//Thread.sleep(randomizer.nextGaussianWithinRange(150, 350));
-
-		//cursor.moveCursorToCoordinates(goalPoint);
 	}
-	/*private void mineClosestIronOre(String filename) throws Exception {
-		Point ironOreLocation = getClosestIronOre(filename);
-		if (ironOreLocation != null) {
-			System.out.println("Mineable iron at (" + (ironOreLocation.x + 103) + "," + (ironOreLocation.y + 85) + ")");
-			Point actualIronOreLocation = new Point(ironOreLocation.x + 103, ironOreLocation.y + 85);
-			Rect2d trackerBoundingBox = new Rec2d();
-			//Rectangle trackerBoundingBox = new Rectangle(ironOreLocation.x - 10, ironOreLocation.x + 10, ironOreLocation.y - 10, ironOreLocation.y + 10);
-			//tracker.init(image, trackerBoundingBox);
-			cursor.moveAndLeftClickAtCoordinatesWithRandomness(actualIronOreLocation, 12, 12);
-			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 350, IRON_ORE_MINING_TIME_MILLISECONDS + 150));
-		}
-		
-	}
-	
-	}*/
 	
 	private DetectedObject getClosestObjectToCharacter(ArrayList<DetectedObject> detectedObjects) {
 		int closestDistanceToCharacter = Integer.MAX_VALUE;

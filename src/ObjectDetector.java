@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Tensor;
 import org.tensorflow.types.UInt8;
@@ -42,28 +43,26 @@ import org.tensorflow.types.UInt8;
 public class ObjectDetector {
   
 	SavedModelBundle model;
-	ArrayList<DetectedObject> detectedObjects;
 	Robot robot;
 	
 	public ObjectDetector() throws AWTException {
 		this.model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_22948/saved_model/", "serve");
-		this.detectedObjects = new ArrayList<DetectedObject>();
 		this.robot = new Robot();
 	}
 	
 	public void update() throws Exception {
 		// TODO: eliminate IO and pass BufferedImage directly.
-		String fileName = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
+		/*String fileName = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
 		BufferedImage image = captureScreenshotGameWindow();
 		ImageIO.write(image, "jpg", new File(fileName));
-		this.detectedObjects = getRecognizedObjectsFromImage(fileName);
+		this.detectedObjects = getRecognizedObjectsFromImage(fileName);*/
 	}
 	
-	private ArrayList<DetectedObject> getRecognizedObjectsFromImage(String fileName) throws Exception {
+	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
 		
-        try (Tensor<UInt8> input = makeImageTensor(fileName)) {
+        try (Tensor<UInt8> input = makeImageTensor(image)) {
           outputs =
               model
                   .session()
@@ -92,10 +91,16 @@ public class ObjectDetector {
           }
         return detectedObjectsInImage;
 	}
+	
+	public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rectangle boundingBox, String objectClass) throws Exception {
+		BufferedImage subImage = image.getSubimage(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+		ArrayList<DetectedObject> detectedObjectsInSubImage = getObjectsInImage(subImage);
+		return (getObjectsOfClassInList(detectedObjectsInSubImage, objectClass).size() != 0);
+	}
     
-	public ArrayList<DetectedObject> getRecognizedObjectsOfClassFromImage(String objectClass) {
+	public ArrayList<DetectedObject> getObjectsOfClassInList(ArrayList<DetectedObject> detectedObjects, String objectClass) {
 		ArrayList<DetectedObject> detectedObjectsOfType = new ArrayList<DetectedObject>();
-		for (DetectedObject detectedObject : this.detectedObjects) {
+		for (DetectedObject detectedObject : detectedObjects) {
 			if (detectedObject.getDetectionClass().equals(objectClass)) {
 				detectedObjectsOfType.add(detectedObject);
 			}
@@ -103,8 +108,8 @@ public class ObjectDetector {
 		return detectedObjectsOfType;
 	}
 
-  private static Tensor<UInt8> makeImageTensor(String filename) throws IOException {
-    BufferedImage img = ImageIO.read(new File(filename));
+  private static Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
+    BufferedImage img = ImageIO.read(image);
     if (img.getType() != BufferedImage.TYPE_3BYTE_BGR) {
       throw new IOException(
           String.format(
@@ -128,8 +133,8 @@ public class ObjectDetector {
     }
   }
   
-  private BufferedImage captureScreenshotGameWindow() throws IOException {
-	Rectangle area = new Rectangle(103, 85, 510, 330);
-	return robot.createScreenCapture(area);
-  }
+  public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
+		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
+		return robot.createScreenCapture(area);
+	  }
 }

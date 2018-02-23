@@ -1,6 +1,8 @@
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import org.opencv.core.Rect2d;
+
 
 
 public class DetectedObject {
@@ -35,8 +37,12 @@ public class DetectedObject {
 		return detectionClass;
 	}
 	
-	public Rectangle getBoundingBox() {
+	public Rectangle getBoundingRectangle() {
 		return boundingBox;
+	}
+	
+	private Rect2d getBoundingRect2d() {
+		return new Rect2d(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height);
 	}
 	
 	public Point getCenterForClicking() {
