@@ -3,12 +3,14 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Rect2d;
 import org.opencv.tracking.Tracker;
 import org.opencv.tracking.TrackerKCF;
@@ -46,18 +48,19 @@ public class IronMiner {
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
 				Tracker objectTracker = TrackerKCF.create();
-				objectTracker.init(screenCapture, closestIronOre.getBoundingRect2d());
+				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
+				objectTracker.init(getMatFromBufferedImage(screenCapture), boundingBox);
+				
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				long mineStartTime = System.currentTimeMillis();
 				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
 				
-				
+				// track until either we lose the object or too much time passes
 				while ((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) {
 					screenCapture = objectDetector.captureScreenshotGameWindow();
-					objectTracker.update(screenCapture, boundingBox);
-					Rectangle newBounds = new Rectangle();
-					if (!objectDetector.isObjectPresentInBoundingBoxInImage(screenCapture, newBounds, "ironOre")) {
+					boolean ok = objectTracker.update(getMatFromBufferedImage(screenCapture), boundingBox);
+					if (!ok || !objectDetector.isObjectPresentInBoundingBoxInImage(screenCapture, boundingBox, "ironOre")) {
 						System.out.println("Lost track! Finding new ore.");
 						break;
 					}
@@ -99,6 +102,13 @@ public class IronMiner {
 			return closestObjectToCharacter;
 		}
 		return null;
+	}
+	
+	public Mat getMatFromBufferedImage(BufferedImage image) {
+		Mat matImage = new Mat();
+		byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+		matImage.put(0, 0, pixels);
+		return matImage;
 	}
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {

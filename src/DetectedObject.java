@@ -41,7 +41,7 @@ public class DetectedObject {
 		return boundingBox;
 	}
 	
-	private Rect2d getBoundingRect2d() {
+	public Rect2d getBoundingRect2d() {
 		return new Rect2d(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height);
 	}
 	

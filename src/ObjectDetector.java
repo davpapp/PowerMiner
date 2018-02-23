@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Rect2d;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Tensor;
 import org.tensorflow.types.UInt8;
@@ -92,8 +93,8 @@ public class ObjectDetector {
         return detectedObjectsInImage;
 	}
 	
-	public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rectangle boundingBox, String objectClass) throws Exception {
-		BufferedImage subImage = image.getSubimage(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
+	public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rect2d boundingBox, String objectClass) throws Exception {
+		BufferedImage subImage = image.getSubimage((int) boundingBox.x, (int) boundingBox.y, (int) boundingBox.width, (int) boundingBox.height);
 		ArrayList<DetectedObject> detectedObjectsInSubImage = getObjectsInImage(subImage);
 		return (getObjectsOfClassInList(detectedObjectsInSubImage, objectClass).size() != 0);
 	}
