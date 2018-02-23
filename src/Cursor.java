@@ -125,6 +125,12 @@ public class Cursor {
 		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
 	}
 
+	public Point moveCursorToCoordinatesWithRandomness(Point goalPoint, int xTolerance, int yTolerance) throws Exception {
+		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
+		moveCursorToCoordinates(randomizedGoalPoint);
+		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
+	}
+	
 	public void moveCursorToCoordinates(Point goalPoint) throws Exception {
 		Point startingPoint = getCurrentCursorPoint();
 		int distanceToMoveCursor = getDistanceBetweenPoints(startingPoint, goalPoint);

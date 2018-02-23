@@ -9,11 +9,13 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Rect2d;
+
 public class IronMiner {
 	
 	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 2738;
 	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 400;
-	public static final Point GAME_WINDOW_CENTER = new Point(510 / 2, 330 / 2);
+	public static final Point GAME_WINDOW_CENTER = new Point(Constants.GAME_WINDOW_WIDTH / 2, Constants.GAME_WINDOW_HEIGHT / 2);
 	
 	Cursor cursor; 
 	CursorTask cursorTask;
@@ -35,13 +37,15 @@ public class IronMiner {
 	public void run() throws Exception {
 		
 		while (true) {
-			//Thread.sleep(250);
+			objectDetector.update();
+			ArrayList<DetectedObject> ironOres = objectDetector.getRecognizedObjectsOfClassFromImage("ironOre");
+			ArrayList<DetectedObject> ores = objectDetector.getRecognizedObjectsOfClassFromImage("ore");
+			System.out.println(ironOres.size() + " ironOres, " + ores.size() + " ores.");
 			
-			String filename = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
-			BufferedImage image = captureScreenshotGameWindow();
-			ImageIO.write(image, "jpg", new File(filename));
-			mineClosestIronOre(filename);
-			
+			/*for (DetectedObject ironOre : ironOres) {
+				ironOre.display();
+			}*/
+			mineClosestIronOre(ironOres, ores);
 			dropInventoryIfFull();
 		}
 	}
@@ -53,47 +57,56 @@ public class IronMiner {
 		}
 	}
 	
-	private void mineClosestIronOre(String filename) throws Exception {
+	
+	private void mineClosestIronOre(ArrayList<DetectedObject> ironOres, ArrayList<DetectedObject> ores) throws Exception {
+		DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+		if (closestIronOre != null) {
+			cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
+			Thread.sleep(84, 219);
+			DetectedObject closestOre = getClosestObjectToCharacter(ores);
+			if (closestOre != null) {
+				cursor.moveCursorToCoordinatesWithRandomness(closestOre.getCenterForClicking(), 10, 10);
+			}
+			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 250, IRON_ORE_MINING_TIME_MILLISECONDS + -50));
+		}
+			//Thread.sleep(randomizer.nextGaussianWithinRange(150, 350));
+
+		//cursor.moveCursorToCoordinates(goalPoint);
+	}
+	/*private void mineClosestIronOre(String filename) throws Exception {
 		Point ironOreLocation = getClosestIronOre(filename);
-		/*if (ironOreLocation == null) {
-			Thread.sleep(1000);
-		}*/
 		if (ironOreLocation != null) {
 			System.out.println("Mineable iron at (" + (ironOreLocation.x + 103) + "," + (ironOreLocation.y + 85) + ")");
 			Point actualIronOreLocation = new Point(ironOreLocation.x + 103, ironOreLocation.y + 85);
+			Rect2d trackerBoundingBox = new Rec2d();
+			//Rectangle trackerBoundingBox = new Rectangle(ironOreLocation.x - 10, ironOreLocation.x + 10, ironOreLocation.y - 10, ironOreLocation.y + 10);
+			//tracker.init(image, trackerBoundingBox);
 			cursor.moveAndLeftClickAtCoordinatesWithRandomness(actualIronOreLocation, 12, 12);
 			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 350, IRON_ORE_MINING_TIME_MILLISECONDS + 150));
 		}
 		
 	}
 	
-	private Point getClosestIronOre(String filename) throws IOException {
-		ArrayList<Point> ironOreLocations = objectDetector.getIronOreLocationsFromImage(filename);
-		System.out.println(ironOreLocations.size());
-		int closestDistanceToIronOreFromCharacter = Integer.MAX_VALUE;
-		Point closestIronOreToCharacter = null;
-		for (Point ironOreLocation : ironOreLocations) {
-			int distanceToIronOreFromCharacter = getDistanceBetweenPoints(GAME_WINDOW_CENTER, ironOreLocation);
-			if (distanceToIronOreFromCharacter < closestDistanceToIronOreFromCharacter) {
-				closestDistanceToIronOreFromCharacter = distanceToIronOreFromCharacter;
-				closestIronOreToCharacter = new Point(ironOreLocation.x, ironOreLocation.y);
+	}*/
+	
+	private DetectedObject getClosestObjectToCharacter(ArrayList<DetectedObject> detectedObjects) {
+		int closestDistanceToCharacter = Integer.MAX_VALUE;
+		DetectedObject closestObjectToCharacter = null;
+		
+		for (DetectedObject detectedObject : detectedObjects) {
+			int objectDistanceToCharacter = getDistanceBetweenPoints(GAME_WINDOW_CENTER, detectedObject.getCenterForClicking());
+			if (objectDistanceToCharacter < closestDistanceToCharacter) {
+				closestDistanceToCharacter = objectDistanceToCharacter;
+				closestObjectToCharacter = detectedObject;
 			}
 		}
-		
-		if (closestIronOreToCharacter != null && closestDistanceToIronOreFromCharacter < MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE) {
-			return closestIronOreToCharacter;
+		if (closestObjectToCharacter != null && closestDistanceToCharacter < MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE) {
+			return closestObjectToCharacter;
 		}
 		return null;
 	}
 	
-	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
 		return (int) (Math.hypot(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y));
-	}
-	
-	private BufferedImage captureScreenshotGameWindow() throws IOException {
-		Rectangle area = new Rectangle(103, 85, 510, 330);
-		return robot.createScreenCapture(area);
-		
 	}
 }

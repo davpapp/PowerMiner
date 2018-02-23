@@ -13,7 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+import java.awt.AWTException;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -24,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -38,16 +42,28 @@ import org.tensorflow.types.UInt8;
 public class ObjectDetector {
   
 	SavedModelBundle model;
+	ArrayList<DetectedObject> detectedObjects;
+	Robot robot;
 	
-	public ObjectDetector() {
-		model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_23826/saved_model/", "serve");
+	public ObjectDetector() throws AWTException {
+		this.model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_22948/saved_model/", "serve");
+		this.detectedObjects = new ArrayList<DetectedObject>();
+		this.robot = new Robot();
 	}
 	
-	public ArrayList<Point> getIronOreLocationsFromImage(String filename) throws IOException {
+	public void update() throws Exception {
+		// TODO: eliminate IO and pass BufferedImage directly.
+		String fileName = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
+		BufferedImage image = captureScreenshotGameWindow();
+		ImageIO.write(image, "jpg", new File(fileName));
+		this.detectedObjects = getRecognizedObjectsFromImage(fileName);
+	}
+	
+	private ArrayList<DetectedObject> getRecognizedObjectsFromImage(String fileName) throws Exception {
 		List<Tensor<?>> outputs = null;
-        ArrayList<Point> ironOreLocations = new ArrayList<Point>();
-        
-        try (Tensor<UInt8> input = makeImageTensor(filename)) {
+		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
+		
+        try (Tensor<UInt8> input = makeImageTensor(fileName)) {
           outputs =
               model
                   .session()
@@ -62,47 +78,30 @@ public class ObjectDetector {
         try (Tensor<Float> scoresT = outputs.get(0).expect(Float.class);
         	Tensor<Float> classesT = outputs.get(1).expect(Float.class);
             Tensor<Float> boxesT = outputs.get(2).expect(Float.class)) {
-              // All these tensors have:
-              // - 1 as the first dimension
-              // - maxObjects as the second dimension
-              // While boxesT will have 4 as the third dimension (2 sets of (x, y) coordinates).
-              // This can be verified by looking at scoresT.shape() etc.
+           
             int maxObjects = (int) scoresT.shape()[1];
             float[] scores = scoresT.copyTo(new float[1][maxObjects])[0];
             float[] classes = classesT.copyTo(new float[1][maxObjects])[0];
             float[][] boxes = boxesT.copyTo(new float[1][maxObjects][4])[0];
-              // Print all objects whose score is at least 0.5.
-            boolean foundSomething = false;
+
             for (int i = 0; i < scores.length; ++i) {
-              if (scores[i] < 0.75) {
-                continue;
+              if (scores[i] > 0.80) {
+            	  detectedObjectsInImage.add(new DetectedObject(scores[i], classes[i], boxes[i]));
               }
-              foundSomething = true;
-              //System.out.printf("\tFound %-20s (score: %.4f)\n", "ironOre", scores[i]);
-              //System.out.println("X:" + 510 * boxes[i][1] + ", Y:" + 330 * boxes[i][0] + ", width:" + 510 * boxes[i][3] + ", height:" + 330 * boxes[i][2]);
-              ironOreLocations.add(getCenterPointFromBox(boxes[i]));
-            }
-            if (!foundSomething) {
-              System.out.println("No objects detected with a high enough score.");
             }
           }
-        return ironOreLocations;
+        return detectedObjectsInImage;
 	}
     
-	private Point getCenterPointFromBox(float[] box) {
-		int x = (int) (510 * (box[1] + box[3]) / 2);
-		int y = (int) (330 * (box[0] + box[2]) / 2);
-		return new Point(x, y);
+	public ArrayList<DetectedObject> getRecognizedObjectsOfClassFromImage(String objectClass) {
+		ArrayList<DetectedObject> detectedObjectsOfType = new ArrayList<DetectedObject>();
+		for (DetectedObject detectedObject : this.detectedObjects) {
+			if (detectedObject.getDetectionClass().equals(objectClass)) {
+				detectedObjectsOfType.add(detectedObject);
+			}
+		}
+		return detectedObjectsOfType;
 	}
-    
-
-  private static void bgr2rgb(byte[] data) {
-    for (int i = 0; i < data.length; i += 3) {
-      byte tmp = data[i];
-      data[i] = data[i + 2];
-      data[i + 2] = tmp;
-    }
-  }
 
   private static Tensor<UInt8> makeImageTensor(String filename) throws IOException {
     BufferedImage img = ImageIO.read(new File(filename));
@@ -111,8 +110,6 @@ public class ObjectDetector {
           String.format(
               "Expected 3-byte BGR encoding in BufferedImage, found %d (file: %s). This code could be made more robust"));
     }
-	//System.out.println("Image is of type RGB? " + (img.getType() == BufferedImage.TYPE_INT_RGB));
-	//System.out.println("Image is of type RGB? " + (img.getType() == BufferedImage.TYPE_3BYTE_BGR));
     byte[] data = ((DataBufferByte) img.getData().getDataBuffer()).getData();
 
     // ImageIO.read seems to produce BGR-encoded images, but the model expects RGB.
@@ -121,5 +118,18 @@ public class ObjectDetector {
     final long CHANNELS = 3;
     long[] shape = new long[] {BATCH_SIZE, img.getHeight(), img.getWidth(), CHANNELS};
     return Tensor.create(UInt8.class, shape, ByteBuffer.wrap(data));
+  }
+  
+  private static void bgr2rgb(byte[] data) {
+    for (int i = 0; i < data.length; i += 3) {
+      byte tmp = data[i];
+      data[i] = data[i + 2];
+      data[i + 2] = tmp;
+    }
+  }
+  
+  private BufferedImage captureScreenshotGameWindow() throws IOException {
+	Rectangle area = new Rectangle(103, 85, 510, 330);
+	return robot.createScreenCapture(area);
   }
 }

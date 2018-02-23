@@ -33,9 +33,8 @@ public class cascadeTrainingImageCollector {
 	public void captureWindowEveryNMilliseconds(int n) throws InterruptedException, IOException {
 		for (int i = 0; i < 1000; i++) {
 			captureScreenshotGameWindow(i);
-			System.out.println(i);
-			//System.out.println("Created image: " + getImageName(i));
-            Thread.sleep(n * 1000);
+			System.out.println("Created image: " + getImageName(i));
+            Thread.sleep(n);
 		}
 	}
 	
@@ -63,7 +62,7 @@ public class cascadeTrainingImageCollector {
 		return imageOutputDirectory + "screenshot" + counter + ".jpg";
 	}
 	
-	private void resizeImagesInDirectory() throws IOException {
+	/*private void resizeImagesInDirectory() throws IOException {
 		File folder = new File("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/Testing/");
 		File[] listOfFiles = folder.listFiles();
 
@@ -73,21 +72,21 @@ public class cascadeTrainingImageCollector {
 				System.out.println("Cropped " + listOfFiles[i].getName());
 		    }
 		}
-	}
+	}*/
 	
-	private void resizeImage(File imageFile, int counter) throws IOException {
+	/*private void resizeImage(File imageFile, int counter) throws IOException {
 		BufferedImage screenshot = ImageIO.read(imageFile);
 		//Rectangle resizeRectangle = new Rectangle(103, 85, 510, 330);
 		BufferedImage resizedImage = screenshot.getSubimage(103, 85, 510, 330);
 		ImageIO.write(resizedImage, "jpg", new File(getImageName(counter)));
-	}
+	}*/
 	
 	public static void main(String[] args) throws Exception
     {
 		System.out.println("Starting image collection...");
-        cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/CoalNegative/");
+        cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector(Paths.TENSORFLOW_TRAINING_IMAGE_OUTPUT_DIRECTORY);
         //imageCollector.resizeImagesInDirectory();
-		imageCollector.captureWindowEveryNMilliseconds(5);;
+		imageCollector.captureWindowEveryNMilliseconds(2000);
 		//cascadeTrainingImageCollector imageCollector = new cascadeTrainingImageCollector("/home/dpapp/Desktop/RunescapeAIPics/CascadeTraining/Testing/");
 		//imageCollector.captureWindowEveryNMilliseconds(1);
     }

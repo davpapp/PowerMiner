@@ -12,6 +12,7 @@ public class ImageCollector {
 
 	public String screenshotOutputDirectory;
 	public Rectangle gameWindowRectangle;
+	public Robot robot;
 	
 	/*
 	 * Methods needed:
@@ -23,13 +24,14 @@ public class ImageCollector {
 	 * detect last file name
 	 */
 	
-	public ImageCollector(String screenshotOutputDirectory) {
+	public ImageCollector(String screenshotOutputDirectory) throws AWTException {
 		initializeGameWindowRectangle();
 		this.screenshotOutputDirectory = screenshotOutputDirectory;
+		this.robot = new Robot();
 	}
 	
 	private void initializeGameWindowRectangle() {
-		this.gameWindowRectangle = new Rectangle(103, 85, 510, 330);
+		this.gameWindowRectangle = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
 	}
 	
 	public void collectImages(String itemName) throws IOException, InterruptedException, AWTException {
@@ -66,7 +68,6 @@ public class ImageCollector {
 	}
 	
 	private void captureAndSaveGameWindow(String itemName, int fileCounter) throws IOException, InterruptedException, AWTException {
-		Robot robot = new Robot();
 		BufferedImage imageCaptured = robot.createScreenCapture(gameWindowRectangle);
 		String fileName = getFileName(itemName, fileCounter);
 		ImageIO.write(imageCaptured, "jpg", new File(fileName));
@@ -85,8 +86,8 @@ public class ImageCollector {
 	
 	public static void main(String[] args) throws Exception
     {
-        ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/TensorFlow/IronOre/");
-        //imageCollector.collectImages("ironOre");
-        imageCollector.generateInventoryImages();
+        ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/TensorFlow/Ores/Images/");
+        imageCollector.collectImages("ore");
+        //imageCollector.generateInventoryImages();
     }
 }
