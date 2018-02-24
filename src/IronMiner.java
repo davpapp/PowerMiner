@@ -1,4 +1,5 @@
 import java.awt.AWTException;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect2d;
 import org.opencv.tracking.Tracker;
@@ -30,29 +33,25 @@ public class IronMiner {
 	
 	public IronMiner() throws AWTException, IOException 
 	{
-		//cursor = new Cursor();
-		//cursorTask = new CursorTask();
-		//inventory = new Inventory();
+		cursor = new Cursor();
+		cursorTask = new CursorTask();
+		inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		randomizer = new Randomizer();
 	}
 	
 	public void run() throws Exception {
-		int count = 0;
-		long mineStartTime = System.currentTimeMillis();
-
-		while (System.currentTimeMillis() - 60000 < mineStartTime) {
-			count++;
+		while (true) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture);
-			//ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
-			System.out.println("Count: " + count);
-			System.out.println(detectedObjects.size());
-			/*DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			
+			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
-				//Tracker objectTracker = TrackerKCF.create();
-				//Rect2d boundingBox = closestIronOre.getBoundingRect2d();
+				System.out.println("Found iron ore! Starting tracking!");
+				Tracker objectTracker = TrackerKCF.create();
+				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
 				objectTracker.init(getMatFromBufferedImage(screenCapture), boundingBox);
 				
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
@@ -61,17 +60,26 @@ public class IronMiner {
 				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
 				
 				// track until either we lose the object or too much time passes
-				while ((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) {
+				int lostTrackCounter = 0;
+				while (((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) && lostTrackCounter < 3) {
+					
 					screenCapture = objectDetector.captureScreenshotGameWindow();
+					detectedObjects = objectDetector.getObjectsInImage(screenCapture);
+					
 					boolean ok = objectTracker.update(getMatFromBufferedImage(screenCapture), boundingBox);
-					if (!ok || !objectDetector.isObjectPresentInBoundingBoxInImage(screenCapture, boundingBox, "ironOre")) {
-						System.out.println("Lost track! Finding new ore.");
-						break;
+					if (!ok || !objectDetector.isObjectPresentInBoundingBoxInImage(detectedObjects, boundingBox, "ironOre")) {
+						System.out.println("Lost track for + " + lostTrackCounter + "! Finding new ore soon.");
+						lostTrackCounter++;
 					}
+					else if (ok) {
+						lostTrackCounter = 0;
+						System.out.println("Tracking at " + boundingBox.x + ", " + boundingBox.y + ", " + boundingBox.width + ", " + boundingBox.height);
+					}
+
 				}
 			}
 			
-			dropInventoryIfFull();*/
+			dropInventoryIfFull();
 		}
 	}
 	
@@ -108,12 +116,31 @@ public class IronMiner {
 		return null;
 	}
 	
-	public Mat getMatFromBufferedImage(BufferedImage image) {
-		Mat matImage = new Mat();
-		byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+	private Mat getMatFromBufferedImage(BufferedImage image) {
+		BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
+		byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
+		bgr2rgb(data); 
+		Mat matImage = new Mat(formattedImage.getWidth(), formattedImage.getHeight(), CvType.CV_8UC3);
+		byte[] pixels = ((DataBufferByte) formattedImage.getRaster().getDataBuffer()).getData();
 		matImage.put(0, 0, pixels);
 		return matImage;
 	}
+	
+	private static BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
+	    BufferedImage image = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), bufferedImageType);
+	    Graphics2D g2d = image.createGraphics();
+	    g2d.drawImage(sourceImage, 0, 0, null);
+	    g2d.dispose();
+	    return image;
+	  }
+	  
+	  private static void bgr2rgb(byte[] data) {
+		    for (int i = 0; i < data.length; i += 3) {
+		      byte tmp = data[i];
+		      data[i] = data[i + 2];
+		      data[i + 2] = tmp;
+		    }
+		  }
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
 		return (int) (Math.hypot(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y));

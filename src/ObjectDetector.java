@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Core;
 import org.opencv.core.Rect2d;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Tensor;
@@ -48,7 +49,7 @@ public class ObjectDetector {
 	Robot robot;
 	
 	public ObjectDetector() throws AWTException {
-		this.model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_22948/saved_model/", "serve");
+		this.model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_56749/saved_model/", "serve");
 		this.robot = new Robot();
 	}
 	
@@ -94,10 +95,26 @@ public class ObjectDetector {
         return detectedObjectsInImage;
 	}
 	
-	public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rect2d boundingBox, String objectClass) throws Exception {
+	/*public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rect2d boundingBox, String objectClass) throws Exception {
 		BufferedImage subImage = image.getSubimage((int) boundingBox.x, (int) boundingBox.y, (int) boundingBox.width, (int) boundingBox.height);
 		ArrayList<DetectedObject> detectedObjectsInSubImage = getObjectsInImage(subImage);
 		return (getObjectsOfClassInList(detectedObjectsInSubImage, objectClass).size() != 0);
+	}*/
+	
+	public boolean isObjectPresentInBoundingBoxInImage(ArrayList<DetectedObject> detectedObjects, Rect2d boundingBox, String objectClass) throws Exception {
+		for (DetectedObject detectedObject : detectedObjects) {
+			if (detectedObject.getDetectionClass().equals(objectClass)) {
+				//System.out.println(("Required bounding box: " + (int) boundingBox.x + ", " + (int) boundingBox.y + ", " + (int) boundingBox.width + ", " + (int) boundingBox.height));
+				//System.out.println(("Detected bounding box: " + (int) detectedObject.getBoundingRect2d().x + ", " + (int) detectedObject.getBoundingRect2d().y + ", " + (int) detectedObject.getBoundingRect2d().width + ", " + (int) detectedObject.getBoundingRect2d().height) + "\n");
+				if ((Math.abs(detectedObject.getBoundingRect2d().x - boundingBox.x) < 10) &&
+					(Math.abs(detectedObject.getBoundingRect2d().y - boundingBox.y) < 10) &&
+					(Math.abs(detectedObject.getBoundingRect2d().width - boundingBox.width) < 10) &&
+					(Math.abs(detectedObject.getBoundingRect2d().height - boundingBox.height) < 10)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
     
 	public ArrayList<DetectedObject> getObjectsOfClassInList(ArrayList<DetectedObject> detectedObjects, String objectClass) {
@@ -111,17 +128,11 @@ public class ObjectDetector {
 	}
 
   private static Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
-    /*if (image.getType() != BufferedImage.TYPE_3BYTE_BGR) {
-      throw new IOException(
-          String.format(
-              "Expected 3-byte BGR encoding in BufferedImage, found %d (file: %s). This code could be made more robust"));
-    }*/
-
 	BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
 	byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
 	bgr2rgb(data);  
 	
-    // ImageIO.read seems to produce BGR-encoded images, but the model expects RGB.
+    // BufferedImage and ImageIO.read() seems to produce BGR-encoded images, but the model expects RGB.
     final long BATCH_SIZE = 1;
     final long CHANNELS = 3;
     long[] shape = new long[] {BATCH_SIZE, formattedImage.getHeight(), formattedImage.getWidth(), CHANNELS};

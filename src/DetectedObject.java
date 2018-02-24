@@ -7,7 +7,7 @@ import org.opencv.core.Rect2d;
 
 public class DetectedObject {
 	
-	private Rectangle boundingBox;
+	private Rect2d boundingBox;
 	private float detectionScore;
 	private String detectionClass;
 	
@@ -17,14 +17,13 @@ public class DetectedObject {
 		this.detectionClass = initializeLabel(detectionClass);
 	}
 	
-	private Rectangle initializeBoundingBox(float[] detectionBox) {
+	// TODO: migrate this all to a Rect2d data type
+	private Rect2d initializeBoundingBox(float[] detectionBox) {
 		int offset_x = (int) (detectionBox[1] * Constants.GAME_WINDOW_WIDTH);
 		int offset_y = (int) (detectionBox[0] * Constants.GAME_WINDOW_HEIGHT);
 		int width = (int) (detectionBox[3] * Constants.GAME_WINDOW_WIDTH) - offset_x;
 		int height = (int) (detectionBox[2] * Constants.GAME_WINDOW_HEIGHT) - offset_y;
-		
-		//System.out.println(detectionBox[0] + ", " + detectionBox[1] + ", " + detectionBox[2] + ", " + detectionBox[3]);
-		return new Rectangle(offset_x, offset_y, width, height);
+		return new Rect2d(offset_x, offset_y, width, height);
 	}
 	
 	private String initializeLabel(float detectionClass) {
@@ -37,16 +36,12 @@ public class DetectedObject {
 		return detectionClass;
 	}
 	
-	public Rectangle getBoundingRectangle() {
-		return boundingBox;
-	}
-	
 	public Rect2d getBoundingRect2d() {
-		return new Rect2d(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height);
+		return new Rect2d(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
 	}
 	
 	public Point getCenterForClicking() {
-		return new Point(boundingBox.x + boundingBox.width / 2 + Constants.GAME_WINDOW_OFFSET_X, boundingBox.y + boundingBox.height / 2 + Constants.GAME_WINDOW_OFFSET_Y);
+		return new Point((int) (boundingBox.x + boundingBox.width / 2 + Constants.GAME_WINDOW_OFFSET_X), (int) (boundingBox.y + boundingBox.height / 2 + Constants.GAME_WINDOW_OFFSET_Y));
 	}
 	
 	public void display() {
