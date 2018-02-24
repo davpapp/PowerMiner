@@ -30,25 +30,29 @@ public class IronMiner {
 	
 	public IronMiner() throws AWTException, IOException 
 	{
-		cursor = new Cursor();
-		cursorTask = new CursorTask();
-		inventory = new Inventory();
+		//cursor = new Cursor();
+		//cursorTask = new CursorTask();
+		//inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		randomizer = new Randomizer();
 	}
 	
 	public void run() throws Exception {
-		
-		while (true) {
+		int count = 0;
+		long mineStartTime = System.currentTimeMillis();
+
+		while (System.currentTimeMillis() - 60000 < mineStartTime) {
+			count++;
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture);
-			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
-			
-			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			//ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			System.out.println("Count: " + count);
+			System.out.println(detectedObjects.size());
+			/*DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
-				Tracker objectTracker = TrackerKCF.create();
-				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
+				//Tracker objectTracker = TrackerKCF.create();
+				//Rect2d boundingBox = closestIronOre.getBoundingRect2d();
 				objectTracker.init(getMatFromBufferedImage(screenCapture), boundingBox);
 				
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
@@ -67,7 +71,7 @@ public class IronMiner {
 				}
 			}
 			
-			dropInventoryIfFull();
+			dropInventoryIfFull();*/
 		}
 	}
 	

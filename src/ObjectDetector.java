@@ -14,6 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import java.awt.AWTException;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -110,29 +111,38 @@ public class ObjectDetector {
 	}
 
   private static Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
-    BufferedImage img = ImageIO.read(image);
-    if (img.getType() != BufferedImage.TYPE_3BYTE_BGR) {
+    /*if (image.getType() != BufferedImage.TYPE_3BYTE_BGR) {
       throw new IOException(
           String.format(
               "Expected 3-byte BGR encoding in BufferedImage, found %d (file: %s). This code could be made more robust"));
-    }
-    byte[] data = ((DataBufferByte) img.getData().getDataBuffer()).getData();
+    }*/
 
+	BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
+	byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
+	bgr2rgb(data);  
+	
     // ImageIO.read seems to produce BGR-encoded images, but the model expects RGB.
-    bgr2rgb(data);
     final long BATCH_SIZE = 1;
     final long CHANNELS = 3;
-    long[] shape = new long[] {BATCH_SIZE, img.getHeight(), img.getWidth(), CHANNELS};
+    long[] shape = new long[] {BATCH_SIZE, formattedImage.getHeight(), formattedImage.getWidth(), CHANNELS};
     return Tensor.create(UInt8.class, shape, ByteBuffer.wrap(data));
   }
   
-  private static void bgr2rgb(byte[] data) {
-    for (int i = 0; i < data.length; i += 3) {
-      byte tmp = data[i];
-      data[i] = data[i + 2];
-      data[i + 2] = tmp;
-    }
+  private static BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
+    BufferedImage image = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), bufferedImageType);
+    Graphics2D g2d = image.createGraphics();
+    g2d.drawImage(sourceImage, 0, 0, null);
+    g2d.dispose();
+    return image;
   }
+  
+  private static void bgr2rgb(byte[] data) {
+	    for (int i = 0; i < data.length; i += 3) {
+	      byte tmp = data[i];
+	      data[i] = data[i + 2];
+	      data[i + 2] = tmp;
+	    }
+	  }
   
   public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
 		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);

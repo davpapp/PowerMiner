@@ -11,5 +11,5 @@ class ObjectDetectorTest {
 		ObjectDetector objectDetector = new ObjectDetector();
 		ArrayList<DetectedObject> detectedObjects1 = objectDetector.getObjectsInImage(loadimages here in bufferedimage format));
 		
-	}
+	}va 
 }
