@@ -17,7 +17,7 @@ class ObjectDetectorTest {
 	void testObjectDetection() throws Exception {
 		ObjectDetector objectDetector = new ObjectDetector();
 		BufferedImage testImage1 = ImageIO.read(new File("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg"));
-		ArrayList<DetectedObject> detectedObjects1 = objectDetector.getObjectsInImage(testImage1);
+		ArrayList<DetectedObject> detectedObjects1 = objectDetector.getObjectsInImage(testImage1, 0.8);
 		ArrayList<DetectedObject> detectedIronOres1 = objectDetector.getObjectsOfClassInList(detectedObjects1, "ironOre");
 		ArrayList<DetectedObject> detectedOres1 = objectDetector.getObjectsOfClassInList(detectedObjects1, "ore");
 
@@ -25,6 +25,13 @@ class ObjectDetectorTest {
 		assertEquals(2, detectedOres1.size());
 		//assertDetectedObjectsAreEqual();
 	}
+	
+	
+	/*@Test
+	void testObjectDetectionInSubImage() throws Exception {
+		ObjectDetector objectDetector = new ObjectDetector();
+		BufferedImage testImage = ImageIO.read(new File("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/test_images/ironOre_test_9.jpg"));
+	}*/
 	
 	void assertDetectedObjectsAreEqual(DetectedObject obj1, DetectedObject obj2) {
 		

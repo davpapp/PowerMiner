@@ -16,7 +16,10 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect2d;
 import org.opencv.tracking.Tracker;
+import org.opencv.tracking.TrackerBoosting;
+import org.opencv.tracking.TrackerGOTURN;
 import org.opencv.tracking.TrackerKCF;
+import org.opencv.tracking.TrackerMOSSE;
 
 public class IronMiner {
 	
@@ -33,9 +36,9 @@ public class IronMiner {
 	
 	public IronMiner() throws AWTException, IOException 
 	{
-		cursor = new Cursor();
-		cursorTask = new CursorTask();
-		inventory = new Inventory();
+		//cursor = new Cursor();
+		//cursorTask = new CursorTask();
+		//inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		randomizer = new Randomizer();
@@ -44,47 +47,56 @@ public class IronMiner {
 	public void run() throws Exception {
 		while (true) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
-			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture);
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.60);
 			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
 				System.out.println("Found iron ore! Starting tracking!");
-				Tracker objectTracker = TrackerKCF.create();
+				Tracker objectTracker = TrackerBoosting.create();
 				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
 				objectTracker.init(getMatFromBufferedImage(screenCapture), boundingBox);
 				
-				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
+				//cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				long mineStartTime = System.currentTimeMillis();
 				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
 				
 				// track until either we lose the object or too much time passes
 				int lostTrackCounter = 0;
-				while (((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) && lostTrackCounter < 3) {
+				//while (((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) && lostTrackCounter < 3) {
+				while (lostTrackCounter < 600) {	
 					
-					screenCapture = objectDetector.captureScreenshotGameWindow();
-					detectedObjects = objectDetector.getObjectsInImage(screenCapture);
-					
+					//screenCapture = objectDetector.captureScreenshotGameWindow();
+					detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.3); // Call with lower threshold value here
+					/*
+					 * 600 iterations: 30 seconds
 					boolean ok = objectTracker.update(getMatFromBufferedImage(screenCapture), boundingBox);
-					if (!ok || !objectDetector.isObjectPresentInBoundingBoxInImage(detectedObjects, boundingBox, "ironOre")) {
+					if (!ok) {
 						System.out.println("Lost track for + " + lostTrackCounter + "! Finding new ore soon.");
 						lostTrackCounter++;
 					}
-					else if (ok) {
-						lostTrackCounter = 0;
-						System.out.println("Tracking at " + boundingBox.x + ", " + boundingBox.y + ", " + boundingBox.width + ", " + boundingBox.height);
+					else if (!objectDetector.isObjectPresentInBoundingBoxInImage(detectedObjects, boundingBox, "ironOre")) {
+						System.out.println("Can't find object in bounding box. Error " + lostTrackCounter + "! Finding new ore soon.");
+						lostTrackCounter++;
 					}
-
+					else if (ok) {
+						//lostTrackCounter = 0;
+						System.out.println("Tracking at " + boundingBox.x + ", " + boundingBox.y + ", " + boundingBox.width + ", " + boundingBox.height);
+					}*/
+					System.out.println(lostTrackCounter);
+					lostTrackCounter++;
 				}
+				System.out.println("600 iterations took " + (System.currentTimeMillis() - mineStartTime));
+				break;
 			}
 			
-			dropInventoryIfFull();
+			//dropInventoryIfFull();
 		}
 	}
 	
 	private void dropInventoryIfFull() throws Exception {
-		inventory.update(); // TODO: add iron ore to inventory items
+		inventory.update(); // TODO: add iron ore to indonventory items
 		if (inventory.isInventoryFull()) {
 			cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 		}

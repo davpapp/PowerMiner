@@ -61,11 +61,15 @@ public class ObjectDetector {
 		this.detectedObjects = getRecognizedObjectsFromImage(fileName);*/
 	}
 	
-	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image) throws Exception {
+	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image, double scoreThreshold) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
 		
+		long timebefore = System.currentTimeMillis();
+		makeImageTensor(image);
+		System.out.println("Conversion took: " + (System.currentTimeMillis() - timebefore));
         try (Tensor<UInt8> input = makeImageTensor(image)) {
+        	long timebefore2 = System.currentTimeMillis();
           outputs =
               model
                   .session()
@@ -75,6 +79,7 @@ public class ObjectDetector {
                   .fetch("detection_classes")
                   .fetch("detection_boxes")
                   .run();
+          System.out.println("Model took: " + (System.currentTimeMillis() - timebefore));
         }
         
         try (Tensor<Float> scoresT = outputs.get(0).expect(Float.class);
@@ -87,7 +92,7 @@ public class ObjectDetector {
             float[][] boxes = boxesT.copyTo(new float[1][maxObjects][4])[0];
 
             for (int i = 0; i < scores.length; ++i) {
-              if (scores[i] > 0.80) {
+              if (scores[i] > scoreThreshold) {
             	  detectedObjectsInImage.add(new DetectedObject(scores[i], classes[i], boxes[i]));
               }
             }
