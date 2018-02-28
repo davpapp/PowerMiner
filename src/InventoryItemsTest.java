@@ -7,7 +7,6 @@ import java.nio.file.Files;
 
 import javax.imageio.ImageIO;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -49,27 +49,17 @@ public class ObjectDetector {
 	Robot robot;
 	
 	public ObjectDetector() throws AWTException {
-		this.model = SavedModelBundle.load("/home/dpapp/tensorflow-1.5.0/models/raccoon_dataset/results/checkpoint_56749/saved_model/", "serve");
+		this.model = SavedModelBundle.load(Paths.TENSORFLOW_MODEL_DIRECTORY, "serve");
 		this.robot = new Robot();
-	}
+	}	
 	
-	public void update() throws Exception {
-		// TODO: eliminate IO and pass BufferedImage directly.
-		/*String fileName = "/home/dpapp/Desktop/RunescapeAI/temp/screenshot.jpg";
-		BufferedImage image = captureScreenshotGameWindow();
-		ImageIO.write(image, "jpg", new File(fileName));
-		this.detectedObjects = getRecognizedObjectsFromImage(fileName);*/
-	}
-	
+	// Goal: reduce this to < 50 ms
 	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image, double scoreThreshold) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
 		
-		long timebefore = System.currentTimeMillis();
 		makeImageTensor(image);
-		System.out.println("Conversion took: " + (System.currentTimeMillis() - timebefore));
         try (Tensor<UInt8> input = makeImageTensor(image)) {
-        	long timebefore2 = System.currentTimeMillis();
           outputs =
               model
                   .session()
@@ -79,7 +69,6 @@ public class ObjectDetector {
                   .fetch("detection_classes")
                   .fetch("detection_boxes")
                   .run();
-          System.out.println("Model took: " + (System.currentTimeMillis() - timebefore));
         }
         
         try (Tensor<Float> scoresT = outputs.get(0).expect(Float.class);
@@ -100,17 +89,11 @@ public class ObjectDetector {
         return detectedObjectsInImage;
 	}
 	
-	/*public boolean isObjectPresentInBoundingBoxInImage(BufferedImage image, Rect2d boundingBox, String objectClass) throws Exception {
-		BufferedImage subImage = image.getSubimage((int) boundingBox.x, (int) boundingBox.y, (int) boundingBox.width, (int) boundingBox.height);
-		ArrayList<DetectedObject> detectedObjectsInSubImage = getObjectsInImage(subImage);
-		return (getObjectsOfClassInList(detectedObjectsInSubImage, objectClass).size() != 0);
-	}*/
 	
+	// This is too slow -> running object detection each time reduces the framerate to 3fps, which messses up object tracking
 	public boolean isObjectPresentInBoundingBoxInImage(ArrayList<DetectedObject> detectedObjects, Rect2d boundingBox, String objectClass) throws Exception {
 		for (DetectedObject detectedObject : detectedObjects) {
 			if (detectedObject.getDetectionClass().equals(objectClass)) {
-				//System.out.println(("Required bounding box: " + (int) boundingBox.x + ", " + (int) boundingBox.y + ", " + (int) boundingBox.width + ", " + (int) boundingBox.height));
-				//System.out.println(("Detected bounding box: " + (int) detectedObject.getBoundingRect2d().x + ", " + (int) detectedObject.getBoundingRect2d().y + ", " + (int) detectedObject.getBoundingRect2d().width + ", " + (int) detectedObject.getBoundingRect2d().height) + "\n");
 				if ((Math.abs(detectedObject.getBoundingRect2d().x - boundingBox.x) < 10) &&
 					(Math.abs(detectedObject.getBoundingRect2d().y - boundingBox.y) < 10) &&
 					(Math.abs(detectedObject.getBoundingRect2d().width - boundingBox.width) < 10) &&
@@ -136,8 +119,6 @@ public class ObjectDetector {
 	BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
 	byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
 	bgr2rgb(data);  
-	
-    // BufferedImage and ImageIO.read() seems to produce BGR-encoded images, but the model expects RGB.
     final long BATCH_SIZE = 1;
     final long CHANNELS = 3;
     long[] shape = new long[] {BATCH_SIZE, formattedImage.getHeight(), formattedImage.getWidth(), CHANNELS};
@@ -158,10 +139,5 @@ public class ObjectDetector {
 	      data[i] = data[i + 2];
 	      data[i + 2] = tmp;
 	    }
-	  }
-  
-  public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
-		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
-		return robot.createScreenCapture(area);
 	  }
 }

@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.opencv.core.Core;
-
+import org.tensorflow.*;
 
 public class main {
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Starting Iron Miner.");
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		//System.loadLibrary(org.tensorflow);
+		
 		IronMiner ironMiner = new IronMiner();
 		ironMiner.run();
 		/*Cursor cursor = new Cursor();

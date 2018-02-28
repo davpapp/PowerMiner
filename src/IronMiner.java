@@ -52,63 +52,34 @@ public class IronMiner {
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
-				System.out.println("Found iron ore! Starting tracking!");
-				Tracker objectTracker = TrackerBoosting.create();
 				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
-				objectTracker.init(getMatFromBufferedImage(screenCapture), boundingBox);
+				ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
 				
-				//cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
+				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
-				long mineStartTime = System.currentTimeMillis();
+				long miningStartTime = System.currentTimeMillis();
 				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
 				
-				// track until either we lose the object or too much time passes
-				int lostTrackCounter = 0;
-				//while (((System.currentTimeMillis() - mineStartTime) < maxTimeToMine) && lostTrackCounter < 3) {
-				while (lostTrackCounter < 600) {	
-					
-					//screenCapture = objectDetector.captureScreenshotGameWindow();
-					detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.3); // Call with lower threshold value here
-					/*
-					 * 600 iterations: 30 seconds
-					boolean ok = objectTracker.update(getMatFromBufferedImage(screenCapture), boundingBox);
-					if (!ok) {
-						System.out.println("Lost track for + " + lostTrackCounter + "! Finding new ore soon.");
-						lostTrackCounter++;
-					}
-					else if (!objectDetector.isObjectPresentInBoundingBoxInImage(detectedObjects, boundingBox, "ironOre")) {
-						System.out.println("Can't find object in bounding box. Error " + lostTrackCounter + "! Finding new ore soon.");
-						lostTrackCounter++;
-					}
-					else if (ok) {
-						//lostTrackCounter = 0;
-						System.out.println("Tracking at " + boundingBox.x + ", " + boundingBox.y + ", " + boundingBox.width + ", " + boundingBox.height);
-					}*/
-					System.out.println(lostTrackCounter);
-					lostTrackCounter++;
+				boolean objectTrackingFailure = false;
+				while (!objectTrackingFailure && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
+					screenCapture = objectDetector.captureScreenshotGameWindow();
+					objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
 				}
-				System.out.println("600 iterations took " + (System.currentTimeMillis() - mineStartTime));
-				break;
 			}
-			
-			//dropInventoryIfFull();
+		
+			dropInventoryIfFull();
 		}
 	}
 	
 	private void dropInventoryIfFull() throws Exception {
-		inventory.update(); // TODO: add iron ore to indonventory items
+		inventory.update();
 		if (inventory.isInventoryFull()) {
 			cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 		}
 	}
 	
-	
-	private void mineClosestIronOre(ArrayList<DetectedObject> ironOres) throws Exception {
-		DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
-		if (closestIronOre != null) {		
-			cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
-			Thread.sleep(randomizer.nextGaussianWithinRange(IRON_ORE_MINING_TIME_MILLISECONDS - 350, IRON_ORE_MINING_TIME_MILLISECONDS + 1850));
-		}
+	private boolean isTimeElapsedOverLimit(long startTime, int timeLimit) {
+		return (System.currentTimeMillis() - startTime) > timeLimit;
 	}
 	
 	private DetectedObject getClosestObjectToCharacter(ArrayList<DetectedObject> detectedObjects) {
@@ -128,7 +99,7 @@ public class IronMiner {
 		return null;
 	}
 	
-	private Mat getMatFromBufferedImage(BufferedImage image) {
+	/*private Mat getMatFromBufferedImage(BufferedImage image) {
 		BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
 		byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
 		bgr2rgb(data); 
@@ -152,7 +123,7 @@ public class IronMiner {
 		      data[i] = data[i + 2];
 		      data[i + 2] = tmp;
 		    }
-		  }
+		  }*/
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
 		return (int) (Math.hypot(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y));
