@@ -47,6 +47,7 @@ public class IronMiner {
 	public void run() throws Exception {
 		while (true) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
+			System.out.println("looking for iron ores");
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.60);
 			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 			
@@ -67,7 +68,7 @@ public class IronMiner {
 				}
 			}
 		
-			dropInventoryIfFull();
+			//dropInventoryIfFull();
 		}
 	}
 	

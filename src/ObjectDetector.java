@@ -49,7 +49,7 @@ public class ObjectDetector {
 	Robot robot;
 	
 	public ObjectDetector() throws AWTException {
-		this.model = SavedModelBundle.load(Paths.TENSORFLOW_MODEL_DIRECTORY, "serve");
+		this.model = SavedModelBundle.load("/home/dpapp/raccoon_dataset/results/checkpoint_56749/saved_model/", "serve");
 		this.robot = new Robot();
 	}	
 	
@@ -139,5 +139,10 @@ public class ObjectDetector {
 	      data[i] = data[i + 2];
 	      data[i + 2] = tmp;
 	    }
+	  }
+  
+  public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
+		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
+		return robot.createScreenCapture(area);
 	  }
 }
