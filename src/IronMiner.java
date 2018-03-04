@@ -36,9 +36,9 @@ public class IronMiner {
 	
 	public IronMiner() throws AWTException, IOException 
 	{
-		//cursor = new Cursor();
-		//cursorTask = new CursorTask();
-		//inventory = new Inventory();
+		cursor = new Cursor();
+		cursorTask = new CursorTask();
+		inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		randomizer = new Randomizer();
@@ -46,12 +46,15 @@ public class IronMiner {
 	
 	public void run() throws Exception {
 		while (true) {
+			long frameStartTime = System.currentTimeMillis();
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			System.out.println("looking for iron ores");
+			//int count = objectDetector.getObjectsInImage(screenCapture, 0.6);
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.60);
-			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			//ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			System.out.println("Found " + detectedObjects.size() + " objects.");
 			
-			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			/*DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
 				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
 				ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
@@ -66,9 +69,12 @@ public class IronMiner {
 					screenCapture = objectDetector.captureScreenshotGameWindow();
 					objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
 				}
-			}
-		
+			}*/
+			
+			// TODO: change this so that we only check the last slot for an item.
+			// 
 			//dropInventoryIfFull();
+			System.out.println("Timespan: " + (System.currentTimeMillis() - frameStartTime));
 		}
 	}
 	

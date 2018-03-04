@@ -57,7 +57,7 @@ public class ObjectDetector {
 	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image, double scoreThreshold) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
-		
+		//int count = 0;
 		makeImageTensor(image);
         try (Tensor<UInt8> input = makeImageTensor(image)) {
           outputs =
@@ -82,10 +82,12 @@ public class ObjectDetector {
 
             for (int i = 0; i < scores.length; ++i) {
               if (scores[i] > scoreThreshold) {
+            	  //count++;
             	  detectedObjectsInImage.add(new DetectedObject(scores[i], classes[i], boxes[i]));
               }
             }
           }
+       // return count;
         return detectedObjectsInImage;
 	}
 	

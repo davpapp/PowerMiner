@@ -12,7 +12,7 @@ public class ObjectTracker {
 	
 	public ObjectTracker(BufferedImage image, Rect2d boundingBox) {
 		this.objectTracker = TrackerBoosting.create();
-		this.objectTracker.init(bufferedImageTomat(image), boundingBox);
+		this.objectTracker.init(bufferedImageToMat(image), boundingBox);
 		this.numberOfFramesLostFor = 0;
 	}
 	
