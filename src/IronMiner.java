@@ -45,16 +45,32 @@ public class IronMiner {
 	}
 	
 	public void run() throws Exception {
-		while (true) {
+		long startTime = System.currentTimeMillis();
+		long garbageCollectionTime = System.currentTimeMillis();
+		int framesWithoutObjects = 0;
+		
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
 			long frameStartTime = System.currentTimeMillis();
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			System.out.println("looking for iron ores");
-			//int count = objectDetector.getObjectsInImage(screenCapture, 0.6);
-			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.60);
-			//ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
+			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 			System.out.println("Found " + detectedObjects.size() + " objects.");
 			
-			/*DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			if (ironOres.size() == 0) {
+				framesWithoutObjects++;
+				System.out.println("no objects found!");
+			}
+			else {
+				framesWithoutObjects = 0;
+			}
+			if (framesWithoutObjects > 50) {
+				CameraCalibrator cameraCalibrator = new CameraCalibrator();
+				cameraCalibrator.rotateUntilObjectFound("ironOre");
+			}
+			
+			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
 				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
 				ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
@@ -62,25 +78,43 @@ public class IronMiner {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				long miningStartTime = System.currentTimeMillis();
-				int maxTimeToMine = randomizer.nextGaussianWithinRange(3500, 5000);
+				int maxTimeToMine = randomizer.nextGaussianWithinRange(3400, 4519);
 				
 				boolean objectTrackingFailure = false;
-				while (!objectTrackingFailure && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
+				boolean oreAvailable = true;
+				int oreLostCount = 0;
+				while (!objectTrackingFailure && oreLostCount < 3 && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
+					long trackingFrameStartTime = System.currentTimeMillis();
+					
 					screenCapture = objectDetector.captureScreenshotGameWindow();
+					detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.15);
+					ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 					objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
+					oreAvailable = objectDetector.isObjectPresentInBoundingBoxInImage(ironOres, boundingBox, "ironOre");
+					if (!oreAvailable) {
+						oreLostCount++;
+					}
+					else {
+						oreLostCount = 0;
+					}
+					System.out.println("Tracking timespan: " + (System.currentTimeMillis() - trackingFrameStartTime));
 				}
-			}*/
+			}
 			
-			// TODO: change this so that we only check the last slot for an item.
-			// 
-			//dropInventoryIfFull();
-			System.out.println("Timespan: " + (System.currentTimeMillis() - frameStartTime));
+			
+			// Garbage Collection
+			if (((System.currentTimeMillis() - garbageCollectionTime) / 1000.0 / 60) > 10) {
+				System.out.println("Running garbage collection.");
+				System.gc();
+				garbageCollectionTime = System.currentTimeMillis() + randomizer.nextGaussianWithinRange(8500, 19340);
+			}
+			dropInventoryIfFull();
 		}
 	}
 	
 	private void dropInventoryIfFull() throws Exception {
-		inventory.update();
-		if (inventory.isInventoryFull()) {
+		inventory.updateLastSlot();
+		if (inventory.isLastSlotInInventoryFull()) {
 			cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 		}
 	}

@@ -44,12 +44,21 @@ public class Inventory {
 		updateAllInventorySlots(image);
 	}
 	
+	public void updateLastSlot() throws IOException {
+		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
+		updateLastInventorySlot(image);
+	}
+	
 	private void updateAllInventorySlots(BufferedImage image) throws IOException {
 		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
 			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
 				inventorySlots[row][column].updateInventorySlot(image);
 			}
 		}
+	}
+	
+	private void updateLastInventorySlot(BufferedImage image) throws IOException {
+		inventorySlots[Constants.INVENTORY_NUM_ROWS - 1][Constants.INVENTORY_NUM_COLUMNS - 1].updateInventorySlot(image);
 	}
 	
 	public void updateAndWriteAllInventoryImages() throws IOException {
@@ -68,6 +77,10 @@ public class Inventory {
 	
 	public String getItemNameInInventorySlot(int row, int column) {
 		return inventorySlots[row][column].getItemNameInInventorySlot(items);
+	}
+	
+	public boolean isLastSlotInInventoryFull() {
+		return !inventorySlots[Constants.INVENTORY_NUM_ROWS - 1][Constants.INVENTORY_NUM_COLUMNS - 1].isInventorySlotEmpty(items);
 	}
 	
 	public boolean isInventoryFull() {
