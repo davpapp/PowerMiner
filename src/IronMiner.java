@@ -46,7 +46,7 @@ public class IronMiner {
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
-		long garbageCollectionTime = System.currentTimeMillis();
+		long garbageCollectionTime = System.currentTimeMillis() + 60 * 5 * 1000;
 		int framesWithoutObjects = 0;
 		
 		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
@@ -103,10 +103,10 @@ public class IronMiner {
 			
 			
 			// Garbage Collection
-			if (((System.currentTimeMillis() - garbageCollectionTime) / 1000.0 / 60) > 10) {
+			if (((System.currentTimeMillis() - garbageCollectionTime) / 1000.0 / 60) > 0) {
 				System.out.println("Running garbage collection.");
 				System.gc();
-				garbageCollectionTime = System.currentTimeMillis() + randomizer.nextGaussianWithinRange(8500, 19340);
+				garbageCollectionTime = System.currentTimeMillis() + randomizer.nextGaussianWithinRange(8500, 19340) * 60;
 			}
 			dropInventoryIfFull();
 		}
@@ -139,32 +139,6 @@ public class IronMiner {
 		}
 		return null;
 	}
-	
-	/*private Mat getMatFromBufferedImage(BufferedImage image) {
-		BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
-		byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
-		bgr2rgb(data); 
-		Mat matImage = new Mat(formattedImage.getWidth(), formattedImage.getHeight(), CvType.CV_8UC3);
-		byte[] pixels = ((DataBufferByte) formattedImage.getRaster().getDataBuffer()).getData();
-		matImage.put(0, 0, pixels);
-		return matImage;
-	}
-	
-	private static BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
-	    BufferedImage image = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), bufferedImageType);
-	    Graphics2D g2d = image.createGraphics();
-	    g2d.drawImage(sourceImage, 0, 0, null);
-	    g2d.dispose();
-	    return image;
-	  }
-	  
-	  private static void bgr2rgb(byte[] data) {
-		    for (int i = 0; i < data.length; i += 3) {
-		      byte tmp = data[i];
-		      data[i] = data[i + 2];
-		      data[i + 2] = tmp;
-		    }
-		  }*/
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
 		return (int) (Math.hypot(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y));

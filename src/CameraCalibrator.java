@@ -25,7 +25,7 @@ public class CameraCalibrator {
 			randomlyRotateKeyboard();
 			screenCapture = objectDetector.captureScreenshotGameWindow();
 			detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
-			objectDetector.getObjectsOfClassInList(detectedObjects, objectNameToLookFor);
+			detectedObjectsToLookFor = objectDetector.getObjectsOfClassInList(detectedObjects, objectNameToLookFor);
 		}
 	}
 	
