@@ -12,6 +12,7 @@ public class ImageCollector {
 
 	public String screenshotOutputDirectory;
 	public Rectangle gameWindowRectangle;
+	public Rectangle fullWindowRectangle;
 	public Robot robot;
 	
 	/*
@@ -26,12 +27,17 @@ public class ImageCollector {
 	
 	public ImageCollector(String screenshotOutputDirectory) throws AWTException {
 		initializeGameWindowRectangle();
+		initializeFullWindowRectangle();
 		this.screenshotOutputDirectory = screenshotOutputDirectory;
 		this.robot = new Robot();
 	}
 	
 	private void initializeGameWindowRectangle() {
 		this.gameWindowRectangle = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
+	}
+	
+	private void initializeFullWindowRectangle() {
+		this.fullWindowRectangle = new Rectangle(0, 0, Constants.FULL_WINDOW_WIDTH, Constants.FULL_WINDOW_HEIGHT);
 	}
 	
 	public void collectImages(String itemName) throws IOException, InterruptedException, AWTException {
@@ -74,6 +80,12 @@ public class ImageCollector {
 		System.out.println("Wrote file: " + fileName);
 	}
 	
+	public void captureAndSaveFullWindow() throws IOException {
+		BufferedImage imageCaptured = robot.createScreenCapture(fullWindowRectangle);
+		ImageIO.write(imageCaptured, "jpg", new File(getFileName("fullWindow", 0)));
+		System.out.println("Wrote file.");
+	}
+	
 	private String getFileName(String itemName, int counter) {
 		return screenshotOutputDirectory + itemName + "_" + counter + ".jpg";
 	}
@@ -85,8 +97,9 @@ public class ImageCollector {
 	
 	public static void main(String[] args) throws Exception
     {
-        ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/TensorFlow/Ores/Images/");
-        imageCollector.collectImages("ore");
+        ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/Images/");
+        //imageCollector.collectImages("ore");
         //imageCollector.generateInventoryImages();
+        imageCollector.captureAndSaveFullWindow();
     }
 }

@@ -53,11 +53,9 @@ public class ObjectDetector {
 		this.robot = new Robot();
 	}	
 	
-	// Goal: reduce this to < 50 ms
 	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image, double scoreThreshold) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
-		//int count = 0;
 		makeImageTensor(image);
         try (Tensor<UInt8> input = makeImageTensor(image)) {
           outputs =
@@ -69,6 +67,7 @@ public class ObjectDetector {
                   .fetch("detection_classes")
                   .fetch("detection_boxes")
                   .run();
+          input.close();
         }
         
         try (Tensor<Float> scoresT = outputs.get(0).expect(Float.class);
@@ -82,17 +81,14 @@ public class ObjectDetector {
 
             for (int i = 0; i < scores.length; ++i) {
               if (scores[i] > scoreThreshold) {
-            	  //count++;
             	  detectedObjectsInImage.add(new DetectedObject(scores[i], classes[i], boxes[i]));
               }
             }
-          }
-       // return count;
+        }
+        outputs = null;
         return detectedObjectsInImage;
 	}
 	
-	
-	// This is too slow -> running object detection each time reduces the framerate to 3fps, which messses up object tracking
 	public boolean isObjectPresentInBoundingBoxInImage(ArrayList<DetectedObject> detectedObjects, Rect2d boundingBox, String objectClass) throws Exception {
 		for (DetectedObject detectedObject : detectedObjects) {
 			if (detectedObject.getDetectionClass().equals(objectClass)) {
@@ -117,7 +113,7 @@ public class ObjectDetector {
 		return detectedObjectsOfType;
 	}
 
-  private static Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
+  private Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
 	BufferedImage formattedImage = convertBufferedImage(image, BufferedImage.TYPE_3BYTE_BGR);
 	byte[] data = ((DataBufferByte) formattedImage.getData().getDataBuffer()).getData();
 	bgr2rgb(data);  
@@ -127,7 +123,7 @@ public class ObjectDetector {
     return Tensor.create(UInt8.class, shape, ByteBuffer.wrap(data));
   }
   
-  private static BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
+  private BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
     BufferedImage image = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), bufferedImageType);
     Graphics2D g2d = image.createGraphics();
     g2d.drawImage(sourceImage, 0, 0, null);
@@ -135,16 +131,16 @@ public class ObjectDetector {
     return image;
   }
   
-  private static void bgr2rgb(byte[] data) {
-	    for (int i = 0; i < data.length; i += 3) {
-	      byte tmp = data[i];
-	      data[i] = data[i + 2];
-	      data[i + 2] = tmp;
-	    }
-	  }
+  private void bgr2rgb(byte[] data) {
+	for (int i = 0; i < data.length; i += 3) {
+	  byte tmp = data[i];
+	  data[i] = data[i + 2];
+	  data[i + 2] = tmp;
+    }
+  }
   
   public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
-		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
-		return robot.createScreenCapture(area);
-	  }
+	Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
+	return robot.createScreenCapture(area);
+  }
 }

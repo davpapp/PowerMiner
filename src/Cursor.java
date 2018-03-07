@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
+import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.io.BufferedReader;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.opencv.core.Rect2d;
 
 public class Cursor {
 	
@@ -105,6 +108,24 @@ public class Cursor {
 		Point randomizedGoalPoint = randomizePoint(goalPoint, xTolerance, yTolerance);
 		moveAndLeftClickAtCoordinates(randomizedGoalPoint);
 		return randomizedGoalPoint; // Return the point we moved to in case we need precise movement afterwards
+	}
+	
+	public Point moveInsideBoundingRectangle(Rectangle boundingRectangle) throws Exception {
+		Point randomizedGoalPoint = getRandomPointInBoundingRectangle(boundingRectangle);
+		moveCursorToCoordinates(randomizedGoalPoint);
+		return randomizedGoalPoint;
+	}
+	
+	public Point moveAndLeftClickInBoundingRectangle(Rectangle boundingRectangle) throws Exception {
+		Point randomizedGoalPoint = getRandomPointInBoundingRectangle(boundingRectangle);
+		moveAndLeftClickAtCoordinates(randomizedGoalPoint);
+		return randomizedGoalPoint;
+	}
+	
+	private Point getRandomPointInBoundingRectangle(Rectangle boundingRectangle) {
+		int x = randomizer.nextGaussianWithinRange(boundingRectangle.x, boundingRectangle.x + boundingRectangle.width);
+		int y = randomizer.nextGaussianWithinRange(boundingRectangle.y, boundingRectangle.y + boundingRectangle.height);
+		return new Point(x, y);
 	}
 	
 	public Point moveAndLeftClickAtCoordinatesWithRandomness(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) throws Exception {

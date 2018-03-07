@@ -31,7 +31,7 @@ class ObjectTrackerTest {
 
 	
 	@Test
-	void testObjectTrackingWithAllVideosInDirectory() {
+	void testObjectTrackingWithAllVideosInDirectory() throws Exception {
 		String videoDirectory = "/home/dpapp/Videos/";
 		for (File video : getListOfFilesFromDirectory(videoDirectory)) {
 			if (video.isFile()) {
@@ -75,14 +75,13 @@ class ObjectTrackerTest {
 				boolean trackingSuccess = objectTrackers.get(i).update(frame, boundingBoxes.get(i));
 				assertTrue(trackingSuccess);
 							
-				g.drawRect((int) boundingBoxes.get(i).x, (int) boundingBoxes.get(i).y, (int) boundingBoxes.get(i).width, (int) boundingBoxes.get(i).height);			
+				//g.drawRect((int) boundingBoxes.get(i).x, (int) boundingBoxes.get(i).y, (int) boundingBoxes.get(i).width, (int) boundingBoxes.get(i).height);			
 			}
 			ImageIO.write(screencapture, "jpg", new File(videoDirectory + "/frame_" + videoFileName  + counter + ".jpg"));
 			counter++;
 		}
 	}
 
-	
 	private BufferedImage Mat2BufferedImage(Mat matrix)throws Exception {        
 	    MatOfByte mob=new MatOfByte();
 	    Imgcodecs.imencode(".jpg", matrix, mob);

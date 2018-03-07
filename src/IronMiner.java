@@ -25,14 +25,14 @@ public class IronMiner {
 	
 	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 1320;
 	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 400;
-	public static final Point GAME_WINDOW_CENTER = new Point(Constants.GAME_WINDOW_WIDTH / 2, Constants.GAME_WINDOW_HEIGHT / 2);
 	
 	Cursor cursor; 
 	CursorTask cursorTask;
 	Inventory inventory;
 	ObjectDetector objectDetector;
 	Robot robot;
-	Randomizer randomizer;
+	HumanBehavior humanBehavior;
+	CameraCalibrator cameraCalibrator;
 	
 	public IronMiner() throws AWTException, IOException 
 	{
@@ -41,34 +41,19 @@ public class IronMiner {
 		inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
-		randomizer = new Randomizer();
+		humanBehavior = new HumanBehavior();
+		cameraCalibrator = new CameraCalibrator();
 	}
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
-		long garbageCollectionTime = System.currentTimeMillis() + 60 * 5 * 1000;
-		int framesWithoutObjects = 0;
 		
 		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
-			long frameStartTime = System.currentTimeMillis();
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
-			System.out.println("looking for iron ores");
 			
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
-			System.out.println("Found " + detectedObjects.size() + " objects.");
 			
-			if (ironOres.size() == 0) {
-				framesWithoutObjects++;
-				System.out.println("no objects found!");
-			}
-			else {
-				framesWithoutObjects = 0;
-			}
-			if (framesWithoutObjects > 50) {
-				CameraCalibrator cameraCalibrator = new CameraCalibrator();
-				cameraCalibrator.rotateUntilObjectFound("ironOre");
-			}
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
@@ -78,7 +63,7 @@ public class IronMiner {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				long miningStartTime = System.currentTimeMillis();
-				int maxTimeToMine = randomizer.nextGaussianWithinRange(3400, 4519);
+				int maxTimeToMine = Randomizer.nextGaussianWithinRange(3400, 4519);
 				
 				boolean objectTrackingFailure = false;
 				boolean oreAvailable = true;
@@ -101,13 +86,7 @@ public class IronMiner {
 				}
 			}
 			
-			
-			// Garbage Collection
-			if (((System.currentTimeMillis() - garbageCollectionTime) / 1000.0 / 60) > 0) {
-				System.out.println("Running garbage collection.");
-				System.gc();
-				garbageCollectionTime = System.currentTimeMillis() + randomizer.nextGaussianWithinRange(8500, 19340) * 60;
-			}
+			humanBehavior.randomlyCheckMiningXP(cursor);
 			dropInventoryIfFull();
 		}
 	}
@@ -116,6 +95,7 @@ public class IronMiner {
 		inventory.updateLastSlot();
 		if (inventory.isLastSlotInInventoryFull()) {
 			cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
+			Thread.sleep(Randomizer.nextGaussianWithinRange(1104, 1651));
 		}
 	}
 	
@@ -128,7 +108,7 @@ public class IronMiner {
 		DetectedObject closestObjectToCharacter = null;
 		
 		for (DetectedObject detectedObject : detectedObjects) {
-			int objectDistanceToCharacter = getDistanceBetweenPoints(GAME_WINDOW_CENTER, detectedObject.getCenterForClicking());
+			int objectDistanceToCharacter = getDistanceBetweenPoints(Constants.getCharacterLocation(), detectedObject.getCenterForClicking());
 			if (objectDistanceToCharacter < closestDistanceToCharacter) {
 				closestDistanceToCharacter = objectDistanceToCharacter;
 				closestObjectToCharacter = detectedObject;

@@ -8,15 +8,12 @@ import java.util.ArrayList;
 public class CameraCalibrator {
 	
 	Robot robot;
-	Randomizer randomizer;
 	
 	public CameraCalibrator() throws AWTException {
 		robot = new Robot();
-		randomizer = new Randomizer();
 	}
 	
-	public void rotateUntilObjectFound(String objectNameToLookFor) throws Exception {
-		ObjectDetector objectDetector = new ObjectDetector();
+	public void rotateUntilObjectFound(ObjectDetector objectDetector, String objectNameToLookFor) throws Exception {
 		BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 		
 		ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
@@ -30,11 +27,10 @@ public class CameraCalibrator {
 	}
 	
 	private void randomlyRotateKeyboard() throws InterruptedException {
-		Randomizer randomizer = new Randomizer();
-		int keyPressLength = randomizer.nextGaussianWithinRange(350, 1105);
+		int keyPressLength = Randomizer.nextGaussianWithinRange(150, 505);
 		robot.keyPress(KeyEvent.VK_LEFT);
 		Thread.sleep(keyPressLength);
 		robot.keyRelease(KeyEvent.VK_LEFT);
-		Thread.sleep(randomizer.nextGaussianWithinRange(120, 250));
+		Thread.sleep(Randomizer.nextGaussianWithinRange(120, 250));
 	}
 }
