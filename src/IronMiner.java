@@ -54,7 +54,7 @@ public class IronMiner {
 		int noIronOresDetected = 0;
 		
 		int count = 0;
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 75) {
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 37) {
 			count++;
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			
@@ -98,7 +98,6 @@ public class IronMiner {
 					else {
 						oreLostCount = 0;
 					}
-					System.out.println("Tracking timespan: " + (System.currentTimeMillis() - trackingFrameStartTime));
 				}
 			}
 			
@@ -109,6 +108,7 @@ public class IronMiner {
 				System.out.println((System.currentTimeMillis() - startTime) / 1000);
 			}
 		}
+		System.out.println("Completed full mining session.");
 	}
 	
 	

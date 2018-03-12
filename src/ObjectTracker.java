@@ -32,7 +32,7 @@ public class ObjectTracker {
 	
 	public boolean update(BufferedImage image, Rect2d boundingBox) throws IOException {
 		boolean trackingSuccessful = objectTracker.update(BufferedImage2Mat(image), boundingBox);
-		System.out.print("Tracking: " + trackingSuccessful + ". Counter at ");
+		//System.out.print("Tracking: " + trackingSuccessful + ". Counter at ");
 		updateNumberOfFramesLostFor(trackingSuccessful);
 		return isObjectTrackingFailure();
 	}
@@ -53,7 +53,7 @@ public class ObjectTracker {
 	}
 	
 	private boolean isObjectTrackingFailure() {
-		System.out.println(numberOfFramesLostFor);
+		//System.out.println(numberOfFramesLostFor);
 		return numberOfFramesLostFor > 3;
 	}
 	

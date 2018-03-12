@@ -56,7 +56,7 @@ public class ObjectDetector {
 	public ArrayList<DetectedObject> getObjectsInImage(BufferedImage image, double scoreThreshold) throws Exception {
 		List<Tensor<?>> outputs = null;
 		ArrayList<DetectedObject> detectedObjectsInImage = new ArrayList<DetectedObject>();
-		makeImageTensor(image);
+	
         try (Tensor<UInt8> input = makeImageTensor(image)) {
           outputs =
               model
@@ -84,6 +84,9 @@ public class ObjectDetector {
             	  detectedObjectsInImage.add(new DetectedObject(scores[i], classes[i], boxes[i]));
               }
             }
+        }
+        for (Tensor<?> tensor : outputs) {
+        	tensor = null;
         }
         return detectedObjectsInImage;
 	}
@@ -123,7 +126,9 @@ public class ObjectDetector {
     final long BATCH_SIZE = 1;
     final long CHANNELS = 3;
     long[] shape = new long[] {BATCH_SIZE, formattedImage.getHeight(), formattedImage.getWidth(), CHANNELS};
-    return Tensor.create(UInt8.class, shape, ByteBuffer.wrap(data));
+    ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+    data = null;
+    return Tensor.create(UInt8.class, shape, byteBuffer);
   }
   
   private BufferedImage convertBufferedImage(BufferedImage sourceImage, int bufferedImageType) {
