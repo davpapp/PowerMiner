@@ -88,6 +88,7 @@ public class Cursor {
 	}
 	
 	public void rightClickCursor() throws InterruptedException {
+		Thread.sleep(50, 80);
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
 		Thread.sleep(getRandomClickLength() + 20);
 		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
@@ -254,5 +255,9 @@ public class Cursor {
 			System.out.println("There are " + cursorPathsByDistance.get(i).size() + " paths of size " + i);
 		}
 		System.out.println("--------------");
+	}
+
+	public Point getOffsetPoint(Point point) {
+		return new Point(point.x + Constants.GAME_WINDOW_OFFSET_X, point.y + Constants.GAME_WINDOW_OFFSET_Y);
 	}
 }

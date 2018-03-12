@@ -33,6 +33,8 @@ public class IronMiner {
 	Robot robot;
 	HumanBehavior humanBehavior;
 	CameraCalibrator cameraCalibrator;
+	RandomDetector randomDetector;
+	WorldHopper worldHopper;
 	
 	public IronMiner() throws AWTException, IOException 
 	{
@@ -43,17 +45,31 @@ public class IronMiner {
 		robot = new Robot();
 		humanBehavior = new HumanBehavior();
 		cameraCalibrator = new CameraCalibrator();
+		randomDetector = new RandomDetector();
+		worldHopper = new WorldHopper();
 	}
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
+		int noIronOresDetected = 0;
 		
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
+		int count = 0;
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 75) {
+			count++;
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			
-			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
-			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.20);
+			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
+			if (ironOres.size() == 0) {
+				noIronOresDetected++;
+			}
+			else {
+				noIronOresDetected = 0;
+			}
+			if (noIronOresDetected > 80) {
+				cameraCalibrator.rotateUntilObjectFound(objectDetector, "ironOre");
+			}
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
@@ -87,9 +103,14 @@ public class IronMiner {
 			}
 			
 			humanBehavior.randomlyCheckMiningXP(cursor);
+			randomDetector.dealWithRandoms(screenCapture, cursor);
 			dropInventoryIfFull();
+			if (count % 100 == 0) {
+				System.out.println((System.currentTimeMillis() - startTime) / 1000);
+			}
 		}
 	}
+	
 	
 	private void dropInventoryIfFull() throws Exception {
 		inventory.updateLastSlot();

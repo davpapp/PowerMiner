@@ -85,7 +85,6 @@ public class ObjectDetector {
               }
             }
         }
-        outputs = null;
         return detectedObjectsInImage;
 	}
 	
@@ -111,6 +110,10 @@ public class ObjectDetector {
 			}
 		}
 		return detectedObjectsOfType;
+	}
+	
+	public ArrayList<DetectedObject> getIronOres(ArrayList<DetectedObject> detectedObjects) {
+		return getObjectsOfClassInList(detectedObjects, "ironOre");
 	}
 
   private Tensor<UInt8> makeImageTensor(BufferedImage image) throws IOException {
@@ -140,7 +143,7 @@ public class ObjectDetector {
   }
   
   public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
-	Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
-	return robot.createScreenCapture(area);
-  }
+		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
+		return robot.createScreenCapture(area);
+	  }
 }

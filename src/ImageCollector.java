@@ -25,6 +25,10 @@ public class ImageCollector {
 	 * detect last file name
 	 */
 	
+	 public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
+			return robot.createScreenCapture(gameWindowRectangle);
+    }
+	
 	public ImageCollector(String screenshotOutputDirectory) throws AWTException {
 		initializeGameWindowRectangle();
 		initializeFullWindowRectangle();
@@ -98,8 +102,8 @@ public class ImageCollector {
 	public static void main(String[] args) throws Exception
     {
         ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/Images/");
-        //imageCollector.collectImages("ore");
+        imageCollector.collectImages("chatDialogue");
         //imageCollector.generateInventoryImages();
-        imageCollector.captureAndSaveFullWindow();
+        //imageCollector.captureAndSaveFullWindow();
     }
 }
