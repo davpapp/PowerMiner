@@ -58,7 +58,7 @@ public class IronMiner {
 			count++;
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			
-			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.20);
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
 			if (ironOres.size() == 0) {
@@ -99,11 +99,16 @@ public class IronMiner {
 						oreLostCount = 0;
 					}
 				}
+				
+				inventory.update();
+				if (!inventory.inventorySlotIsEmpty(0, 0)) {
+					cursorTask.dropOre(cursor, inventory);
+				}
 			}
 			
 			humanBehavior.randomlyCheckMiningXP(cursor);
 			randomDetector.dealWithRandoms(screenCapture, cursor);
-			dropInventoryIfFull();
+			//dropInventoryIfFull();
 			if (count % 100 == 0) {
 				System.out.println((System.currentTimeMillis() - startTime) / 1000);
 			}

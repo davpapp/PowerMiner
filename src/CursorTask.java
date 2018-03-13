@@ -26,6 +26,10 @@ public class CursorTask {
 		return (int) (Math.hypot(a.x - b.x, a.y - b.y));
 	}
 	
+	public void dropOre(Cursor cursor, Inventory inventory) throws Exception {
+		dropItem(cursor, inventory, 0, 0);
+	}
+	
 	public void dropAllItemsInInventory(Cursor cursor, Inventory inventory) throws Exception {
 		for (int row = 0; row < 4; row++) {
 			for (int column = 0; column < 7; column++) {

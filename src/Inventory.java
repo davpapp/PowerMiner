@@ -79,6 +79,10 @@ public class Inventory {
 		return inventorySlots[row][column].getItemNameInInventorySlot(items);
 	}
 	
+	public boolean inventorySlotIsEmpty(int row, int column) {
+		return inventorySlots[row][column].isInventorySlotEmpty(items);
+	}
+	
 	public boolean isLastSlotInInventoryFull() {
 		return !inventorySlots[Constants.INVENTORY_NUM_ROWS - 1][Constants.INVENTORY_NUM_COLUMNS - 1].isInventorySlotEmpty(items);
 	}
