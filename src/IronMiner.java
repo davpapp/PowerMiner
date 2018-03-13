@@ -46,7 +46,6 @@ public class IronMiner {
 		humanBehavior = new HumanBehavior();
 		cameraCalibrator = new CameraCalibrator();
 		randomDetector = new RandomDetector();
-		worldHopper = new WorldHopper();
 	}
 	
 	public void run() throws Exception {
@@ -73,37 +72,18 @@ public class IronMiner {
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			if (closestIronOre != null) {
-				Rect2d boundingBox = closestIronOre.getBoundingRect2d();
-				ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
-				
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
-				long miningStartTime = System.currentTimeMillis();
-				int maxTimeToMine = Randomizer.nextGaussianWithinRange(3400, 4519);
+				System.out.println("Starting threads!");
+				TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
+				trackerThread.start();
+				DropperThread dropperThread = new DropperThread(inventory, cursor);
+				dropperThread.start();
 				
-				boolean objectTrackingFailure = false;
-				boolean oreAvailable = true;
-				int oreLostCount = 0;
-				while (!objectTrackingFailure && oreLostCount < 3 && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
-					long trackingFrameStartTime = System.currentTimeMillis();
-					
-					screenCapture = objectDetector.captureScreenshotGameWindow();
-					detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.15);
-					ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
-					objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
-					oreAvailable = objectDetector.isObjectPresentInBoundingBoxInImage(ironOres, boundingBox, "ironOre");
-					if (!oreAvailable) {
-						oreLostCount++;
-					}
-					else {
-						oreLostCount = 0;
-					}
-				}
-				
-				inventory.update();
-				if (!inventory.inventorySlotIsEmpty(0, 0)) {
-					cursorTask.dropOre(cursor, inventory);
-				}
+				trackerThread.waitTillDone();
+				dropperThread.waitTillDone();
+								
+				System.out.println("Both threads finished?");
 			}
 			
 			humanBehavior.randomlyCheckMiningXP(cursor);
@@ -116,6 +96,46 @@ public class IronMiner {
 		System.out.println("Completed full mining session.");
 	}
 	
+	/*private void dropOre() throws Exception {
+		inventory.update();
+		System.out.println("Thread 1 [mouse hover] finished!");
+		//cursorTask.dropOre(cursor, inventory);
+	}*/
+	
+	/*private void trackOre(DetectedObject closestIronOre, BufferedImage screenCapture) throws Exception {
+		Rect2d boundingBox = closestIronOre.getBoundingRect2d();
+		ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
+		
+		long miningStartTime = System.currentTimeMillis();
+		int maxTimeToMine = Randomizer.nextGaussianWithinRange(3400, 4519);
+		
+		boolean objectTrackingFailure = false;
+		boolean oreAvailable = true;
+		int oreLostCount = 0;
+		while (!objectTrackingFailure && oreLostCount < 3 && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
+			BufferedImage screenCapture2 = objectDetector.captureScreenshotGameWindow();
+			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture2, 0.15);
+			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
+			objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
+			oreAvailable = objectDetector.isObjectPresentInBoundingBoxInImage(ironOres, boundingBox, "ironOre");
+			if (!oreAvailable) {
+				oreLostCount++;
+			}
+			else {
+				oreLostCount = 0;
+			}
+		}
+		System.out.println("Thread 2 [track ore] finished!");
+	}*/
+	
+	/*private void dropOre() throws IOException {
+		inventory.update();
+		if (inventory.containsItem("ironOre")) {
+			cursor.moveAndRightlickAtCoordinatesWithRandomness(inventory.getClickCoordinatesForInventorySlot(0, 0), 15, 15);
+			// move cursor down 40 pixels
+			cursor.moveAndLeftClickAtCoordinatesWithRandomness(goalPoint, 20, 5);
+		}
+	}*/
 	
 	private void dropInventoryIfFull() throws Exception {
 		inventory.updateLastSlot();
