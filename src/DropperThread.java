@@ -13,7 +13,7 @@ public class DropperThread implements Runnable {
 	@Override
 	public void run() {
 		try {
-			inventory.update();
+			//inventory.update();
 			cursor.moveAndRightlickAtCoordinatesWithRandomness(inventory.getClickCoordinatesForInventorySlot(0, 0), 15, 15);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

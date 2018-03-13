@@ -31,8 +31,9 @@ public class TrackerThread implements Runnable {
 			boolean oreAvailable = true;
 			int oreLostCount = 0;
 			while (!objectTrackingFailure && oreLostCount < 3 && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
-				BufferedImage screenCapture2 = objectDetector.captureScreenshotGameWindow();
-				ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture2, 0.15);
+				long frameStartTime = System.currentTimeMillis();
+				screenCapture = objectDetector.captureScreenshotGameWindow();
+				ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.15);
 				ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
 				objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
 				oreAvailable = objectDetector.isObjectPresentInBoundingBoxInImage(ironOres, boundingBox, "ironOre");
@@ -42,7 +43,8 @@ public class TrackerThread implements Runnable {
 				else {
 					oreLostCount = 0;
 				}
-				System.out.println("trackerThread working...");
+				System.out.println("Threaded tracker took " + (System.currentTimeMillis() - frameStartTime) + " milliseconds.");
+				//System.out.println("trackerThread working...");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

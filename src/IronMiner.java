@@ -71,6 +71,7 @@ public class IronMiner {
 			}
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
+			
 			if (closestIronOre != null) {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
@@ -85,15 +86,14 @@ public class IronMiner {
 								
 				System.out.println("Both threads finished?");
 			}
-			
-			humanBehavior.randomlyCheckMiningXP(cursor);
-			randomDetector.dealWithRandoms(screenCapture, cursor);
-			//dropInventoryIfFull();
-			if (count % 100 == 0) {
-				System.out.println((System.currentTimeMillis() - startTime) / 1000);
+			if (count % 30 == 0) {
+				System.out.println("WAITING #############################################");
+				Thread.sleep(5000);
 			}
+			//humanBehavior.randomlyCheckMiningXP(cursor);
+			//randomDetector.dealWithRandoms(screenCapture, cursor);
+			//dropInventoryIfFull();
 		}
-		System.out.println("Completed full mining session.");
 	}
 	
 	/*private void dropOre() throws Exception {
