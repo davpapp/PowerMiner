@@ -25,7 +25,6 @@ public class ObjectDetectionHistory {
 	}
 	
 	public void updateHistory(boolean success) {
-		System.out.println("Increasing? " + success);
 		numberOfDetectedObjectsHistory.add(success);
 		if (success) { 
 			numberOfTruesInQueue++;

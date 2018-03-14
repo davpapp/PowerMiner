@@ -22,11 +22,11 @@ public class DropperThread implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("~~~~~~~~~~~~~ dropperThread finished!");
+		//System.out.println("~~~~~~~~~~~~~ dropperThread finished!");
 	}
 	
 	public void start() {
-		System.out.println("dropperThread started");
+		//System.out.println("dropperThread started");
 		if (dropperThread == null) {
 			dropperThread = new Thread(this, "dropperThread");
 			dropperThread.start();

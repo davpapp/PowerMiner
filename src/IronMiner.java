@@ -35,6 +35,7 @@ public class IronMiner {
 	CameraCalibrator cameraCalibrator;
 	RandomDetector randomDetector;
 	WorldHopper worldHopper;
+	MiningSuccessHistory miningSuccessHistory;
 	ObjectDetectionHistory objectDetectionHistory;
 	
 	public IronMiner() throws AWTException, IOException 
@@ -49,6 +50,7 @@ public class IronMiner {
 		randomDetector = new RandomDetector();
 		worldHopper = new WorldHopper();
 		cameraCalibrator = new CameraCalibrator(targetNumberOfDetectedOres);
+		miningSuccessHistory = new MiningSuccessHistory();
 		objectDetectionHistory = new ObjectDetectionHistory(targetNumberOfDetectedOres);
 	}
 	
@@ -56,9 +58,8 @@ public class IronMiner {
 		long startTime = System.currentTimeMillis();
 		
 		int count = 0;
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 85) {
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
-			
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
@@ -70,6 +71,8 @@ public class IronMiner {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				int ironOreInInventory = inventory.getFirstIronOreInInventory();
+				int numberOfOresInInventoryBefore = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
+				int numberOfOresInInventoryAfter = 0;
 				
 				if (ironOreInInventory > -1) {
 					int ironOreInInventoryColumn = ironOreInInventory % 7;
@@ -86,16 +89,27 @@ public class IronMiner {
 					trackerThread.waitTillDone();
 					dropperThread.waitTillDone();
 					
+					
+					
 					Point rightClickLocation = cursor.getCurrentCursorPoint();
 					cursorTask.leftClickDropOption(cursor, rightClickLocation, 0);
+					
+					numberOfOresInInventoryAfter = inventory.getNumberOfItemsOfTypeInInventory("ironOre") + 1;
 				}
 				else {
 					TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
 					trackerThread.start();
 					trackerThread.waitTillDone();
+					
+					numberOfOresInInventoryAfter = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
 				}
 				count++;
-				//System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60));
+				
+				boolean miningSuccess = (numberOfOresInInventoryAfter > numberOfOresInInventoryBefore);
+				//System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
+				hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
+				
+				System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60));
 			}
 			humanBehavior.randomlyCheckMiningXP(cursor);
 			randomDetector.dealWithRandoms(screenCapture, cursor);
@@ -103,6 +117,13 @@ public class IronMiner {
 		}
 	}
 
+	private void hopWorldsIfMiningSuccessRateIsLow(boolean miningSuccess) {
+		boolean hopWorld = miningSuccessHistory.updateHistory(miningSuccess);
+		if (hopWorld) {
+			//System.out.println("Hopping worlds (Theoretically)");
+			miningSuccessHistory.resetQueue();
+		}
+	}
 	
 	private void readjustCameraIfObjectsAreNotBeingDetected(int detectedObjectsSize) throws Exception {
 		boolean readjustCamera = objectDetectionHistory.updateHistory(detectedObjectsSize);
@@ -110,7 +131,6 @@ public class IronMiner {
 			cameraCalibrator.rotateUntilObjectFound(objectDetector, "ironOre");
 			objectDetectionHistory.resetQueue();
 		}
-		
 	}
 
 	private void dropInventoryIfFull() throws Exception {

@@ -44,14 +44,26 @@ public class Inventory {
 		updateAllInventorySlots(image);
 	}
 	
+	public int getNumberOfItemsOfTypeInInventory(String itemType) throws IOException {
+		int numberOfItemsOfType = 0;
+		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
+		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
+			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
+				inventorySlots[row][column].updateInventorySlot(image);
+				if (inventorySlots[row][column].getItemNameInInventorySlot(items).equals(itemType)) {
+					numberOfItemsOfType++;
+				}
+			}
+		}
+		return numberOfItemsOfType++;
+	}
+	
 	public int getFirstIronOreInInventory() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
 		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
 			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
 				inventorySlots[row][column].updateInventorySlot(image);
 				if (!inventorySlots[row][column].isInventorySlotEmpty(items)) {
-					//System.out.println("Not empty!");
-					System.out.println("Returning " + (row * 7 + column));
 					return (row * 7 + column);
 				}
 			}

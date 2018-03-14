@@ -65,7 +65,7 @@ public class TrackerThread implements Runnable {
 	}
 	
 	public void start() {
-		System.out.println("TrackerThread started");
+		//System.out.println("TrackerThread started");
 		if (trackerThread == null) {
 			trackerThread = new Thread(this, "trackerThread");
 			trackerThread.start();
