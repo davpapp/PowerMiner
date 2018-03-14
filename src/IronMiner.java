@@ -35,108 +35,84 @@ public class IronMiner {
 	CameraCalibrator cameraCalibrator;
 	RandomDetector randomDetector;
 	WorldHopper worldHopper;
+	ObjectDetectionHistory objectDetectionHistory;
 	
 	public IronMiner() throws AWTException, IOException 
 	{
+		int targetNumberOfDetectedOres = 2;
 		cursor = new Cursor();
 		cursorTask = new CursorTask();
 		inventory = new Inventory();
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		humanBehavior = new HumanBehavior();
-		cameraCalibrator = new CameraCalibrator();
 		randomDetector = new RandomDetector();
+		worldHopper = new WorldHopper();
+		cameraCalibrator = new CameraCalibrator(targetNumberOfDetectedOres);
+		objectDetectionHistory = new ObjectDetectionHistory(targetNumberOfDetectedOres);
 	}
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
-		int noIronOresDetected = 0;
 		
 		int count = 0;
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 37) {
-			count++;
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 75) < 85) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
-			if (ironOres.size() == 0) {
-				noIronOresDetected++;
-			}
-			else {
-				noIronOresDetected = 0;
-			}
-			if (noIronOresDetected > 80) {
-				cameraCalibrator.rotateUntilObjectFound(objectDetector, "ironOre");
-			}
+			readjustCameraIfObjectsAreNotBeingDetected(detectedObjects.size());
 			
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			
 			if (closestIronOre != null) {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
-				System.out.println("Starting threads!");
-				TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
-				trackerThread.start();
-				DropperThread dropperThread = new DropperThread(inventory, cursor);
-				dropperThread.start();
+				int ironOreInInventory = inventory.getFirstIronOreInInventory();
 				
-				trackerThread.waitTillDone();
-				dropperThread.waitTillDone();
-								
-				System.out.println("Both threads finished?");
+				if (ironOreInInventory > -1) {
+					int ironOreInInventoryColumn = ironOreInInventory % 7;
+					int ironOreInInventoryRow = ironOreInInventory / 7;
+				
+					Point clickLocation = inventory.getClickCoordinatesForInventorySlot(ironOreInInventoryRow, ironOreInInventoryColumn);
+				
+					TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
+					trackerThread.start();
+				
+					DropperThread dropperThread = new DropperThread(clickLocation, cursor);
+					dropperThread.start();
+				
+					trackerThread.waitTillDone();
+					dropperThread.waitTillDone();
+					
+					Point rightClickLocation = cursor.getCurrentCursorPoint();
+					cursorTask.leftClickDropOption(cursor, rightClickLocation, 0);
+				}
+				else {
+					TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
+					trackerThread.start();
+					trackerThread.waitTillDone();
+				}
+				count++;
+				//System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60));
 			}
-			if (count % 30 == 0) {
-				System.out.println("WAITING #############################################");
-				Thread.sleep(5000);
-			}
-			//humanBehavior.randomlyCheckMiningXP(cursor);
-			//randomDetector.dealWithRandoms(screenCapture, cursor);
-			//dropInventoryIfFull();
+			humanBehavior.randomlyCheckMiningXP(cursor);
+			randomDetector.dealWithRandoms(screenCapture, cursor);
+			dropInventoryIfFull();
 		}
 	}
+
 	
-	/*private void dropOre() throws Exception {
-		inventory.update();
-		System.out.println("Thread 1 [mouse hover] finished!");
-		//cursorTask.dropOre(cursor, inventory);
-	}*/
-	
-	/*private void trackOre(DetectedObject closestIronOre, BufferedImage screenCapture) throws Exception {
-		Rect2d boundingBox = closestIronOre.getBoundingRect2d();
-		ObjectTracker ironOreTracker = new ObjectTracker(screenCapture, boundingBox);
-		
-		long miningStartTime = System.currentTimeMillis();
-		int maxTimeToMine = Randomizer.nextGaussianWithinRange(3400, 4519);
-		
-		boolean objectTrackingFailure = false;
-		boolean oreAvailable = true;
-		int oreLostCount = 0;
-		while (!objectTrackingFailure && oreLostCount < 3 && !isTimeElapsedOverLimit(miningStartTime, maxTimeToMine)) {
-			BufferedImage screenCapture2 = objectDetector.captureScreenshotGameWindow();
-			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture2, 0.15);
-			ArrayList<DetectedObject> ironOres = objectDetector.getObjectsOfClassInList(detectedObjects, "ironOre");
-			objectTrackingFailure = ironOreTracker.update(screenCapture, boundingBox);
-			oreAvailable = objectDetector.isObjectPresentInBoundingBoxInImage(ironOres, boundingBox, "ironOre");
-			if (!oreAvailable) {
-				oreLostCount++;
-			}
-			else {
-				oreLostCount = 0;
-			}
+	private void readjustCameraIfObjectsAreNotBeingDetected(int detectedObjectsSize) throws Exception {
+		boolean readjustCamera = objectDetectionHistory.updateHistory(detectedObjectsSize);
+		if (readjustCamera) {
+			cameraCalibrator.rotateUntilObjectFound(objectDetector, "ironOre");
+			objectDetectionHistory.resetQueue();
 		}
-		System.out.println("Thread 2 [track ore] finished!");
-	}*/
-	
-	/*private void dropOre() throws IOException {
-		inventory.update();
-		if (inventory.containsItem("ironOre")) {
-			cursor.moveAndRightlickAtCoordinatesWithRandomness(inventory.getClickCoordinatesForInventorySlot(0, 0), 15, 15);
-			// move cursor down 40 pixels
-			cursor.moveAndLeftClickAtCoordinatesWithRandomness(goalPoint, 20, 5);
-		}
-	}*/
-	
+		
+	}
+
 	private void dropInventoryIfFull() throws Exception {
 		inventory.updateLastSlot();
 		if (inventory.isLastSlotInInventoryFull()) {
@@ -144,10 +120,7 @@ public class IronMiner {
 			Thread.sleep(Randomizer.nextGaussianWithinRange(1104, 1651));
 		}
 	}
-	
-	private boolean isTimeElapsedOverLimit(long startTime, int timeLimit) {
-		return (System.currentTimeMillis() - startTime) > timeLimit;
-	}
+
 	
 	private DetectedObject getClosestObjectToCharacter(ArrayList<DetectedObject> detectedObjects) {
 		int closestDistanceToCharacter = Integer.MAX_VALUE;

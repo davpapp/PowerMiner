@@ -5,42 +5,32 @@ import java.util.Queue;
 public class WorldHopper {
 
 	int numberOfOresMined;
-	int numberOfFramesWithOtherPlayers;
-	Queue<Boolean> frames;
+	int queueSize;
+	//int numberOfFramesWithOtherPlayers;
+	//Queue<Boolean> frames;
 	Queue<Boolean> oresMined;
 	
 	public WorldHopper() {
 		numberOfOresMined = 0;
-		numberOfFramesWithOtherPlayers = 0;
-		frames = new LinkedList<Boolean>();
-		for (int i = 0; i < 600; i++) {
+		queueSize = 30;
+		//numberOfFramesWithOtherPlayers = 0;
+		//frames = new LinkedList<Boolean>();
+		/*for (int i = 0; i < 600; i++) {
 			frames.add(false);
-		}
+		}*/
 		oresMined = new LinkedList<Boolean>();
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < queueSize; i++) {
 			oresMined.add(true);
 		}
 	}
 	
-	public void hopWorldsIfOtherPlayersPresent(ArrayList<DetectedObject> players) {
-		updateOtherPlayerTracking(players);
+	public void hopWorldsIfMiningRateLow() {
+		updateOresMinedSuccessTracking();
 		if (areOtherPlayersLikelyPresent()) {
 			hopWorld();
 		}
 	}
 	
-	private void updateOtherPlayerTracking(ArrayList<DetectedObject> players) {
-		if (players.size() > 1) {
-			numberOfFramesWithOtherPlayers++;
-			frames.add(true);
-		}
-		else {
-			frames.add(false);
-		}
-		if (frames.poll()) {
-			numberOfFramesWithOtherPlayers--;
-		}
-	}
 	
 	public void updateOresMinedSuccessTracking(boolean success) {
 		oresMined.add(success);
@@ -53,7 +43,7 @@ public class WorldHopper {
 	}
 	
 	private boolean areOtherPlayersLikelyPresent() {
-		return numberOfFramesWithOtherPlayers > 360 || numberOfOresMined < 18;
+		return  numberOfOresMined < (queueSize * 0.6);
 	}
 	
 	private void hopWorld() {

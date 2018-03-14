@@ -1,20 +1,20 @@
+import java.awt.Point;
 import java.io.IOException;
 
 public class DropperThread implements Runnable {
 	Thread dropperThread;
-	Inventory inventory;
+	Point clickLocation;
 	Cursor cursor;
 	
-	public DropperThread(Inventory inventory, Cursor cursor) {
-		this.inventory = inventory;
+	public DropperThread(Point clickLocation, Cursor cursor) {
+		this.clickLocation = clickLocation;
 		this.cursor = cursor;
 	}
 	
 	@Override
 	public void run() {
 		try {
-			//inventory.update();
-			cursor.moveAndRightlickAtCoordinatesWithRandomness(inventory.getClickCoordinatesForInventorySlot(0, 0), 15, 15);
+			cursor.moveAndRightlickAtCoordinatesWithRandomness(clickLocation, 15, 15);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

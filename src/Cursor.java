@@ -81,6 +81,7 @@ public class Cursor {
 	// END
 	
 	public void leftClickCursor() throws InterruptedException {
+		Thread.sleep(30, 55);
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		Thread.sleep(getRandomClickLength());
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);

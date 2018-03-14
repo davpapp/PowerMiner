@@ -43,7 +43,7 @@ public class TrackerThread implements Runnable {
 				else {
 					oreLostCount = 0;
 				}
-				System.out.println("Threaded tracker took " + (System.currentTimeMillis() - frameStartTime) + " milliseconds.");
+				//System.out.println("Threaded tracker took " + (System.currentTimeMillis() - frameStartTime) + " milliseconds.");
 				//System.out.println("trackerThread working...");
 			}
 		} catch (IOException e) {
@@ -57,7 +57,7 @@ public class TrackerThread implements Runnable {
 			e.printStackTrace();
 		}
 		
-		System.out.println("~~~~~~~~~~~~~ trackerThread finished!");
+		//System.out.println("~~~~~~~~~~~~~ trackerThread finished!");
 	}
 	
 	private boolean isTimeElapsedOverLimit(long startTime, int timeLimit) {

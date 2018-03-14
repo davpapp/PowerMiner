@@ -7,9 +7,11 @@ import java.util.ArrayList;
 
 public class CameraCalibrator {
 	
+	int targetNumberOfDetectedObjects;
 	Robot robot;
 	
-	public CameraCalibrator() throws AWTException {
+	public CameraCalibrator(int targetNumberOfDetectedObjects) throws AWTException {
+		this.targetNumberOfDetectedObjects = targetNumberOfDetectedObjects;
 		robot = new Robot();
 	}
 	
@@ -18,7 +20,7 @@ public class CameraCalibrator {
 		
 		ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.40);
 		ArrayList<DetectedObject> detectedObjectsToLookFor = objectDetector.getObjectsOfClassInList(detectedObjects, objectNameToLookFor);
-		while (detectedObjectsToLookFor.size() == 0) {
+		while (detectedObjectsToLookFor.size() < targetNumberOfDetectedObjects) {
 			randomlyRotateKeyboard();
 			screenCapture = objectDetector.captureScreenshotGameWindow();
 			detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.40);

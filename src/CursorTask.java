@@ -54,7 +54,7 @@ public class CursorTask {
 		return clickedCoordinates;
 	}
 	
-	private Point leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws Exception {
+	public Point leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws Exception {
 		Point offsetCoordinatesToLeftClick = coordinatesToLeftClick;
 		if (column < 6) {
 			offsetCoordinatesToLeftClick.y += DROP_OFFSET;
