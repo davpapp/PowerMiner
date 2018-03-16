@@ -29,7 +29,7 @@ public class MiningSuccessHistory {
 	}
 	
 	private boolean isMiningRateSufficient() {
-		return numberOfTruesInQueue < (queueSize * 0.6);
+		return numberOfTruesInQueue < (queueSize * 0.8);
 	}
 	
 	public void resetQueue() {

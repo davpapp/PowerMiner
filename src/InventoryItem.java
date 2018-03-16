@@ -11,7 +11,7 @@ public class InventoryItem {
 	
 	public InventoryItem(String itemDirectoryPath, String itemName) throws IOException {
 		initializeImage(itemDirectoryPath, itemName);
-		this.minimumNumberOfMatchingPixels = 200;
+		this.minimumNumberOfMatchingPixels = 250;
 	}
 	
 	private void initializeImage(String itemDirectoryPath, String itemName) throws IOException {

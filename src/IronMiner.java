@@ -34,7 +34,6 @@ public class IronMiner {
 	HumanBehavior humanBehavior;
 	CameraCalibrator cameraCalibrator;
 	RandomDetector randomDetector;
-	WorldHopper worldHopper;
 	MiningSuccessHistory miningSuccessHistory;
 	ObjectDetectionHistory objectDetectionHistory;
 	
@@ -48,7 +47,6 @@ public class IronMiner {
 		robot = new Robot();
 		humanBehavior = new HumanBehavior();
 		randomDetector = new RandomDetector();
-		worldHopper = new WorldHopper();
 		cameraCalibrator = new CameraCalibrator(targetNumberOfDetectedOres);
 		miningSuccessHistory = new MiningSuccessHistory();
 		objectDetectionHistory = new ObjectDetectionHistory(targetNumberOfDetectedOres);
@@ -56,9 +54,10 @@ public class IronMiner {
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
+		int worldHopCounter = 0;
 		
 		int count = 0;
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 85) {
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 93) {
 			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
@@ -68,11 +67,13 @@ public class IronMiner {
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			
 			if (closestIronOre != null) {
+				Thread.sleep(Randomizer.nextGaussianWithinRange(20, 40));
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				int ironOreInInventory = inventory.getFirstIronOreInInventory();
+				
 				int numberOfOresInInventoryBefore = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
-				int numberOfOresInInventoryAfter = 0;
+				boolean miningSuccess = false;
 				
 				if (ironOreInInventory > -1) {
 					int ironOreInInventoryColumn = ironOreInInventory % 7;
@@ -89,27 +90,30 @@ public class IronMiner {
 					trackerThread.waitTillDone();
 					dropperThread.waitTillDone();
 					
-					
-					
 					Point rightClickLocation = cursor.getCurrentCursorPoint();
 					cursorTask.leftClickDropOption(cursor, rightClickLocation, 0);
 					
-					numberOfOresInInventoryAfter = inventory.getNumberOfItemsOfTypeInInventory("ironOre") + 1;
+					if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") >= numberOfOresInInventoryBefore) {
+						miningSuccess = true;
+					}
 				}
 				else {
 					TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
 					trackerThread.start();
 					trackerThread.waitTillDone();
 					
-					numberOfOresInInventoryAfter = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
+					if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") > numberOfOresInInventoryBefore) {
+						miningSuccess = true;
+					}
 				}
 				count++;
 				
-				boolean miningSuccess = (numberOfOresInInventoryAfter > numberOfOresInInventoryBefore);
-				//System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
-				hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
-				
-				System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60));
+				System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
+				boolean worldHopped = hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
+				if (worldHopped) {
+					worldHopCounter++;
+				}
+				System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60) + ". Hops: " + worldHopCounter);
 			}
 			humanBehavior.randomlyCheckMiningXP(cursor);
 			randomDetector.dealWithRandoms(screenCapture, cursor);
@@ -117,12 +121,15 @@ public class IronMiner {
 		}
 	}
 
-	private void hopWorldsIfMiningSuccessRateIsLow(boolean miningSuccess) {
+	private boolean hopWorldsIfMiningSuccessRateIsLow(boolean miningSuccess) throws Exception {
 		boolean hopWorld = miningSuccessHistory.updateHistory(miningSuccess);
 		if (hopWorld) {
-			//System.out.println("Hopping worlds (Theoretically)");
+			System.out.println("Hopping worlds");
+			WorldHopper.hopWorld(cursor);
 			miningSuccessHistory.resetQueue();
+			return true;
 		}
+		return false;
 	}
 	
 	private void readjustCameraIfObjectsAreNotBeingDetected(int detectedObjectsSize) throws Exception {

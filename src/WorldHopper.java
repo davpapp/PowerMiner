@@ -1,52 +1,36 @@
+import java.awt.AWTException;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
 
 public class WorldHopper {
 
-	int numberOfOresMined;
-	int queueSize;
-	//int numberOfFramesWithOtherPlayers;
-	//Queue<Boolean> frames;
-	Queue<Boolean> oresMined;
+	//Set<Integer> visitedWorlds;
 	
-	public WorldHopper() {
-		numberOfOresMined = 0;
-		queueSize = 30;
-		//numberOfFramesWithOtherPlayers = 0;
-		//frames = new LinkedList<Boolean>();
-		/*for (int i = 0; i < 600; i++) {
-			frames.add(false);
-		}*/
-		oresMined = new LinkedList<Boolean>();
-		for (int i = 0; i < queueSize; i++) {
-			oresMined.add(true);
-		}
-	}
-	
-	public void hopWorldsIfMiningRateLow() {
-		updateOresMinedSuccessTracking();
-		if (areOtherPlayersLikelyPresent()) {
-			hopWorld();
-		}
-	}
-	
-	
-	public void updateOresMinedSuccessTracking(boolean success) {
-		oresMined.add(success);
-		if (success) { 
-			numberOfOresMined++;
-		}
-		if (oresMined.poll()) {
-			numberOfOresMined--;
-		}
-	}
-	
-	private boolean areOtherPlayersLikelyPresent() {
-		return  numberOfOresMined < (queueSize * 0.6);
-	}
-	
-	private void hopWorld() {
+	public static void hopWorld(Cursor cursor) throws Exception {
+		cursor.moveAndLeftClickInBoundingRectangle(Constants.getLogoutIconRectangle());
+		Thread.sleep(650, 900);
+		//cursor.moveAndLeftClickInBoundingRectangle(Constants.getWorldSwitchButtonRectangle());
+		Thread.sleep(2150, 3080);
+		Random random = new Random();
+		int x = random.nextInt(Constants.WORLD_LISTING_WIDTH) + Constants.WORLD_LISTING_OFFSET_X;
+		int y = random.nextInt(Constants.WORLD_LISTING_HEIGHT) + Constants.WORLD_LISTING_OFFSET_Y;
+		cursor.moveAndLeftClickAtCoordinates(new Point(x, y));
+		Thread.sleep(4300, 5320);
+		cursor.moveAndLeftClickInBoundingRectangle(Constants.getInventoryIconRectangle());
 		System.out.println("Hopping worlds!");
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Cursor cursor = new Cursor();
+		for (int i = 0; i < 5; i++) {
+			WorldHopper.hopWorld(cursor);
+			Thread.sleep(2500);
+		}
+		System.out.println("Done hopping...");
+		Thread.sleep(10000);
 	}
 }

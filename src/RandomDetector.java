@@ -29,6 +29,9 @@ public class RandomDetector {
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(cursor.getOffsetPoint(getDismissOptionClickLocation(speakerPoint)), 40, 10, 6);
 				Thread.sleep(1743, 2313);
 			}
+			else {
+				cursor.moveCursorToCoordinatesWithRandomness(new Point(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y), 20, 20);
+			}
 		}
 	}
 
