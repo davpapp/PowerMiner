@@ -22,7 +22,6 @@ public class CursorPath {
 		this.randomizer = new Randomizer();
 	}
 	
-	// TODO: refactor
 	public CursorPath(ArrayList<CursorPoint> cursorPoints, boolean setInitializiationOff)
 	{
 		this.cursorPoints = cursorPoints;
@@ -74,15 +73,14 @@ public class CursorPath {
 		return new CursorPath(rotatedCursorPoints, true);
 	}
 	
-	/*public CursorPath getCopyOfCursorPathTransformedByParabola() {
-		double[] parabolaEquation = randomizer.generateParabolaEquation(this.getCursorPathDistance());
+	public CursorPath getCopyOfCursorPathTransformedByParabola() {
+		double[] parabolaEquation = PathTransformer.generateParabolaEquation(this.getCursorPathDistance());
 		ArrayList<CursorPoint> transformedCursorPoints = new ArrayList<CursorPoint>();
 		for (CursorPoint cursorPoint : this.cursorPoints) {
-			transformedCursorPoints.add(cursorPoint.getCursorPointTransformedBy(parabolaEquation));
+			transformedCursorPoints.add(cursorPoint.getCursorPointTransformedByParabola(parabolaEquation));
 		}
-		return new CursorPath(transformedCursorPoints, true);
-		
-	}*/
+		return new CursorPath(transformedCursorPoints, true);	
+	}
 	
 	private int calculateCursorPathTimespan() {
 		int sumPathTimespanMilliseconds = 0;

@@ -34,10 +34,12 @@ public class CursorPoint {
 		return (new CursorPoint(rotatedX, rotatedY, delay));
 	}
 	
-	public CursorPoint getCursorPointTransformedBy(double[] parabolaEquation) {
-		int rotatedX = (int) 5;
-		int rotatedY = (int) 5;
-		return (new CursorPoint(rotatedX, rotatedY, delay));
+	public CursorPoint getCursorPointTransformedByParabola(double[] parabolaEquation) {
+		double transformationFactor = PathTransformer.getParabolaHeightAtPoint(parabolaEquation, this.getDistanceFromOrigin());
+		int transformedX = (int) (transformationFactor * this.x);
+		int transformedY = (int) (transformationFactor * this.y);
+		int transformedDelay = (int) (transformationFactor * this.delay);
+		return (new CursorPoint(transformedX, transformedY, transformedDelay));
 	}
 	
 	public CursorPoint getCursorPointWithNewDelay(int delay) {

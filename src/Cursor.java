@@ -26,7 +26,6 @@ public class Cursor {
 	public static final int MAXIMUM_CLICK_LENGTH = 230;
 	
 	private Robot robot;
-	private Randomizer randomizer;
 	private Random random;
 
 	private ArrayList<ArrayList<CursorPath>> cursorPathsByDistance;
@@ -36,7 +35,6 @@ public class Cursor {
 		initializeCursorPathsByDistanceFromFile(Paths.CURSOR_COORDINATES_FILE_PATH);
 
 		robot = new Robot();
-		randomizer = new Randomizer();
 		random = new Random();
 	}
 	
@@ -72,11 +70,11 @@ public class Cursor {
 	
 	// TODO: make sure these are reasonable
 	private int getRandomClickLength() {
-		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
+		return Randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
 	}
 	
 	private int getRandomClickReleaseLength() {
-		return randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH + 5, MAXIMUM_CLICK_LENGTH + 10);
+		return Randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH + 5, MAXIMUM_CLICK_LENGTH + 10);
 	}
 	// END
 	
@@ -125,8 +123,8 @@ public class Cursor {
 	}
 	
 	private Point getRandomPointInBoundingRectangle(Rectangle boundingRectangle) {
-		int x = randomizer.nextGaussianWithinRange(boundingRectangle.x, boundingRectangle.x + boundingRectangle.width);
-		int y = randomizer.nextGaussianWithinRange(boundingRectangle.y, boundingRectangle.y + boundingRectangle.height);
+		int x = Randomizer.nextGaussianWithinRange(boundingRectangle.x, boundingRectangle.x + boundingRectangle.width);
+		int y = Randomizer.nextGaussianWithinRange(boundingRectangle.y, boundingRectangle.y + boundingRectangle.height);
 		return new Point(x, y);
 	}
 	
@@ -165,9 +163,9 @@ public class Cursor {
 		
 		CursorPath cursorPathWithDistanceSet = chooseCursorPathToFollowBasedOnDistance(distanceToMoveCursor);
 		CursorPath cursorPathWithDistanceAndAngleSet = cursorPathWithDistanceSet.getRotatedCopyOfCursorPath(angleToRotateCursorPathTo);
-		// TODO: Add randomization by parabola or similar
-		// CursorPath randomizedCursorPath = cursorPathWithDistanceAndAngleSet.getCopyOfCursorPathTransformedByParabola();
-		followCursorPath(cursorPathWithDistanceAndAngleSet, startingPoint);
+		CursorPath cursorPathTransformed = cursorPathWithDistanceAndAngleSet.getCopyOfCursorPathTransformedByParabola();
+
+		followCursorPath(cursorPathTransformed, startingPoint);
 	}
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
@@ -243,12 +241,12 @@ public class Cursor {
 	
 	private Point randomizePoint(Point goalPoint, int xTolerance, int yTolerance) {
 		Randomizer randomizer = new Randomizer();
-		return new Point(goalPoint.x + randomizer.nextGaussianWithinRange(-xTolerance, xTolerance), goalPoint.y + randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
+		return new Point(goalPoint.x + Randomizer.nextGaussianWithinRange(-xTolerance, xTolerance), goalPoint.y + Randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	
 	private Point randomizePoint(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) {
 		Randomizer randomizer = new Randomizer();
-		return new Point(goalPoint.x + randomizer.nextGaussianWithinRange(-xToleranceLeft, xToleranceRight), goalPoint.y + randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
+		return new Point(goalPoint.x + Randomizer.nextGaussianWithinRange(-xToleranceLeft, xToleranceRight), goalPoint.y + Randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	
 	public void displayCursorPaths() {

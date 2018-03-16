@@ -5,6 +5,10 @@ import java.util.Random;
 public class Randomizer {
 	
 	public static int nextGaussianWithinRange(double rangeBegin, double rangeEnd) {
+		return (int) nextGaussianDoubleWithinRange(rangeBegin, rangeEnd);
+	}
+	
+	public static double nextGaussianDoubleWithinRange(double rangeBegin, double rangeEnd) {
 		Random random = new Random();
 		double rangeMean = (rangeEnd + rangeBegin) / 2.0;
 		double rangeSTD = (rangeEnd - rangeMean) / 3.0;
@@ -13,12 +17,6 @@ public class Randomizer {
 		while (result > rangeEnd || result < rangeBegin) {
 			result = random.nextGaussian() * rangeSTD + rangeMean;
 		}
-		return (int) result;
-	}
-	public static Point generatePeakForTransformationParabola(int pathDistance) {
-		double maxTransformationScale = 0.2;
-		int peakX = nextGaussianWithinRange(0, pathDistance);
-		int peakY = nextGaussianWithinRange(0, pathDistance * maxTransformationScale);
-		return new Point(peakX, peakY);
+		return result;
 	}
 }
