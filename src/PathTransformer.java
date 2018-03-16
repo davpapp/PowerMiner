@@ -29,7 +29,7 @@ public class PathTransformer {
 		Matrix lhs = new Matrix(lhsArray);
         Matrix rhs = new Matrix(rhsArray, 3);
         
-        System.out.println("(" + p1.getX() + "," + p1.getY() + "), (" + p2.getX() + "," + p2.getY() + "), (" + p3.getX() + "," + p3.getY() + ")");
+        //System.out.println("(" + p1.getX() + "," + p1.getY() + "), (" + p2.getX() + "," + p2.getY() + "), (" + p3.getX() + "," + p3.getY() + ")");
         
         Matrix ans = lhs.solve(rhs);
         /*System.out.println("x = " + ans.get(0, 0));

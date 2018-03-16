@@ -39,16 +39,17 @@ public class Inventory {
 		items = new InventoryItems(Paths.INVENTORY_ITEMS_DIRECTORY_PATH);
 	}
 	
-	public void update() throws IOException {
+	/*public void update() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
 		updateAllInventorySlots(image);
-	}
+	}*/
 	
 	public int getNumberOfItemsOfTypeInInventory(String itemType) throws IOException {
 		int numberOfItemsOfType = 0;
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
 		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
 			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
+				
 				inventorySlots[row][column].updateInventorySlot(image);
 				if (inventorySlots[row][column].getItemNameInInventorySlot(items).equals(itemType)) {
 					numberOfItemsOfType++;
@@ -56,6 +57,19 @@ public class Inventory {
 			}
 		}
 		return numberOfItemsOfType++;
+	}
+	
+	public void dropAllItemsOfType(String itemType, CursorTask cursorTask, Cursor cursor) throws Exception {
+		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
+		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
+			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
+				
+				inventorySlots[row][column].updateInventorySlot(image);
+				if (inventorySlots[row][column].getItemNameInInventorySlot(items).equals(itemType)) {
+					cursorTask.dropItem(cursor, this, row, column);
+				}
+			}
+		}
 	}
 	
 	public int getFirstIronOreInInventory() throws IOException {
@@ -125,6 +139,8 @@ public class Inventory {
 		}
 		return true;
 	}
+	
+	
 	
 	public Point getClickCoordinatesForInventorySlot(int row, int column) {
 		Point centerOfInventorySlot = inventorySlots[row][column].getClickablePointWithinItemSlot();

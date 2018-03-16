@@ -11,13 +11,8 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class RandomDetector {
-	Robot robot;
 	
-	public RandomDetector() throws AWTException {
-		robot = new Robot();
-	}
-	
-	public void dealWithRandoms(BufferedImage screenCapture, Cursor cursor) throws Exception {
+	public static void dealWithRandoms(BufferedImage screenCapture, Cursor cursor) throws Exception {
 		Point chatDialogueCornerPoint = findChatDialogueCornerPoint(screenCapture);
 		Point speakerPoint = findSpeakerPointFromCornerPoint(screenCapture, chatDialogueCornerPoint);
 
@@ -35,9 +30,9 @@ public class RandomDetector {
 		}
 	}
 
-	private boolean dialogueHasDismissOption(Point speakerPoint) throws IOException, AWTException {
+	private static boolean dialogueHasDismissOption(Point speakerPoint) throws IOException, AWTException {
 		Rectangle dialogueRectangle = new Rectangle(Constants.GAME_WINDOW_OFFSET_X + speakerPoint.x - 25, Constants.GAME_WINDOW_OFFSET_Y + speakerPoint.y, 95, 55);
-		BufferedImage dialogueCapture = robot.createScreenCapture(dialogueRectangle);
+		BufferedImage dialogueCapture = ImageCapturer.captureScreenRectangle(dialogueRectangle);
 		for (int x = 0; x < 95; x++) {
 			for (int y = 0; y < 55; y++) {
 				int pixelColor = dialogueCapture.getRGB(x, y);
@@ -49,7 +44,7 @@ public class RandomDetector {
 		return false;
 	}
 
-	public Point findChatDialogueCornerPoint(BufferedImage screenCapture) throws AWTException, InterruptedException {		
+	public static Point findChatDialogueCornerPoint(BufferedImage screenCapture) throws AWTException, InterruptedException {		
 		for (int x = 30; x < Constants.GAME_WINDOW_WIDTH - 30; x++) {
 			for (int y = 20; y < Constants.GAME_WINDOW_HEIGHT - 20; y++) {
 				int pixelColor = screenCapture.getRGB(x, y);
@@ -61,14 +56,14 @@ public class RandomDetector {
 		return null;
 	}
 	
-	private boolean isPixelChatColor(int color) {
+	private static boolean isPixelChatColor(int color) {
 		int[] colorChannels = getRGBChannelsFromPixel(color);
 		return (isColorWithinTolerance(colorChannels[0], 0, 3) && 
 			    isColorWithinTolerance(colorChannels[1], 255, 3) &&
 			    isColorWithinTolerance(colorChannels[2], 255, 3));
 	}
 	
-	public Point findSpeakerPointFromCornerPoint(BufferedImage screenCapture, Point chatDialogueStart) {	
+	public static Point findSpeakerPointFromCornerPoint(BufferedImage screenCapture, Point chatDialogueStart) {	
 		if (chatDialogueStart == null) {
 			return null;
 		}
@@ -93,25 +88,20 @@ public class RandomDetector {
 		return null;
 	}
 	
-	private boolean isSpeakerPointCloseToCharacter(Point speakerPoint) {
+	private static boolean isSpeakerPointCloseToCharacter(Point speakerPoint) {
 		return (Math.abs(speakerPoint.x + Constants.GAME_WINDOW_OFFSET_X - Constants.CHARACTER_CENTER_X) < 90 && Math.abs(speakerPoint.y + Constants.GAME_WINDOW_OFFSET_Y - Constants.CHARACTER_CENTER_Y) < 80);
 	}
 	
-	private Point getDismissOptionClickLocation(Point speakerLocation) {
+	private static Point getDismissOptionClickLocation(Point speakerLocation) {
 		return new Point(speakerLocation.x, speakerLocation.y + 46);
 	}
 	
-	private boolean isColorWithinTolerance(int color1, int color2, int tolerance) {
+	private static boolean isColorWithinTolerance(int color1, int color2, int tolerance) {
 		return (Math.abs(color1 - color2) < tolerance);
 	}
 	
-	private int[] getRGBChannelsFromPixel(int pixel) {
+	private static int[] getRGBChannelsFromPixel(int pixel) {
 		int[] colors = {(pixel)&0xFF, (pixel>>8)&0xFF, (pixel>>16)&0xFF, (pixel>>24)&0xFF};
 		return colors;
 	}	
-	
-	public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
-		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
-		return robot.createScreenCapture(area);
-	  }
 }

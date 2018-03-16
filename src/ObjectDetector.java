@@ -146,9 +146,4 @@ public class ObjectDetector {
 	  data[i + 2] = tmp;
     }
   }
-  
-  public BufferedImage captureScreenshotGameWindow() throws IOException, AWTException {
-		Rectangle area = new Rectangle(Constants.GAME_WINDOW_OFFSET_X, Constants.GAME_WINDOW_OFFSET_Y, Constants.GAME_WINDOW_WIDTH, Constants.GAME_WINDOW_HEIGHT);
-		return robot.createScreenCapture(area);
-	  }
 }

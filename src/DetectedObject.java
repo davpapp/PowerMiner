@@ -17,7 +17,6 @@ public class DetectedObject {
 		this.detectionClass = initializeLabel(detectionClass);
 	}
 	
-	// TODO: migrate this all to a Rect2d data type
 	private Rect2d initializeBoundingBox(float[] detectionBox) {
 		int offset_x = (int) (detectionBox[1] * Constants.GAME_WINDOW_WIDTH);
 		int offset_y = (int) (detectionBox[0] * Constants.GAME_WINDOW_HEIGHT);

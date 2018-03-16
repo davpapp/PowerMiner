@@ -68,7 +68,6 @@ public class Cursor {
 		this.cursorPathsByDistance.get(cursorPath.getCursorPathDistance()).add(cursorPath);
 	}
 	
-	// TODO: make sure these are reasonable
 	private int getRandomClickLength() {
 		return Randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH, MAXIMUM_CLICK_LENGTH);
 	}
@@ -76,7 +75,6 @@ public class Cursor {
 	private int getRandomClickReleaseLength() {
 		return Randomizer.nextGaussianWithinRange(MINIMUM_CLICK_LENGTH + 5, MAXIMUM_CLICK_LENGTH + 10);
 	}
-	// END
 	
 	public void leftClickCursor() throws InterruptedException {
 		Thread.sleep(30, 55);
@@ -240,12 +238,10 @@ public class Cursor {
 	}
 	
 	private Point randomizePoint(Point goalPoint, int xTolerance, int yTolerance) {
-		Randomizer randomizer = new Randomizer();
 		return new Point(goalPoint.x + Randomizer.nextGaussianWithinRange(-xTolerance, xTolerance), goalPoint.y + Randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	
 	private Point randomizePoint(Point goalPoint, int xToleranceLeft, int xToleranceRight, int yTolerance) {
-		Randomizer randomizer = new Randomizer();
 		return new Point(goalPoint.x + Randomizer.nextGaussianWithinRange(-xToleranceLeft, xToleranceRight), goalPoint.y + Randomizer.nextGaussianWithinRange(-yTolerance, yTolerance));
 	}
 	

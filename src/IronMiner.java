@@ -33,7 +33,6 @@ public class IronMiner {
 	Robot robot;
 	HumanBehavior humanBehavior;
 	CameraCalibrator cameraCalibrator;
-	RandomDetector randomDetector;
 	MiningSuccessHistory miningSuccessHistory;
 	ObjectDetectionHistory objectDetectionHistory;
 	
@@ -46,7 +45,6 @@ public class IronMiner {
 		objectDetector = new ObjectDetector();
 		robot = new Robot();
 		humanBehavior = new HumanBehavior();
-		randomDetector = new RandomDetector();
 		cameraCalibrator = new CameraCalibrator(targetNumberOfDetectedOres);
 		miningSuccessHistory = new MiningSuccessHistory();
 		objectDetectionHistory = new ObjectDetectionHistory(targetNumberOfDetectedOres);
@@ -54,16 +52,18 @@ public class IronMiner {
 	
 	public void run() throws Exception {
 		long startTime = System.currentTimeMillis();
-		int worldHopCounter = 0;
 		
 		int count = 0;
 		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 93) {
-			BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
+			BufferedImage screenCapture = ImageCapturer.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
 			readjustCameraIfObjectsAreNotBeingDetected(detectedObjects.size());
-			
+			humanBehavior.randomlyCheckMiningXP(cursor);
+			RandomDetector.dealWithRandoms(screenCapture, cursor);
+			dropInventoryIfCloseToFull();
+						
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			
 			if (closestIronOre != null) {
@@ -109,15 +109,10 @@ public class IronMiner {
 				count++;
 				
 				System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
-				boolean worldHopped = hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
-				if (worldHopped) {
-					worldHopCounter++;
-				}
-				System.out.println(count + ", time: " + ((System.currentTimeMillis() - startTime) / 1000 / 60) + ". Hops: " + worldHopCounter);
+				printMiningStats(count, startTime);
+				
+				hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
 			}
-			humanBehavior.randomlyCheckMiningXP(cursor);
-			randomDetector.dealWithRandoms(screenCapture, cursor);
-			dropInventoryIfFull();
 		}
 	}
 
@@ -140,14 +135,24 @@ public class IronMiner {
 		}
 	}
 
-	private void dropInventoryIfFull() throws Exception {
+	/*private void dropInventoryIfFull() throws Exception {
 		inventory.updateLastSlot();
 		if (inventory.isLastSlotInInventoryFull()) {
 			cursorTask.optimizedDropAllItemsInInventory(cursor, inventory);
 			Thread.sleep(Randomizer.nextGaussianWithinRange(1104, 1651));
 		}
+	}*/
+	
+	private void dropInventoryIfCloseToFull() throws Exception {
+		if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") > 15) {
+			inventory.dropAllItemsOfType("ironOre", cursorTask, cursor);
+			Thread.sleep(Randomizer.nextGaussianWithinRange(1104, 1651));
+		}
 	}
 
+	private void printMiningStats(int numberOfIronOresMined, long startTime) {
+		System.out.println(numberOfIronOresMined + " ores mined in " + ((System.currentTimeMillis() - startTime) / 1000 / 60) + " minutes");
+	}
 	
 	private DetectedObject getClosestObjectToCharacter(ArrayList<DetectedObject> detectedObjects) {
 		int closestDistanceToCharacter = Integer.MAX_VALUE;

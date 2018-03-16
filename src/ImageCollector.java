@@ -99,11 +99,12 @@ public class ImageCollector {
 		inventory.updateAndWriteAllInventoryImages();
 	}
 	
-	public static void main(String[] args) throws Exception
+	/*public static void main(String[] args) throws Exception
     {
         ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/Images/");
         imageCollector.collectImages("chatDialogue");
         //imageCollector.generateInventoryImages();
         //imageCollector.captureAndSaveFullWindow();
-    }
+    }*/
+
 }

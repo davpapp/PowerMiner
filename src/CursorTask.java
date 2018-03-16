@@ -38,7 +38,6 @@ public class CursorTask {
 		}
 	}
 	
-	
 	public Point dropItem(Cursor cursor, Inventory inventory, int row, int column) throws Exception {
 		Point coordinatesToRightClick = inventory.getClickCoordinatesForInventorySlot(row, column);
 		Point clickedCoordinates = rightClickItemSlotWithRandomness(cursor, coordinatesToRightClick);
