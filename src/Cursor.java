@@ -178,7 +178,7 @@ public class Cursor {
 		for (CursorPoint cursorPoint : cursorPathToFollow.getCursorPathPoints()) {
 			Point translatedPointToClick = new Point(cursorPoint.x + startingPoint.x, cursorPoint.y + startingPoint.y);
 			robotMouseMove(translatedPointToClick);
-			Thread.sleep(cursorPoint.delay);
+			Thread.sleep(Math.abs(cursorPoint.delay));
 		}
 	}
 	

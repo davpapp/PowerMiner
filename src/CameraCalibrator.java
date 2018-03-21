@@ -16,13 +16,13 @@ public class CameraCalibrator {
 	}
 	
 	public void rotateUntilObjectFound(ObjectDetector objectDetector, String objectNameToLookFor) throws Exception {
-		BufferedImage screenCapture = objectDetector.captureScreenshotGameWindow();
+		BufferedImage screenCapture = ImageCapturer.captureScreenshotGameWindow();
 		
 		ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.40);
 		ArrayList<DetectedObject> detectedObjectsToLookFor = objectDetector.getObjectsOfClassInList(detectedObjects, objectNameToLookFor);
 		while (detectedObjectsToLookFor.size() < targetNumberOfDetectedObjects) {
 			randomlyRotateKeyboard();
-			screenCapture = objectDetector.captureScreenshotGameWindow();
+			screenCapture = ImageCapturer.captureScreenshotGameWindow();
 			detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.40);
 			detectedObjectsToLookFor = objectDetector.getObjectsOfClassInList(detectedObjects, objectNameToLookFor);
 		}

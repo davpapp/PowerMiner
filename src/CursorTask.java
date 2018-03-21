@@ -53,6 +53,18 @@ public class CursorTask {
 		return clickedCoordinates;
 	}
 	
+	public Point hoverOverDropOption(Cursor cursor, Point coordinatesToHoverOver, int column) throws Exception {
+		Point offsetCoordinatesToHoverOver = coordinatesToHoverOver;
+		if (column < 6) {
+			offsetCoordinatesToHoverOver.y += DROP_OFFSET;
+		}
+		else {
+			offsetCoordinatesToHoverOver.y = DROP_BOTTOM_ROW;
+		}
+		System.out.println("foudn where to click...");
+		return cursor.moveCursorToCoordinatesWithRandomness(offsetCoordinatesToHoverOver, 13, 2); //(offsetCoordinatesToLeftClick, 13, 10, 6);
+	}
+	
 	public Point leftClickDropOption(Cursor cursor, Point coordinatesToLeftClick, int column) throws Exception {
 		Point offsetCoordinatesToLeftClick = coordinatesToLeftClick;
 		if (column < 6) {

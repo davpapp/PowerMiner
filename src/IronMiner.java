@@ -54,7 +54,9 @@ public class IronMiner {
 		long startTime = System.currentTimeMillis();
 		
 		int count = 0;
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 93) {
+		int worldHops = 0;
+		
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 105) {
 			BufferedImage screenCapture = ImageCapturer.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
@@ -67,7 +69,7 @@ public class IronMiner {
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			
 			if (closestIronOre != null) {
-				Thread.sleep(Randomizer.nextGaussianWithinRange(20, 40));
+				//Thread.sleep(Randomizer.nextGaussianWithinRange(20, 40));
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
 				int ironOreInInventory = inventory.getFirstIronOreInInventory();
@@ -79,19 +81,18 @@ public class IronMiner {
 					int ironOreInInventoryColumn = ironOreInInventory % 7;
 					int ironOreInInventoryRow = ironOreInInventory / 7;
 				
-					Point clickLocation = inventory.getClickCoordinatesForInventorySlot(ironOreInInventoryRow, ironOreInInventoryColumn);
-				
+					Point rightClickItemClickLocation = inventory.getClickCoordinatesForInventorySlot(ironOreInInventoryRow, ironOreInInventoryColumn);
+					
 					TrackerThread trackerThread = new TrackerThread(screenCapture, closestIronOre, objectDetector);
 					trackerThread.start();
 				
-					DropperThread dropperThread = new DropperThread(clickLocation, cursor);
+					DropperThread dropperThread = new DropperThread(rightClickItemClickLocation, cursor, cursorTask);
 					dropperThread.start();
 				
 					trackerThread.waitTillDone();
 					dropperThread.waitTillDone();
 					
-					Point rightClickLocation = cursor.getCurrentCursorPoint();
-					cursorTask.leftClickDropOption(cursor, rightClickLocation, 0);
+					cursor.leftClickCursor();
 					
 					if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") >= numberOfOresInInventoryBefore) {
 						miningSuccess = true;
@@ -111,7 +112,11 @@ public class IronMiner {
 				System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
 				printMiningStats(count, startTime);
 				
-				hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
+				boolean worldHopped = hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
+				if (worldHopped) {
+					worldHops++;
+				}
+				System.out.println("worldHops: " + worldHops);
 			}
 		}
 	}
@@ -144,7 +149,7 @@ public class IronMiner {
 	}*/
 	
 	private void dropInventoryIfCloseToFull() throws Exception {
-		if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") > 15) {
+		if (inventory.getNumberOfItemsOfTypeInInventory("ironOre") > 12) {
 			inventory.dropAllItemsOfType("ironOre", cursorTask, cursor);
 			Thread.sleep(Randomizer.nextGaussianWithinRange(1104, 1651));
 		}
