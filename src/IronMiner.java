@@ -24,7 +24,7 @@ import org.opencv.tracking.TrackerMOSSE;
 public class IronMiner {
 	
 	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 1320;
-	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 400;
+	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 150;
 	
 	Cursor cursor; 
 	CursorTask cursorTask;
@@ -38,7 +38,7 @@ public class IronMiner {
 	
 	public IronMiner() throws AWTException, IOException 
 	{
-		int targetNumberOfDetectedOres = 2;
+		int targetNumberOfDetectedOres = 3;
 		cursor = new Cursor();
 		cursorTask = new CursorTask();
 		inventory = new Inventory();
@@ -55,14 +55,16 @@ public class IronMiner {
 		
 		int count = 0;
 		int worldHops = 0;
+		int lastIronOreInInventory = -1;
 		
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 105) {
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 195) {
 			BufferedImage screenCapture = ImageCapturer.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
 			
 			readjustCameraIfObjectsAreNotBeingDetected(detectedObjects.size());
 			humanBehavior.randomlyCheckMiningXP(cursor);
+			humanBehavior.randomlyRotateCamera(cameraCalibrator);
 			RandomDetector.dealWithRandoms(screenCapture, cursor);
 			dropInventoryIfCloseToFull();
 						
@@ -72,7 +74,10 @@ public class IronMiner {
 				//Thread.sleep(Randomizer.nextGaussianWithinRange(20, 40));
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
-				int ironOreInInventory = inventory.getFirstIronOreInInventory();
+				//System.out.println("Last iron ore: " + lastIronOreInInventory);
+				int ironOreInInventory = inventory.getFirstIronOreInInventoryDifferentFromLast(lastIronOreInInventory);
+				lastIronOreInInventory = ironOreInInventory;
+				//System.out.println("New iron ore: " + ironOreInInventory + "\n");
 				
 				int numberOfOresInInventoryBefore = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
 				boolean miningSuccess = false;
@@ -109,12 +114,15 @@ public class IronMiner {
 				}
 				count++;
 				
-				System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
+				//System.out.println("Ores in inventory: " + numberOfOresInInventoryBefore + ". Mining success? " + miningSuccess);
 				printMiningStats(count, startTime);
 				
 				boolean worldHopped = hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
 				if (worldHopped) {
 					worldHops++;
+					/*if (worldHops > 30) {
+						break;
+					}*/
 				}
 				System.out.println("worldHops: " + worldHops);
 			}
@@ -175,6 +183,10 @@ public class IronMiner {
 		}
 		return null;
 	}
+	
+	/*public isDetectedObjectInRange(int maxDistance) {
+		if (getDistanceBetweenPoints()
+	}*/
 	
 	public int getDistanceBetweenPoints(Point startingPoint, Point goalPoint) {
 		return (int) (Math.hypot(goalPoint.x - startingPoint.x, goalPoint.y - startingPoint.y));

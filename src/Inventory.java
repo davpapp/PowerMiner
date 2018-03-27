@@ -85,6 +85,28 @@ public class Inventory {
 		return -1;
 	}
 	
+	public int getFirstIronOreInInventoryDifferentFromLast(int lastIronOreInInventory) throws IOException {
+		int ironOreInInventoryColumn = lastIronOreInInventory % 7;
+		int ironOreInInventoryRow = lastIronOreInInventory / 7;
+		if (lastIronOreInInventory < 0) {
+			ironOreInInventoryRow = -1;
+			ironOreInInventoryColumn = -1;
+		}
+		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
+		for (int row = 0; row < Constants.INVENTORY_NUM_ROWS; row++) {
+			for (int column = 0; column < Constants.INVENTORY_NUM_COLUMNS; column++) {
+				if (row == ironOreInInventoryRow && column == ironOreInInventoryColumn) {
+					continue;
+				}
+				inventorySlots[row][column].updateInventorySlot(image);
+				if (!inventorySlots[row][column].isInventorySlotEmpty(items)) {
+					return (row * 7 + column);
+				}
+			}
+		}
+		return -1;
+	}
+	
 	public void updateLastSlot() throws IOException {
 		BufferedImage image = robot.createScreenCapture(this.inventoryRectangleToCapture);
 		updateLastInventorySlot(image);

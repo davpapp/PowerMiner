@@ -35,4 +35,12 @@ public class CameraCalibrator {
 		robot.keyRelease(KeyEvent.VK_LEFT);
 		Thread.sleep(Randomizer.nextGaussianWithinRange(80, 118));
 	}
+	
+	public void randomlyShiftView() throws InterruptedException {
+		int keyPressLength = Randomizer.nextGaussianWithinRange(50, 310);
+		robot.keyPress(KeyEvent.VK_LEFT);
+		Thread.sleep(keyPressLength);
+		robot.keyRelease(KeyEvent.VK_LEFT);
+		Thread.sleep(Randomizer.nextGaussianWithinRange(80, 118));
+	}
 }
