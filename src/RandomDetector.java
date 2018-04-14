@@ -1,5 +1,6 @@
 import java.awt.AWTException;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -87,6 +88,35 @@ public class RandomDetector {
 		}
 		return null;
 	}
+	
+	/*public static BufferedImage blurDialogueFromImage(BufferedImage screenCapture) throws AWTException, InterruptedException {
+		Point chatDialogueStart = findChatDialogueCornerPoint(screenCapture);
+		if (chatDialogueStart == null) {
+			return screenCapture;
+		}
+		
+		int rightMostChatColorPixel = chatDialogueStart.x;
+		int countSinceLastChatColorPixel = 0;
+		for (int x = chatDialogueStart.x; x < Constants.GAME_WINDOW_WIDTH && countSinceLastChatColorPixel < 30; x++) {
+			for (int y = chatDialogueStart.y; y < chatDialogueStart.y + 20; y++) {
+				int pixelColor = screenCapture.getRGB(x, y);
+				if (isPixelChatColor(pixelColor)) {
+					rightMostChatColorPixel = x;
+					countSinceLastChatColorPixel = 0;
+				}
+			}
+			countSinceLastChatColorPixel++;
+		}
+		
+		int chatDialogueBoxWidth = rightMostChatColorPixel - chatDialogueStart.x;
+		if (chatDialogueBoxWidth > 60 && chatDialogueBoxWidth < 400) {
+			//BufferedImage result = screenCapture;
+			Graphics g = screenCapture.getGraphics();
+			g.clearRect(chatDialogueStart.x, chatDialogueStart.y, chatDialogueBoxWidth, 25);
+			System.out.println("Found dialogue! Blurring image");
+		}
+		return screenCapture;
+	}*/
 	
 	private static boolean isSpeakerPointCloseToCharacter(Point speakerPoint) {
 		return (Math.abs(speakerPoint.x + Constants.GAME_WINDOW_OFFSET_X - Constants.CHARACTER_CENTER_X) < 90 && Math.abs(speakerPoint.y + Constants.GAME_WINDOW_OFFSET_Y - Constants.CHARACTER_CENTER_Y) < 80);

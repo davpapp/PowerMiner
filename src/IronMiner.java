@@ -24,7 +24,7 @@ import org.opencv.tracking.TrackerMOSSE;
 public class IronMiner {
 	
 	public static final int IRON_ORE_MINING_TIME_MILLISECONDS = 1320;
-	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 150;
+	public static final int MAXIMUM_DISTANCE_TO_WALK_TO_IRON_ORE = 400;
 	
 	Cursor cursor; 
 	CursorTask cursorTask;
@@ -56,8 +56,9 @@ public class IronMiner {
 		int count = 0;
 		int worldHops = 0;
 		int lastIronOreInInventory = -1;
+		int noIronOresCount = 0;
 		
-		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 195) {
+		while (((System.currentTimeMillis() - startTime) / 1000.0 / 60) < 163) {
 			BufferedImage screenCapture = ImageCapturer.captureScreenshotGameWindow();
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(screenCapture, 0.30);
 			ArrayList<DetectedObject> ironOres = objectDetector.getIronOres(detectedObjects);
@@ -67,17 +68,19 @@ public class IronMiner {
 			humanBehavior.randomlyRotateCamera(cameraCalibrator);
 			RandomDetector.dealWithRandoms(screenCapture, cursor);
 			dropInventoryIfCloseToFull();
+			
+			/*if (noIronOresCount > 10000) {
+				return;
+			}*/
 						
 			DetectedObject closestIronOre = getClosestObjectToCharacter(ironOres);
 			
 			if (closestIronOre != null) {
-				//Thread.sleep(Randomizer.nextGaussianWithinRange(20, 40));
+				noIronOresCount = 0;
 				cursor.moveAndLeftClickAtCoordinatesWithRandomness(closestIronOre.getCenterForClicking(), 10, 10);
 				
-				//System.out.println("Last iron ore: " + lastIronOreInInventory);
 				int ironOreInInventory = inventory.getFirstIronOreInInventoryDifferentFromLast(lastIronOreInInventory);
 				lastIronOreInInventory = ironOreInInventory;
-				//System.out.println("New iron ore: " + ironOreInInventory + "\n");
 				
 				int numberOfOresInInventoryBefore = inventory.getNumberOfItemsOfTypeInInventory("ironOre");
 				boolean miningSuccess = false;
@@ -120,11 +123,11 @@ public class IronMiner {
 				boolean worldHopped = hopWorldsIfMiningSuccessRateIsLow(miningSuccess);
 				if (worldHopped) {
 					worldHops++;
-					/*if (worldHops > 30) {
-						break;
-					}*/
 				}
 				System.out.println("worldHops: " + worldHops);
+			}
+			else {
+				noIronOresCount++;
 			}
 		}
 	}

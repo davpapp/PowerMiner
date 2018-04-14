@@ -62,6 +62,20 @@ public class ImageCollector {
 		return counter;
 	}
 	
+	/*public void blurTextFromImages() throws IOException, AWTException, InterruptedException {
+		File folder = new File("/home/dpapp/Videos/BlurredRandom/NonBlurred/");
+		File[] listOfImages = folder.listFiles();
+		//RandomDetector randomDetector = new RandomDetector();
+		int count = 0;
+		for (File file : listOfImages) {
+			System.out.println(count);
+			BufferedImage image = ImageIO.read(file);
+			BufferedImage blurredImage = RandomDetector.blurDialogueFromImage(image);
+			ImageIO.write(blurredImage, "png", new File("/home/dpapp/Videos/BlurredRandom/Blurred/blurredRandom" + count + ".png"));
+			count++;
+		}
+	}*/
+	
 	private File[] getFilesFromFolderThatStartWith(String itemName) {
 		File folder = new File(screenshotOutputDirectory);
 		File[] listOfFiles = folder.listFiles(new FilenameFilter() {
@@ -99,12 +113,13 @@ public class ImageCollector {
 		inventory.updateAndWriteAllInventoryImages();
 	}
 	
-	/*public static void main(String[] args) throws Exception
+	public static void main(String[] args) throws Exception
     {
         ImageCollector imageCollector = new ImageCollector("/home/dpapp/Desktop/RunescapeAI/Images/");
-        imageCollector.collectImages("chatDialogue");
+        //imageCollector.blurTextFromImages();
+        //imageCollector.collectImages("chatDialogue");
         //imageCollector.generateInventoryImages();
         //imageCollector.captureAndSaveFullWindow();
-    }*/
+    }
 
 }

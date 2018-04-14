@@ -64,7 +64,7 @@ class ObjectTrackerTest {
 				continue;
 			}
 			BufferedImage screencapture = Mat2BufferedImage(frame);
-			Graphics g = screencapture.getGraphics();		
+			Graphics g = screencapture.getGraphics();
 
 			ArrayList<DetectedObject> detectedObjects = objectDetector.getObjectsInImage(Mat2BufferedImage(frame), 0.30);
 			for (DetectedObject detectedObject : detectedObjects) {
@@ -127,7 +127,7 @@ class ObjectTrackerTest {
 				}
 				g.drawRect((int) boundingBoxes.get(i).x, (int) boundingBoxes.get(i).y, (int) boundingBoxes.get(i).width, (int) boundingBoxes.get(i).height);			
 			}
-			ImageIO.write(screencapture, "jpg", new File(videoDirectory + "/mining_guild_inv/frame_" + videoFileName  + counter + ".jpg"));
+			ImageIO.write(screencapture, "png", new File("/home/dpapp/Videos/BlurredRandom/NonBlurred/" + videoFileName  + counter + ".png"));
 			counter++;
 		}
 	}
